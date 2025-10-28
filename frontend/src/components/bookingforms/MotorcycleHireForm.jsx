@@ -301,18 +301,32 @@ const BikeBookingForm = () => {
       };
 
       const formDataToSend = new FormData();
-      if (formData.licenceDetails.licenceFile instanceof File) {
-        formDataToSend.append("licenceFile", formData.licenceDetails.licenceFile);
-      }
-      for (const key in payload) {
-        if (key === "pickupDate" || key === "returnDate" || key === "licenceExpiry") {
-          formDataToSend.append(key, payload[key] ? format(payload[key], "yyyy-MM-dd") : "");
-        } else if (typeof payload[key] === "object" && key !== "licenceFile") {
-          formDataToSend.append(key, JSON.stringify(payload[key]));
-        } else {
-          formDataToSend.append(key, payload[key] || "");
-        }
-      }
+      // 1. Append the licence file (only once!)
+if (formData.licenceDetails.licenceFile instanceof File) {
+  formDataToSend.append("licenceFile", formData.licenceDetails.licenceFile);
+}
+
+// 2. Append all other fields safely
+Object.keys(payload).forEach(key => {
+  const value = payload[key];
+
+  if (value === null || value === undefined) {
+    formDataToSend.append(key, "");
+    return;
+  }
+
+  if (value instanceof Date) {
+    formDataToSend.append(key, format(value, "yyyy-MM-dd"));
+    return;
+  }
+
+  if (typeof value === "object" && !(value instanceof File)) {
+    formDataToSend.append(key, JSON.stringify(value));
+    return;
+  }
+
+  formDataToSend.append(key, String(value));
+});
 
       console.log("Submitting FormData:");
       for (let pair of formDataToSend.entries()) {
