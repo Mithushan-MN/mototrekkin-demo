@@ -1,0 +1,28 @@
+/* Navigation Arrows */
+.custom-swiper .swiper-button-next,
+.custom-swiper .swiper-button-prev {
+  background-color: #facc15; /* Tailwind yellow-400 */
+  color: #000;
+  padding: 12px 16px;
+  border-radius: 9999px; /* fully round */
+  font-weight: bold;
+  transition: all 0.3s ease;
+}
+
+.custom-swiper .swiper-button-next:hover,
+.custom-swiper .swiper-button-prev:hover {
+  background-color: #eab308; /* darker yellow */
+  transform: scale(1.1);
+}
+
+/* Pagination Bullets */
+.custom-swiper .swiper-pagination-bullet {
+  background-color: #d1d5db; /* Tailwind gray-300 */
+  opacity: 1;
+}
+
+.custom-swiper .swiper-pagination-bullet-active {
+  background-color: #facc15; /* Tailwind yellow-400 */
+  width: 14px;
+  height: 14px;
+}

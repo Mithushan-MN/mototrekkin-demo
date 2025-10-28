@@ -1,0 +1,288 @@
+// import bmw1300GS from '../../../assets/adventures/2025/NZSI/Bikes/BMW-1300-GS-A-1.webp';
+// import bmwF750GS from '../../../assets/adventures/2025/NZSI/Bikes/BMW-F750GS_165031-scaled.webp';
+// import bmwF800GS from '../../../assets/adventures/2025/NZSI/Bikes/BMW-F800GS.webp';
+// import bmwF850GS from '../../../assets/adventures/2025/NZSI/Bikes/BMW-F850GS_165032-scaled.webp';
+// import bmwR1200GS from '../../../assets/adventures/2025/NZSI/Bikes/BMW-R1200GS_GSA-_165034-scaled.webp';
+// import bmwR1200GSLow from '../../../assets/adventures/2025/NZSI/Bikes/BMW R1200GS LOW.webp';
+// import bmwF850GSLowHigh from '../../../assets/adventures/2025/NZSI/Bikes/BMW F850GS LOW  HIGH SEAT.webp';
+// import hondaCB500X from '../../../assets/adventures/2025/NZSI/Bikes/Honda-CB500X_165042-scaled.webp';
+// import hondaNX500 from '../../../assets/adventures/2025/NZSI/Bikes/HONDA-NX500-1.webp';
+// import yamahaTenere700 from '../../../assets/adventures/2025/NZSI/Bikes/Yamaha-XTZ690-T7-Tenere-700_165048-scaled.webp';
+
+// export const motorcycles = [
+//   { name: 'BMW R1250GS ADV', price: 0, available: false, remaining: 0, image: null, specs: null },
+//   {
+//     name: 'BMW 1300 GS ADV',
+//     price: 440,
+//     available: true,
+//     remaining: 1,
+//     image: bmw1300GS,
+//     specs: {
+//       mileage: 'Not Available',
+//       displacement: '1300 cc',
+//       engineType: 'Air/Liquid-cooled Four Stroke Flat Twin Engine, Double Overhead Camshaft, One Balance Shaft and Variable Engine Timing System BMW Shiftcam.',
+//       cylinders: '2',
+//       maxPower: 'Not Available',
+//       maxTorque: 'Not Available',
+//       frontBrake: 'Not Available',
+//       rearBrake: 'Not Available',
+//       fuelCapacity: '19 L',
+//       bodyType: 'Adventure Tourer Bikes',
+//     },
+//   },
+//   { name: 'BMW R1250GS', price: 0, available: false, remaining: 0, image: null, specs: null },
+//   {
+//     name: 'BMW R1200GS',
+//     price: 279,
+//     available: true,
+//     remaining: 11,
+//     image: bmwR1200GS,
+//     specs: {
+//       mileage: '16 kmpl',
+//       displacement: '1170 cc',
+//       engineType: 'Air/Liquid-cooled Four Stroke Flat Twin Engine, Double Overhead Camshaft, One Balance Shaft and Variable Engine Timing System BMW Shiftcam.',
+//       cylinders: '2',
+//       maxPower: '125 PS @ 7750 rpm',
+//       maxTorque: '125 Nm @ 6500 rpm',
+//       frontBrake: 'Disc',
+//       rearBrake: 'Disc',
+//       fuelCapacity: '20 L',
+//       bodyType: 'Adventure Tourer Bikes',
+//     },
+//   },
+//   {
+//     name: 'BMW R1200GS LOW',
+//     price: 279,
+//     available: true,
+//     remaining: 2,
+//     image: bmwR1200GSLow,
+//     specs: {
+//       mileage: '16 kmpl',
+//       displacement: '1170 cc',
+//       engineType: 'Air/Liquid-cooled Four Stroke Flat Twin Engine, Double Overhead Camshaft, One Balance Shaft and Variable Engine Timing System BMW Shiftcam.',
+//       cylinders: '2',
+//       maxPower: '125 PS @ 7750 rpm',
+//       maxTorque: '125 Nm @ 6500 rpm',
+//       frontBrake: 'Disc',
+//       rearBrake: 'Disc',
+//       fuelCapacity: '20 L',
+//       bodyType: 'Adventure Tourer Bikes',
+//     },
+//   },
+//   {
+//     name: 'BMW R1200GS ADV',
+//     price: 279,
+//     available: true,
+//     remaining: 1,
+//     image: bmwR1200GS,
+//     specs: {
+//       mileage: '16 kmpl',
+//       displacement: '1170 cc',
+//       engineType: 'Air/Liquid-cooled Four Stroke Flat Twin Engine, Double Overhead Camshaft, One Balance Shaft and Variable Engine Timing System BMW Shiftcam.',
+//       cylinders: '2',
+//       maxPower: '125 PS @ 7750 rpm',
+//       maxTorque: '125 Nm @ 6500 rpm',
+//       frontBrake: 'Disc',
+//       rearBrake: 'Disc',
+//       fuelCapacity: '20 L',
+//       bodyType: 'Adventure Tourer Bikes',
+//     },
+//   },
+//   { name: 'BMW F850GS', price: 0, available: false, remaining: 0, image: null, specs: null },
+//   {
+//     name: 'BMW F850GS LOW / HIGH SEAT',
+//     price: 259,
+//     available: true,
+//     remaining: 1,
+//     image: bmwF850GSLowHigh,
+//     specs: {
+//       mileage: '24 kmpl',
+//       displacement: '853 cc',
+//       engineType: 'Water-cooled 4-Stroke In-line Two-cylinder Engine, Four Valves Per Cylinder, Two Overhead Camshafts, Dry Sump Lubrication',
+//       cylinders: '2',
+//       maxPower: '95.17 PS @ 8250 rpm',
+//       maxTorque: '92 Nm @ 6250 rpm',
+//       frontBrake: 'Disc',
+//       rearBrake: 'Disc',
+//       fuelCapacity: '23 L',
+//       bodyType: 'Adventure Tourer Bikes',
+//     },
+//   },
+//   {
+//     name: 'BMW F850GS LOW SEAT',
+//     price: 259,
+//     available: true,
+//     remaining: 1,
+//     image: bmwF850GS,
+//     specs: {
+//       mileage: '24 kmpl',
+//       displacement: '853 cc',
+//       engineType: 'Water-cooled 4-Stroke In-line Two-cylinder Engine, Four Valves Per Cylinder, Two Overhead Camshafts, Dry Sump Lubrication',
+//       cylinders: '2',
+//       maxPower: '95.17 PS @ 8250 rpm',
+//       maxTorque: '92 Nm @ 6250 rpm',
+//       frontBrake: 'Disc',
+//       rearBrake: 'Disc',
+//       fuelCapacity: '23 L',
+//       bodyType: 'Adventure Tourer Bikes',
+//     },
+//   },
+//   {
+//     name: 'BMW F750GS',
+//     price: 229,
+//     available: true,
+//     remaining: 1,
+//     image: bmwF750GS,
+//     specs: {
+//       mileage: '25 kmpl',
+//       displacement: '853 cc',
+//       engineType: 'Water-cooled 4-Stroke In-line Two-cylinder Engine, Four Valves Per Cylinder, Two Overhead Camshafts, Dry Sump Lubrication',
+//       cylinders: '2',
+//       maxPower: '77.49 PS @ 7500 rpm',
+//       maxTorque: '83 Nm @ 6000 rpm',
+//       frontBrake: 'Disc',
+//       rearBrake: 'Disc',
+//       fuelCapacity: '15 L',
+//       bodyType: 'Adventure Tourer Bikes',
+//     },
+//   },
+//   {
+//     name: 'BMW F750GS LOW',
+//     price: 229,
+//     available: true,
+//     remaining: 2,
+//     image: bmwF750GS,
+//     specs: {
+//       mileage: '25 kmpl',
+//       displacement: '853 cc',
+//       engineType: 'Water-cooled 4-Stroke In-line Two-cylinder Engine, Four Valves Per Cylinder, Two Overhead Camshafts, Dry Sump Lubrication',
+//       cylinders: '2',
+//       maxPower: '77.49 PS @ 7500 rpm',
+//       maxTorque: '83 Nm @ 6000 rpm',
+//       frontBrake: 'Disc',
+//       rearBrake: 'Disc',
+//       fuelCapacity: '15 L',
+//       bodyType: 'Adventure Tourer Bikes',
+//     },
+//   },
+//   {
+//     name: 'BMW F800GS',
+//     price: 229,
+//     available: true,
+//     remaining: 1,
+//     image: bmwF800GS,
+//     specs: {
+//       mileage: '---',
+//       displacement: '798 cc',
+//       engineType: 'Engine is liquid cooled with fuel injection',
+//       cylinders: '2',
+//       maxPower: '75 Bhp',
+//       maxTorque: '76 Nm',
+//       frontBrake: 'Double Disc',
+//       rearBrake: 'Disc',
+//       fuelCapacity: 'Not Available',
+//       bodyType: 'Adventure Tourer Bikes',
+//     },
+//   },
+//   {
+//     name: 'BMW F800GS LOW',
+//     price: 229,
+//     available: true,
+//     remaining: 2,
+//     image: bmwF800GS,
+//     specs: {
+//       mileage: '---',
+//       displacement: '798 cc',
+//       engineType: 'Engine is liquid cooled with fuel injection',
+//       cylinders: '2',
+//       maxPower: '75 Bhp',
+//       maxTorque: '76 Nm',
+//       frontBrake: 'Double Disc',
+//       rearBrake: 'Disc',
+//       fuelCapacity: 'Not Available',
+//       bodyType: 'Adventure Tourer Bikes',
+//     },
+//   },
+//   { name: 'BMW F800GS ADV', price: 0, available: false, remaining: 0, image: null, specs: null },
+//   { name: 'BMW F800GS ADV LOW', price: 0, available: false, remaining: 0, image: null, specs: null },
+//   {
+//     name: 'Honda CB500X',
+//     price: 179,
+//     available: true,
+//     remaining: 1,
+//     image: hondaCB500X,
+//     specs: {
+//       mileage: '28 kmpl',
+//       displacement: '471.03 cc',
+//       engineType: '4 Stroke, SI Engine (Parallel Twin)',
+//       cylinders: '2',
+//       maxPower: '47.58 PS @ 8500 rpm',
+//       maxTorque: '43.2 Nm @ 6500 rpm',
+//       frontBrake: 'Disc',
+//       rearBrake: 'Disc',
+//       fuelCapacity: '17.7 L',
+//       bodyType: 'Adventure Tourer Bikes, Off Road Bikes',
+//     },
+//   },
+//   {
+//     name: 'Honda NX500',
+//     price: 179,
+//     available: true,
+//     remaining: 1,
+//     image: hondaNX500,
+//     specs: {
+//       mileage: '28 kmpl',
+//       displacement: '471.03 cc',
+//       engineType: '4 Stroke, SI Engine (Parallel Twin)',
+//       cylinders: '2',
+//       maxPower: '47.58 PS @ 8500 rpm',
+//       maxTorque: '43.2 Nm @ 6500 rpm',
+//       frontBrake: 'Disc',
+//       rearBrake: 'Disc',
+//       fuelCapacity: '17.7 L',
+//       bodyType: 'Adventure Tourer Bikes, Off Road Bikes',
+//     },
+//   },
+//   { name: 'Honda CB500X ADV', price: 0, available: false, remaining: 0, image: null, specs: null },
+//   {
+//     name: 'Yamaha Tenere 700',
+//     price: 209,
+//     available: true,
+//     remaining: 1,
+//     image: yamahaTenere700,
+//     specs: {
+//       mileage: 'Not Available',
+//       displacement: '689 cc',
+//       engineType: 'Liquid-cooled, 4-stroke, DOHC, 4 valve, 2-cylinder',
+//       cylinders: '2',
+//       maxPower: 'Not Available',
+//       maxTorque: 'Not Available',
+//       frontBrake: 'Not Available',
+//       rearBrake: 'Not Available',
+//       fuelCapacity: '16 L',
+//       bodyType: 'Adventure Tourer Bikes, Off Road Bikes',
+//     },
+//   },
+//   { name: 'Yamaha Tenere 700 ADV', price: 0, available: false, remaining: 0, image: null, specs: null },
+//   { name: 'Yamaha Tenere 700 LOW', price: 0, available: false, remaining: 0, image: null, specs: null },
+//   { name: 'Yamaha Tenere 700 ADV LOW', price: 0, available: false, remaining: 0, image: null, specs: null },
+// ];
+
+import axios from '../../../axiosConfig';
+
+// Function to fetch motorcycles from the backend API
+export const fetchMotorcycles = async () => {
+  try {
+    console.log('fetchMotorcycles: Fetching bikes from API');
+    const response = await axios.get('/api/nzsiRegistrations/bikes');
+    const bikes = response.data.map(bike => ({
+      ...bike,
+      image: bike.image ? `${bike.image}` : null,
+    }));
+    console.log('fetchMotorcycles: Fetched', bikes.length, 'bikes');
+    return bikes.filter(bike => bike.available && bike.remaining > 0);
+  } catch (error) {
+    console.error('fetchMotorcycles: Error fetching bikes', error.response?.data || error.message);
+    throw new Error('Failed to fetch motorcycles');
+  }
+};
