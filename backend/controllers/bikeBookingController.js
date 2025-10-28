@@ -62,9 +62,10 @@ const calculateAddOnsUSD = (addOns, days) => {
 };
 
 // CREATE BOOKING
+// CREATE BOOKING
 export const createBooking = async (req, res) => {
   try {
-    console.log("FINAL req.body:", req.body); // ← ADD THIS
+    console.log("FINAL req.body:", req.body); // ← DEBUG
 
     const {
       pickupDate, returnDate, pickupTime, returnTime, totalDays, bikeModel, bikePrice,
@@ -96,32 +97,54 @@ export const createBooking = async (req, res) => {
     const userId = req.user?.id;
     if (!userId) return res.status(401).json({ message: "Authentication required" });
 
-    const riderDetailsObj = riderDetails ? JSON.parse(riderDetails) : {};
-    if (!riderDetailsObj.email) return res.status(400).json({ message: "Email required" });
+    // === PARSE JSON FIELDS SAFELY ===
+    const parseIfString = (value) => {
+      if (!value) return {};
+      if (typeof value === "string") {
+        try { return JSON.parse(value); } catch (e) { return {}; }
+      }
+      return value;
+    };
+    const gearObj = parseIfString(gear);
+    const addOnsObj = parseIfString(addOns);
 
-    // Parse JSON fields
-    const gearObj = gear ? JSON.parse(gear) : {};
-    const addOnsObj = addOns ? JSON.parse(addOns) : {};
+    // === BUILD riderDetails from FLAT FIELDS ===
+    const riderDetailsObj = {
+      firstName, lastName, gender, email,
+      birthday: birthday || "",
+      occupation: occupation || "",
+      mobile, landline: landline || "",
+      streetAddress, streetAddress2: streetAddress2 || "",
+      city, postCode, country, state
+    };
 
-    // Calculate costs
+    const emergencyContactObj = {
+      firstName: emergencyFirstName,
+      lastName: emergencyLastName,
+      email: emergencyEmail,
+      mobile: emergencyMobile,
+      landline: emergencyLandline || "",
+      relation: emergencyRelation,
+    };
+
+    // === COSTS ===
     const totalDaysNum = Number(totalDays) || 0;
     const bikeRentalUSD = Number(bikePrice) * totalDaysNum;
 
     const gearUSD =
-      gearOption === "Bike hire + gear" && subGearOption === "Package Option - $100/day"
+      gearOption === "Bike hire + gear" && (subGearOption || "").includes("Package")
         ? 100.0 * totalDaysNum
-        : gearOption === "Bike hire + gear" && subGearOption === "Individually"
+        : gearOption === "Bike hire + gear" && (subGearOption || "").includes("Individually")
         ? calculateGearUSD(gearObj, totalDaysNum)
         : 0;
 
     const addOnsUSD = calculateAddOnsUSD(addOnsObj, totalDaysNum);
-
     const subtotalUSD = bikeRentalUSD + gearUSD + addOnsUSD;
     const merchantFeeUSD = subtotalUSD * 0.015 + 0.02;
     const totalAmountUSD = subtotalUSD + merchantFeeUSD;
     const totalAmountCents = Math.round(totalAmountUSD * 100);
 
-    // Save booking with breakdown
+    // === SAVE BOOKING ===
     const bikeBooking = new BikeBooking({
       userId,
       pickupDate: new Date(pickupDate),
@@ -132,11 +155,11 @@ export const createBooking = async (req, res) => {
       bikeModel,
       bikePrice: Number(bikePrice),
       gearOption,
-      subGearOption,
+      subGearOption: subGearOption || "",
       gear: gearObj,
       addOns: addOnsObj,
       riderDetails: riderDetailsObj,
-      emergencyContact: emergencyContact ? JSON.parse(emergencyContact) : {},
+      emergencyContact: emergencyContactObj,
       licenceDetails: {
         licenceValid,
         licenceNumber,
@@ -154,9 +177,9 @@ export const createBooking = async (req, res) => {
     const savedBooking = await bikeBooking.save();
     console.log("Booking saved:", savedBooking._id);
 
-    // Send emails
+    // === EMAILS ===
     const userEmailContent = `
-      Dear ${riderDetailsObj.firstName || "Customer"},
+      Dear ${firstName || "Customer"},
       Thank you for your booking!
       Booking ID: ${savedBooking._id}
       Bike: ${bikeModel}
@@ -171,7 +194,7 @@ export const createBooking = async (req, res) => {
 
     const adminEmailContent = `
       New Booking: ${savedBooking._id}
-      User: ${riderDetailsObj.firstName} ${riderDetailsObj.lastName} (${riderDetailsObj.email})
+      User: ${firstName} ${lastName} (${email})
       Bike: ${bikeModel} | $${bikePrice}/day
       Dates: ${formatDate(pickupDate)} → ${formatDate(returnDate)}
       Subtotal: $${subtotalUSD.toFixed(2)}
@@ -180,8 +203,8 @@ export const createBooking = async (req, res) => {
     `;
 
     const emailStatus = { userEmailSent: false, adminEmailSent: false, errors: [] };
-    if (riderDetailsObj.email) {
-      const userRes = await sendEmail(riderDetailsObj.email, "Booking Confirmation", userEmailContent);
+    if (email) {
+      const userRes = await sendEmail(email, "Booking Confirmation", userEmailContent);
       emailStatus.userEmailSent = userRes.success;
       if (!userRes.success) emailStatus.errors.push({ user: userRes.message });
     }
@@ -189,7 +212,7 @@ export const createBooking = async (req, res) => {
     emailStatus.adminEmailSent = adminRes.success;
     if (!adminRes.success) emailStatus.errors.push({ admin: adminRes.message });
 
-    // Create Stripe session
+    // === STRIPE ===
     let paymentResponse = { id: null };
     try {
       paymentResponse = await createPaymentSession(req, res, {
@@ -210,7 +233,7 @@ export const createBooking = async (req, res) => {
     });
   } catch (error) {
     console.error("createBooking error:", error.stack);
-    if (!res.headersSent) res.status(400).json({ message: error.message });
+    if (!res.headersSent) res.status(400).json({ message: error.message || "Server error" });
   }
 };
 
