@@ -236,195 +236,156 @@ const BikeBookingForm = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
+  e.preventDefault();
+  setLoading(true);
+  setApiError(null);
 
-    // Validate required fields
-    if (!formData.licenceDetails.licenceNumber.trim()) {
-      alert("Licence number is required.");
-      setLoading(false);
-      return;
+  if (!formData.licenceDetails.licenceNumber.trim()) {
+    alert("Licence number is required.");
+    setLoading(false);
+    return;
+  }
+  if (!formData.licenceDetails.licenceExpiry) {
+    alert("Licence expiry date is required.");
+    setLoading(false);
+    return;
+  }
+
+  try {
+    if (!formData.totalDays || formData.totalDays <= 0) {
+      throw new Error("Total days must be greater than 0");
     }
-    if (!formData.licenceDetails.licenceExpiry) {
-      alert("Licence expiry date is required.");
-      setLoading(false);
-      return;
+
+    // FLAT PAYLOAD — NO NESTED OBJECTS
+    const payload = {
+      // Dates
+      pickupDate: formData.pickupDate ? format(formData.pickupDate, "yyyy-MM-dd") : "",
+      returnDate: formData.returnDate ? format(formData.returnDate, "yyyy-MM-dd") : "",
+      pickupTime: formData.pickupTime,
+      returnTime: formData.returnTime,
+      totalDays: formData.totalDays,
+
+      // Bike
+      bikeModel: formData.bikeModel,
+      bikePrice: formData.bikePrice,
+      gearOption: formData.gearOption,
+      subGearOption: formData.subGearOption || "",
+      gear: formData.gear,
+      addOns: formData.addOns,
+
+      // RIDER DETAILS (FLAT)
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      gender: formData.gender,
+      email: formData.email,
+      birthday: formData.birthday || "",
+      occupation: formData.occupation || "",
+      mobile: formData.mobile,
+      landline: formData.landline || "",
+      streetAddress: formData.streetAddress,
+      streetAddress2: formData.streetAddress2 || "",
+      city: formData.city,
+      postCode: formData.postCode,
+      country: formData.country,
+      state: formData.state,
+
+      // EMERGENCY CONTACT (FLAT)
+      emergencyFirstName: formData.emergencyFirstName,
+      emergencyLastName: formData.emergencyLastName,
+      emergencyEmail: formData.emergencyEmail,
+      emergencyMobile: formData.emergencyMobile,
+      emergencyLandline: formData.emergencyLandline || "",
+      emergencyRelation: formData.emergencyRelation,
+
+      // LICENCE
+      licenceValid: formData.licenceDetails.licenceValid,
+      licenceNumber: formData.licenceDetails.licenceNumber,
+      licenceExpiry: formData.licenceDetails.licenceExpiry
+        ? format(formData.licenceDetails.licenceExpiry, "yyyy-MM-dd")
+        : "",
+      licenceState: formData.licenceDetails.licenceState,
+
+      // Final
+      agreementAccepted: formData.agreementAccepted,
+      paymentOption: formData.paymentOption,
+    };
+
+    const formDataToSend = new FormData();
+
+    // Append licence file
+    if (formData.licenceDetails.licenceFile instanceof File) {
+      formDataToSend.append("licenceFile", formData.licenceDetails.licenceFile);
     }
 
-    try {
-      console.log("axios defaults:", axios.defaults); // Verify baseURL
-      if (!formData.totalDays || formData.totalDays <= 0) {
-        throw new Error("Total days must be set and greater than 0");
-      }
-      const payload = {
-        pickupDate: formData.pickupDate ? new Date(formData.pickupDate) : null,
-        returnDate: formData.returnDate ? new Date(formData.returnDate) : null,
-        pickupTime: formData.pickupTime,
-        returnTime: formData.returnTime,
-        totalDays: formData.totalDays,
-        bikeModel: formData.bikeModel,
-        bikePrice: formData.bikePrice,
-        gearOption: formData.gearOption,
-        subGearOption: formData.subGearOption,
-        gear: formData.gear,
-        addOns: formData.addOns,
-        riderDetails: {
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-          gender: formData.gender,
-          email: formData.email,
-          birthday: formData.birthday,
-          occupation: formData.occupation,
-          mobile: formData.mobile,
-          landline: formData.landline,
-          streetAddress: formData.streetAddress,
-          streetAddress2: formData.streetAddress2,
-          city: formData.city,
-          postCode: formData.postCode,
-          country: formData.country,
-          state: formData.state,
-        },
-        emergencyContact: {
-          firstName: formData.emergencyFirstName,
-          lastName: formData.emergencyLastName,
-          email: formData.emergencyEmail,
-          mobile: formData.emergencyMobile,
-          landline: formData.emergencyLandline,
-          relation: formData.emergencyRelation,
-        },
-        licenceValid: formData.licenceDetails.licenceValid,
-        licenceNumber: formData.licenceDetails.licenceNumber,
-        licenceExpiry: formData.licenceDetails.licenceExpiry,
-        licenceState: formData.licenceDetails.licenceState,
-        agreementAccepted: formData.agreementAccepted,
-        paymentOption: formData.paymentOption,
-      };
-
-      const formDataToSend = new FormData();
-      // 1. Append the licence file (only once!)
-if (formData.licenceDetails.licenceFile instanceof File) {
-  formDataToSend.append("licenceFile", formData.licenceDetails.licenceFile);
-}
-
-// 2. Append all other fields safely
-Object.keys(payload).forEach(key => {
-  const value = payload[key];
-
-  if (value === null || value === undefined) {
-    formDataToSend.append(key, "");
-    return;
-  }
-
-  if (value instanceof Date) {
-    formDataToSend.append(key, format(value, "yyyy-MM-dd"));
-    return;
-  }
-
-  if (typeof value === "object" && !(value instanceof File)) {
-    formDataToSend.append(key, JSON.stringify(value));
-    return;
-  }
-
-  formDataToSend.append(key, String(value));
-});
-
-      console.log("Submitting FormData:");
-      for (let pair of formDataToSend.entries()) {
-        console.log(`${pair[0]}: ${pair[1] instanceof File ? "File Object" : pair[1]}`);
-      }
-
-      console.log("Submitting to:", `${axios.defaults.baseURL}/api/bikeBookings/create`);
-      const bookingResponse = await axios.post("/api/bikeBookings/create", formDataToSend, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-      const { bookingId, emailStatus, paymentSessionId } = bookingResponse.data;
-      console.log("Booking created with ID:", bookingId);
-
-      let message = "Bike booking submitted successfully!";
-      if (emailStatus) {
-        const { userEmailSent, adminEmailSent, errors } = emailStatus;
-        if (userEmailSent && adminEmailSent) {
-          message += " Confirmation emails sent to you and the admin.";
-        } else if (userEmailSent) {
-          message += " Confirmation email sent to you, but admin email failed.";
-        } else if (adminEmailSent) {
-          message += " Confirmation email sent to admin, but user email failed.";
-        } else {
-          message += " Email notifications failed.";
-        }
-        if (errors && errors.length > 0) {
-          console.warn("BikeBookingForm: Email errors", errors);
-          message += " Some email notifications could not be sent.";
-        }
+    // Append all other fields
+    Object.keys(payload).forEach((key) => {
+      const value = payload[key];
+      if (value === null || value === undefined) {
+        formDataToSend.append(key, "");
+      } else if (typeof value === "object" && !(value instanceof File)) {
+        formDataToSend.append(key, JSON.stringify(value));
       } else {
-        message += " Email notifications could not be sent.";
+        formDataToSend.append(key, String(value));
       }
+    });
 
-      alert(message);
-      setStep(1);
-      setFormData({
-        pickupDate: null,
-        returnDate: null,
-        pickupTime: "",
-        returnTime: "",
-        totalDays: 0,
-        bikeModel: "",
-        bikePrice: 0,
-        gearOption: "Bike hire only",
-        subGearOption: "",
-        gear: { helmet: false, jacket: false, gloves: false },
-        addOns: { excessReduction: false, tyreProtection: false, windscreen: false },
-        bikeSpecs: {},
-        bikeImg: "",
-        firstName: "",
-        lastName: "",
-        gender: "",
-        email: "",
-        confirmEmail: "",
-        birthday: "",
-        occupation: "",
-        mobile: "",
-        landline: "",
-        streetAddress: "",
-        streetAddress2: "",
-        city: "",
-        postCode: "",
-        country: "",
-        state: "",
-        emergencyFirstName: "",
-        emergencyLastName: "",
-        emergencyEmail: "",
-        emergencyMobile: "",
-        emergencyLandline: "",
-        emergencyRelation: "",
-        licenceDetails: {
-          licenceValid: "Yes",
-          licenceNumber: "",
-          licenceExpiry: null,
-          licenceState: "",
-          licenceFile: null,
-        },
-        agreementAccepted: false,
-        paymentOption: "Full Payment",
-      });
-
-      if (paymentSessionId) {
-        const stripe = await stripePromise;
-        const { error } = await stripe.redirectToCheckout({ sessionId: paymentSessionId });
-        if (error) throw new Error(error.message);
-      } else {
-        console.warn("No payment session ID received, skipping checkout");
-        alert("Booking created, but payment setup failed. Please contact support.");
-      }
-    } catch (err) {
-      console.error("Submission error:", err);
-      const message = err.response?.data?.message || "Failed to submit booking or initiate payment. Please try again.";
-      setApiError(message);
-      alert(message);
-    } finally {
-      setLoading(false);
+    // DEBUG: Log FormData
+    console.log("Submitting FormData:");
+    for (let pair of formDataToSend.entries()) {
+      console.log(`${pair[0]}: ${pair[1] instanceof File ? "File Object" : pair[1]}`);
     }
-  };
+
+    const bookingResponse = await axios.post("/api/bikeBookings/create", formDataToSend, {
+      headers: { "Content-Type": "multipart/form-data" },
+    });
+
+    const { bookingId, emailStatus, paymentSessionId } = bookingResponse.data;
+    console.log("Booking created with ID:", bookingId);
+
+    let message = "Bike booking submitted successfully!";
+    if (emailStatus) {
+      const { userEmailSent, adminEmailSent, errors } = emailStatus;
+      if (userEmailSent && adminEmailSent) {
+        message += " Confirmation emails sent.";
+      } else if (userEmailSent) {
+        message += " Email sent to you, but admin failed.";
+      } else if (adminEmailSent) {
+        message += " Email sent to admin, but you failed.";
+      } else {
+        message += " Email notifications failed.";
+      }
+      if (errors?.length > 0) message += " Some emails failed.";
+    }
+
+    alert(message);
+    setStep(1);
+    setFormData({
+      pickupDate: null, returnDate: null, pickupTime: "", returnTime: "", totalDays: 0,
+      bikeModel: "", bikePrice: 0, gearOption: "Bike hire only", subGearOption: "", gear: { helmet: false, jacket: false, gloves: false },
+      addOns: { excessReduction: false, tyreProtection: false, windscreen: false },
+      firstName: "", lastName: "", gender: "", email: "", confirmEmail: "", birthday: "", occupation: "", mobile: "", landline: "",
+      streetAddress: "", streetAddress2: "", city: "", postCode: "", country: "", state: "",
+      emergencyFirstName: "", emergencyLastName: "", emergencyEmail: "", emergencyMobile: "", emergencyLandline: "", emergencyRelation: "",
+      licenceDetails: { licenceValid: "Yes", licenceNumber: "", licenceExpiry: null, licenceState: "", licenceFile: null },
+      agreementAccepted: false, paymentOption: "Full Payment"
+    });
+
+    if (paymentSessionId) {
+      const stripe = await stripePromise;
+      const { error } = await stripe.redirectToCheckout({ sessionId: paymentSessionId });
+      if (error) throw error;
+    } else {
+      alert("Booking created, but payment failed. Contact support.");
+    }
+  } catch (err) {
+    console.error("Submission error:", err);
+    const message = err.response?.data?.message || "Failed to submit. Try again.";
+    setApiError(message);
+    alert(message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   // Button Style
   const getButtonClass = (enabled) =>
