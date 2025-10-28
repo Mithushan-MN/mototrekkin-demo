@@ -19,7 +19,7 @@ console.log('nzsiRegistration: Router loaded');
 /* -------------------------------------------------------------------------- */
 /*  PUBLIC / USER ENDPOINTS                                                   */
 /* -------------------------------------------------------------------------- */
-router.post('/create', protect, upload.single('licenceFile'), createNZSIRegistration);
+router.post('/create', protect, upload, createNZSIRegistration);
 router.get('/user', protect, getUserRegistrations);
 
 /* -------------------------------------------------------------------------- */
@@ -31,7 +31,7 @@ router.get('/admin', protect, isAdmin, getAllRegistrations);
 // GET ALL (legacy – you can keep both, they point to the same controller)
 router.get('/', protect, isAdmin, getAllRegistrations);
 
-router.put('/:id', protect, isAdmin, upload.single('licenceFile'), updateNZSIRegistration);
+router.put('/:id', protect, isAdmin, upload, updateNZSIRegistration);
 router.delete('/:id', protect, isAdmin, deleteNZSIRegistration);
 router.post('/resend-payment/:id', protect, isAdmin, resendPaymentEmail);
 
