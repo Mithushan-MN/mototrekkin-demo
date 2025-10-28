@@ -16,20 +16,19 @@ import { v2 as cloudinary } from "cloudinary";
 
 const router = express.Router();
 
-// Configure Cloudinary
+// ---------- Cloudinary config ----------
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
   api_key: process.env.CLOUDINARY_API_KEY,
   api_secret: process.env.CLOUDINARY_API_SECRET,
 });
 
-// Custom file parser middleware
+// ---------- Formidable parser ----------
 const parseFile = (req, res, next) => {
   const form = formidable({
     multiples: false,
     keepExtensions: true,
-    maxFileSize: 10 * 1024 * 1024, // 10MB
-    filename: (name, ext) => `${Date.now()}_${name}${ext}`,
+    maxFileSize: 10 * 1024 * 1024, // 10 MB
   });
 
   form.parse(req, async (err, fields, files) => {
@@ -38,18 +37,23 @@ const parseFile = (req, res, next) => {
       return res.status(500).json({ message: "File parsing failed" });
     }
 
-    // Attach parsed data
-    req.body = { ...req.body, ...fields };
-    
+    // ----- FLATTEN fields (formidable returns arrays) -----
+    const flatFields = {};
+    Object.keys(fields).forEach((key) => {
+      const value = fields[key];
+      flatFields[key] = Array.isArray(value) ? value[0] : value;
+    });
+    req.body = flatFields;
+
+    // ----- Upload licenceFile to Cloudinary -----
     const file = files.licenceFile?.[0] || files.licenceFile;
     if (file) {
       try {
         const result = await cloudinary.uploader.upload(file.filepath, {
           folder: "licence_files",
           resource_type: "auto",
-          public_id: `licence_${Date.now()}`,
         });
-        req.file = { path: result.secure_url }; // Cloudinary URL
+        req.file = { path: result.secure_url }; // <-- controller expects req.file.path
       } catch (uploadErr) {
         console.error("Cloudinary upload failed:", uploadErr);
         return res.status(500).json({ message: "File upload failed" });
@@ -62,7 +66,7 @@ const parseFile = (req, res, next) => {
   });
 };
 
-// === ROUTES ===
+// ---------- ROUTES ----------
 router.post("/create", protect, parseFile, createBooking);
 router.post("/create-payment-session", createPaymentSession);
 router.post("/verify-payment", verifyPayment);
