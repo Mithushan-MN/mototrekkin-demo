@@ -160,7 +160,7 @@ export const createNZSIRegistration = async (req, res) => {
     await registration.save();
     console.log('createNZSIRegistration: Registration SAVED', { registrationId: registration._id });
 
-    const origin = req.headers.origin || process.env.FRONTEND_URL || 'http://localhost:5174';
+    const origin = req.headers.origin || process.env.FRONTEND_URL || 'https://mototrekkin-frontends.vercel.app';
     if (!origin.startsWith('http')) {
       throw new Error('Invalid frontend URL configuration.');
     }

@@ -123,7 +123,7 @@ if (!payload.trainingDate?.trim()) errors.push('Training date is required');
     console.log('Registration SAVED', registration._id);
 
     // ──────── STRIPE SESSION ────────
-    const origin = req.headers.origin || process.env.FRONTEND_URL || 'http://localhost:5174';
+    const origin = req.headers.origin || process.env.FRONTEND_URL || 'https://mototrekkin-frontends.vercel.app';
     const session = await stripeInstance.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: [{

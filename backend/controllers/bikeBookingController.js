@@ -212,7 +212,7 @@ export const createBooking = async (req, res) => {
 export const createPaymentSession = async (req, res, { amount, currency, description, bookingId }) => {
   try {
     if (!amount || amount <= 0) throw new Error("Invalid amount");
-    const origin = req.headers.origin || "http://localhost:5174";
+    const origin = req.headers.origin || "https://mototrekkin-frontends.vercel.app";
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       line_items: [{

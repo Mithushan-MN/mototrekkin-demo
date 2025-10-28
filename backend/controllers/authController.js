@@ -110,7 +110,7 @@ export const forgotPassword = async (req, res) => {
     user.resetPasswordExpire = Date.now() + 60 * 60 * 1000;
     await user.save();
 
-    const resetUrl = `${process.env.FRONTEND_URL || "http://localhost:5174"}/reset-password/${resetToken}`;
+    const resetUrl = `${process.env.FRONTEND_URL || "https://mototrekkin-frontends.vercel.app"}/reset-password/${resetToken}`;
 
     // Send email 
     const transporter = nodemailer.createTransport({
