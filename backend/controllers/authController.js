@@ -4,15 +4,13 @@ import User from "../models/User.js";
 import crypto from "crypto";
 import nodemailer from "nodemailer";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecretjwt";
 
 // SIGNUP
 export const signup = async (req, res) => {
   try {
     const { fullName, email, password, confirmPassword } = req.body;
-
     if (!fullName || !email || !password || !confirmPassword)
-      return res.status(400).json({ message: "All fields are required" });
+      return res.status(400).json({ message: "All fields required" });
 
     if (password !== confirmPassword)
       return res.status(400).json({ message: "Passwords do not match" });
@@ -21,7 +19,6 @@ export const signup = async (req, res) => {
     if (existingUser) return res.status(400).json({ message: "Email already in use" });
 
     const hashedPassword = await bcrypt.hash(password, 10);
-
     const newUser = await User.create({
       fullName,
       email,
@@ -29,14 +26,27 @@ export const signup = async (req, res) => {
       role: "user",
     });
 
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({ message: "Server config error" });
+    }
+
+    const token = jwt.sign(
+      { id: newUser._id, role: "user" },
+      process.env.JWT_SECRET,
+      { expiresIn: "30d" }
+    );
+
     res.status(201).json({
       message: "Signup successful",
-      user: { id: newUser._id, fullName: newUser.fullName, email: newUser.email },
+      token,
+      user: { id: newUser._id, fullName: newUser.fullName, email: newUser.email }
     });
   } catch (error) {
-    res.status(500).json({ message: "Server error", error: error.message });
+    console.error("Signup error:", error);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // LOGIN
 export const login = async (req, res) => {
@@ -46,15 +56,25 @@ export const login = async (req, res) => {
     if (!user || !(await user.matchPassword(password))) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
+
+    // CRITICAL: Use ONLY process.env.JWT_SECRET
+    if (!process.env.JWT_SECRET) {
+      console.error("JWT_SECRET missing in environment");
+      return res.status(500).json({ message: "Server configuration error" });
+    }
+
     const token = jwt.sign(
       { id: user._id, role: user.role || "user" },
-      process.env.JWT_SECRET || "supersecretjwt",
+      process.env.JWT_SECRET,  // ← NO FALLBACK
       { expiresIn: "30d" }
     );
-    console.log("authController: Login successful", { userId: user._id, role: user.role });
-    res.json({ token, user: { id: user._id, email: user.email, role: user.role } });
+
+    res.json({
+      token,
+      user: { id: user._id, email: user.email, fullName: user.fullName, role: user.role }
+    });
   } catch (error) {
-    console.error("authController: Login error", error.message);
+    console.error("Login error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };

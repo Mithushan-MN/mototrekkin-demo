@@ -3,12 +3,6 @@ import { Stripe } from 'stripe';
 import NZSIRegistration from '../models/NZSIRegistration.js';
 import { updateBikeRemaining } from './bikeController.js';
 import nodemailer from 'nodemailer';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import fs from 'fs/promises';
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2023-10-16',
@@ -49,8 +43,7 @@ export const createNZSIRegistration = async (req, res) => {
       body: req.body,
       file: req.file ? {
         originalname: req.file.originalname,
-        filename: req.file.filename,
-        size: req.file.size,
+        path: req.file.path,
         mimetype: req.file.mimetype,
       } : 'No file',
     });
@@ -124,10 +117,8 @@ export const createNZSIRegistration = async (req, res) => {
 
     console.log('createNZSIRegistration: ALL VALIDATION PASSED');
 
-    const licenceFilePath = path.join(__dirname, '../Uploads', req.file.filename);
-    await fs.access(licenceFilePath).catch(() => {
-      throw new Error('License file not found on server');
-    });
+    const licenceFilePath = req.file.path;
+    const licenceFileName = req.file.originalname;
 
     if (parsedData.motorcycle?.hireOption === 'Hire a Motorcycle' && parsedData.motorcycle?.selectedMotorcycle) {
       await updateBikeRemaining(parsedData.motorcycle.selectedMotorcycle);
@@ -144,7 +135,7 @@ export const createNZSIRegistration = async (req, res) => {
         ...licenceDetails,
         licenceExpiryDate: expiryDate,
         licenceFilePath,
-        licenceFileName: req.file.filename,
+        licenceFileName,
       },
       equipment: parsedData.equipment || {},
       accommodation: parsedData.accommodation || {},
@@ -210,13 +201,13 @@ export const createNZSIRegistration = async (req, res) => {
     }
 
     try {
-      const adminEmailOptions = {
+      await transporter.sendMail({
         from: process.env.EMAIL_USER,
         to: process.env.ADMIN_EMAIL,
         subject: 'New NZSI Registration',
         html: `
           <h2>New Registration</h2>
-          <p><strong>Name:</strong> ${parsedData.personalDetails?.firstName} ${parsedData.personalDetails?.last包裹Name}</p>
+          <p><strong>Name:</strong> ${parsedData.personalDetails?.firstName} ${parsedData.personalDetails?.lastName}</p>
           <p><strong>Email:</strong> ${parsedData.personalDetails?.email}</p>
           <p><strong>Total Payment:</strong> $${totalPayment.toFixed(2)}</p>
           <p><strong>Registration ID:</strong> ${registration._id}</p>
@@ -231,9 +222,7 @@ export const createNZSIRegistration = async (req, res) => {
           path: licenceFilePath,
           contentType: req.file.mimetype,
         }],
-      };
-
-      await transporter.sendMail(adminEmailOptions);
+      });
       console.log('createNZSIRegistration: Admin email SENT');
       emailStatus.adminEmailSent = true;
     } catch (err) {
@@ -300,7 +289,7 @@ export const getUserRegistrations = async (req, res) => {
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// UPDATE (ADMIN) — NO VALIDATION ERRORS
+// UPDATE (ADMIN)
 // ─────────────────────────────────────────────────────────────────────────────
 export const updateNZSIRegistration = async (req, res) => {
   try {
@@ -322,7 +311,6 @@ export const updateNZSIRegistration = async (req, res) => {
       }
     }
 
-    // MINIMAL VALIDATION — ONLY FOR FIELDS SENT
     const validationErrors = [];
 
     if (parsedData.personalDetails) {
@@ -363,26 +351,20 @@ export const updateNZSIRegistration = async (req, res) => {
       return res.status(400).json({ success: false, message: validationErrors.join(', ') });
     }
 
-    // FILE HANDLING
     let licenceFilePath = existing.licenceDetails.licenceFilePath;
     let licenceFileName = existing.licenceDetails.licenceFileName;
 
     if (req.file) {
-      licenceFilePath = path.join(__dirname, '../Uploads', req.file.filename);
-      licenceFileName = req.file.filename;
-      if (existing.licenceDetails.licenceFilePath) {
-        await fs.unlink(existing.licenceDetails.licenceFilePath).catch(() => {});
-      }
+      licenceFilePath = req.file.path;
+      licenceFileName = req.file.originalname;
     }
 
-    // BIKE STOCK
     const wasHiring = existing.motorcycle.hireOption === 'Hire a Motorcycle' && existing.motorcycle.selectedMotorcycle;
     const isHiring = parsedData.motorcycle?.hireOption === 'Hire a Motorcycle' && parsedData.motorcycle?.selectedMotorcycle;
 
     if (wasHiring && !isHiring) await updateBikeRemaining(existing.motorcycle.selectedMotorcycle, +1);
     if (!wasHiring && isHiring) await updateBikeRemaining(parsedData.motorcycle.selectedMotorcycle, -1);
 
-    // BUILD UPDATE OBJECT — ONLY WHAT WAS SENT
     const updateObj = { $set: {} };
 
     if (parsedData.personalDetails) updateObj.$set.personalDetails = parsedData.personalDetails;
@@ -412,14 +394,12 @@ export const updateNZSIRegistration = async (req, res) => {
       updateObj.$set.licenceDetails = { ...existing.licenceDetails, ...licenceUpdate };
     }
 
-    // SKIP MONGOOSE VALIDATION
     const updated = await NZSIRegistration.findByIdAndUpdate(
       id,
       updateObj,
       { new: true, runValidators: false }
     );
 
-    // STRIPE + EMAILS
     let paymentUrl = null;
     if (updated.payment.paymentStatus === 'Paid' && existing.payment.paymentStatus !== 'Paid') {
       const origin = req.headers.origin || process.env.FRONTEND_URL;
@@ -485,10 +465,6 @@ export const deleteNZSIRegistration = async (req, res) => {
     if (reg.motorcycle.hireOption === 'Hire a Motorcycle' && reg.motorcycle.selectedMotorcycle) {
       await updateBikeRemaining(reg.motorcycle.selectedMotorcycle, +1);
     }
-
-    if (reg.licenceDetails.licenceFilePath) {
-      await fs.unlink(reg.licenceDetails.licenceFilePath).catch(() => {});
-14    }
 
     await NZSIRegistration.findByIdAndDelete(id);
     res.json({ success: true });
