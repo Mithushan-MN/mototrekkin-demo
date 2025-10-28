@@ -11,7 +11,7 @@ export default defineConfig({
     port: 5174, // Matches your frontend port
     proxy: {
       "/api": {
-        target: "http://localhost:5000", // Backend URL
+        target: "https://mototrekkin-bakend.vercel.app", // Backend URL
         changeOrigin: true,
         rewrite: (path) => path.replace(/^\/api/, ""), // Rewrite /api to empty
       },
