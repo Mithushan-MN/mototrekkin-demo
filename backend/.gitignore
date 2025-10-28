@@ -50,3 +50,6 @@ backend/.cache/
 # Misc
 *.tgz
 *.zip
+
+uploads/
+Uploads/
