@@ -64,23 +64,29 @@ const calculateAddOnsUSD = (addOns, days) => {
 // CREATE BOOKING
 export const createBooking = async (req, res) => {
   try {
-    console.log("Received request body:", req.body);
-    console.log("Received file:", req.file);
+    console.log("FINAL req.body:", req.body); // ← ADD THIS
 
     const {
       pickupDate, returnDate, pickupTime, returnTime, totalDays, bikeModel, bikePrice,
-      gearOption, subGearOption, gear, addOns, riderDetails, emergencyContact,
-      licenceValid, licenceNumber, licenceExpiry, licenceState, agreementAccepted, paymentOption,
+      gearOption, subGearOption, gear, addOns,
+      firstName, lastName, gender, email, birthday, occupation, mobile, landline,
+      streetAddress, streetAddress2, city, postCode, country, state,
+      emergencyFirstName, emergencyLastName, emergencyEmail, emergencyMobile, emergencyLandline, emergencyRelation,
+      licenceValid, licenceNumber, licenceExpiry, licenceState,
+      agreementAccepted, paymentOption,
     } = req.body;
 
-    // Validation
+    // === VALIDATION ===
     if (!pickupDate || !returnDate || !bikeModel || !agreementAccepted || !paymentOption) {
       return res.status(400).json({ message: "Missing required fields" });
+    }
+    if (!email?.trim()) {
+      return res.status(400).json({ message: "Email required" });
     }
     if (!licenceNumber?.trim() || !licenceExpiry || !licenceState?.trim()) {
       return res.status(400).json({ message: "Licence details required" });
     }
-    if (!["Yes", "No"].includes(licenceValid) || licenceValid === "No") {
+    if (licenceValid !== "Yes") {
       return res.status(400).json({ message: "Valid licence required" });
     }
 
