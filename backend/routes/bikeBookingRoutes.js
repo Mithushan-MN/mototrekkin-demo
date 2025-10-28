@@ -1,17 +1,11 @@
 import express from "express";
 import { createBooking, createPaymentSession, getBookings, verifyPayment, getAllBookings,deleteBooking,getBookingById, updateBooking } from "../controllers/bikeBookingController.js";
-import multer from "multer";
 import { isAdmin, protect } from "../middleware/authMiddleware.js";
 import upload from "../middleware/upload.js";
 
 const router = express.Router();
 
-// Configure multer for file uploads
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) => cb(null, `${Date.now()}-${file.originalname}`),
-});
-const upload = multer({ storage });
+
 
 router.post("/create", protect, upload, createBooking);
 router.post("/create-payment-session", createPaymentSession);
