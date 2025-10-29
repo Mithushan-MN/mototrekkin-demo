@@ -9,7 +9,7 @@ const ResetPassword = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [message, setMessage] = useState("");
 
-  const BASE_URL = "http://localhost:5000/api/auth";
+  const BASE_URL = "https://mototrekkin-bakend.vercel.app/api/auth";
 
   const handleResetPassword = async (e) => {
     e.preventDefault();
