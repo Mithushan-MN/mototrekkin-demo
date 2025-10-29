@@ -2,7 +2,7 @@ import express from "express";
 import {
   signup, login, logout, profile, makeAdmin,
   forgotPassword, resetPassword,
-  getAllUsers, createUser, updateUser, deleteUser
+  getAllUsers, createUser, updateUser, updateProfile, deleteUser
 } from "../controllers/authController.js";
 import { protect, isAdmin } from "../middleware/authMiddleware.js";
 
@@ -12,6 +12,7 @@ router.post("/signup", signup);
 router.post("/login", login);
 router.post("/logout", logout);
 router.get("/profile", protect, profile);
+router.patch('/profile', protect, updateProfile);
 router.put("/make-admin", protect, isAdmin, makeAdmin);
 router.post("/forgot-password", forgotPassword);
 router.post("/reset-password/:token", resetPassword);

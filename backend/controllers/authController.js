@@ -91,6 +91,47 @@ export const profile = async (req, res) => {
   }
 };
 
+// ─────────────────────────────────────────────────────────────────────────────
+// UPDATE PROFILE (PATCH /profile)
+// ─────────────────────────────────────────────────────────────────────────────
+export const updateProfile = async (req, res) => {
+  try {
+    const { fullName, email } = req.body;
+    const userId = req.user.id;
+
+    // Validate
+    if (!fullName?.trim() || !email?.trim()) {
+      return res.status(400).json({ message: "Name and email are required" });
+    }
+
+    // Check if email is taken (by someone else)
+    const existing = await User.findOne({ email, _id: { $ne: userId } });
+    if (existing) {
+      return res.status(400).json({ message: "Email already in use" });
+    }
+
+    // Update
+    const updated = await User.findByIdAndUpdate(
+      userId,
+      { fullName, email },
+      { new: true, runValidators: true }
+    ).select("-password");
+
+    res.json({
+      id: updated._id,
+      fullName: updated.fullName,
+      email: updated.email,
+      role: updated.role,
+      createdAt: updated.createdAt,
+    });
+  } catch (error) {
+    console.error("updateProfile error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+
+
 // LOGOUT
 export const logout = async (req, res) => {
   res.status(200).json({ message: "Logged out successfully" });

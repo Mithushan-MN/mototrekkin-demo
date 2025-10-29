@@ -129,7 +129,7 @@ const UserDashboard = () => {
                 <Bike className="w-5 h-5 mr-2" /> TrainingBookings
               </button>
             </li>
-            <li>
+            {/* <li>
               <button
                 onClick={() => setActiveTab("address")}
                 className={`flex items-center w-full px-3 py-2 rounded-lg ${
@@ -152,7 +152,7 @@ const UserDashboard = () => {
               >
                 <CreditCard className="w-5 h-5 mr-2" /> Payment Methods
               </button>
-            </li>
+            </li> */}
             <li>
               <button
                 onClick={() => setActiveTab("account")}

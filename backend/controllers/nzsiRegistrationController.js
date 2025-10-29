@@ -107,18 +107,26 @@ export const createNZSIRegistration = async (req, res) => {
     if (!parsedData.terms?.agreeToTerms) validationErrors.push('You must agree to the terms and conditions');
 
     if (validationErrors.length > 0) {
-      console.log('createNZSIRegistration: Validation FAILED', validationErrors);
-      return res.status(400).json({
-        success: false,
-        message: validationErrors.join(', '),
-        errors: validationErrors
-      });
-    }
+  console.log('createNZSIRegistration: Validation FAILED', validationErrors);
+  return res.status(400).json({
+    success: false,
+    message: validationErrors.join(', '),
+    errors: validationErrors
+  });
+}
 
-    console.log('createNZSIRegistration: ALL VALIDATION PASSED');
+console.log('createNZSIRegistration: ALL VALIDATION PASSED');
 
-    const licenceFilePath = req.file.path;
-    const licenceFileName = req.file.originalname;
+if (!req.file || !req.file.path) {
+  console.error('File upload failed — req.file:', req.file);
+  return res.status(500).json({
+    success: false,
+    message: 'File upload failed. Please try again.'
+  });
+}
+
+const licenceFilePath = req.file.path;
+const licenceFileName = req.file.originalname || 'licence-file';
 
     if (parsedData.motorcycle?.hireOption === 'Hire a Motorcycle' && parsedData.motorcycle?.selectedMotorcycle) {
       await updateBikeRemaining(parsedData.motorcycle.selectedMotorcycle);
