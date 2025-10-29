@@ -3,6 +3,8 @@ import axios from "axios";
 import authimg from "../assets/login-sideimage.webp";
 import { AuthContext } from "./AuthContext";
 import { useNavigate, useLocation } from "react-router-dom";
+import { Eye, EyeOff } from "lucide-react";
+
 
 const AuthModal = ({ isOpen, onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
@@ -15,6 +17,10 @@ const AuthModal = ({ isOpen, onClose }) => {
   const { login } = useContext(AuthContext);
   const navigate = useNavigate();
   const location = useLocation();
+
+  const [showPassword, setShowPassword] = useState(false);
+const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
 
   const BASE_URL = "https://mototrekkin-bakend.vercel.app/api/auth";
 
@@ -154,14 +160,23 @@ const AuthModal = ({ isOpen, onClose }) => {
                 className="w-full px-4 py-2 border rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
                 required
               />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
-                required
-              />
+              <div className="relative">
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    className="w-full px-4 py-2 pr-10 border rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
+    required
+  />
+  <span
+    className="absolute right-3 top-2.5 text-gray-400 cursor-pointer hover:text-yellow-400"
+    onClick={() => setShowPassword(!showPassword)}
+  >
+    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+  </span>
+</div>
+
               <div className="flex justify-between items-center">
                 <p
                   onClick={() => setIsForgot(true)}
@@ -193,22 +208,40 @@ const AuthModal = ({ isOpen, onClose }) => {
                 className="w-full px-4 py-2 border rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
                 required
               />
-              <input
-                type="password"
-                placeholder="Password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
-                required
-              />
-              <input
-                type="password"
-                placeholder="Confirm Password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="w-full px-4 py-2 border rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
-                required
-              />
+             <div className="relative">
+  <input
+    type={showPassword ? "text" : "password"}
+    placeholder="Password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    className="w-full px-4 py-2 pr-10 border rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
+    required
+  />
+  <span
+    className="absolute right-3 top-2.5 text-gray-400 cursor-pointer hover:text-yellow-400"
+    onClick={() => setShowPassword(!showPassword)}
+  >
+    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+  </span>
+</div>
+
+             <div className="relative">
+  <input
+    type={showConfirmPassword ? "text" : "password"}
+    placeholder="Confirm Password"
+    value={confirmPassword}
+    onChange={(e) => setConfirmPassword(e.target.value)}
+    className="w-full px-4 py-2 pr-10 border rounded-lg bg-gray-800 text-white focus:ring-2 focus:ring-yellow-500 placeholder-gray-400"
+    required
+  />
+  <span
+    className="absolute right-3 top-2.5 text-gray-400 cursor-pointer hover:text-yellow-400"
+    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+  >
+    {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+  </span>
+</div>
+
               <button className="w-full py-2 bg-yellow-600 text-white rounded-lg hover:bg-yellow-700 cursor-pointer">
                 Sign Up
               </button>

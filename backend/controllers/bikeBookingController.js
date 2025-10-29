@@ -61,7 +61,7 @@ const calculateAddOnsUSD = (addOns, days) => {
   ) * days;
 };
 
-// CREATE BOOKING
+
 // CREATE BOOKING
 export const createBooking = async (req, res) => {
   try {
