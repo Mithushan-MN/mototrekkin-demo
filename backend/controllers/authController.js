@@ -332,50 +332,39 @@ export const deleteUser = async (req, res) => {
 
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ADMIN: Dashboard Stats
+// ADMIN: Dashboard Stats — ONLY USER
 // ─────────────────────────────────────────────────────────────────────────────
 export const getDashboardStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
-    const todayBookings = await BikeBooking.countDocuments({
-      createdAt: { $gte: new Date().setHours(0, 0, 0, 0) }
-    });
-    const bikesHired = await BikeBooking.countDocuments({ status: "active" });
-    const upcomingEvents = 5; // Replace with real events later
-    const trainingSessions = 9; // Replace later
-    const totalOrders = 321; // Replace later
 
     res.json({
       totalUsers,
-      bookingsToday: todayBookings,
-      bikesHired,
-      upcomingEvents,
-      trainingSessions,
-      totalOrders
+      bookingsToday: 0,
+      bikesHired: 0,
+      upcomingEvents: 5,
+      trainingSessions: 9,
+      totalOrders: 321
     });
   } catch (error) {
+    console.error("getDashboardStats error:", error);
     res.status(500).json({ message: "Server error" });
   }
 };
 
 // ─────────────────────────────────────────────────────────────────────────────
-// ADMIN: Recent Activities
+// ADMIN: Recent Activities — FAKE DATA
 // ─────────────────────────────────────────────────────────────────────────────
 export const getRecentActivities = async (req, res) => {
   try {
-    const recent = await BikeBooking.find()
-      .sort({ createdAt: -1 })
-      .limit(4)
-      .populate('user', 'fullName')
-      .select('duration createdAt');
+    const activities = [
+      { type: "user", message: "New user registered", time: new Date() },
+      { type: "user", message: "Admin updated profile", time: new Date(Date.now() - 3600000) },
+      { type: "user", message: "User logged in", time: new Date(Date.now() - 7200000) },
+      { type: "user", message: "New admin created", time: new Date(Date.now() - 10800000) }
+    ];
 
-    const formatted = recent.map(b => ({
-      type: "booking",
-      message: `${b.user.fullName} booked a bike for ${b.duration} days`,
-      time: b.createdAt
-    }));
-
-    res.json(formatted);
+    res.json(activities);
   } catch (error) {
     console.error("getRecentActivities error:", error);
     res.status(500).json({ message: "Server error" });
