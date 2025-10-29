@@ -328,3 +328,56 @@ export const deleteUser = async (req, res) => {
     res.status(500).json({ message: "Server error", error: error.message });
   }
 };
+
+
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMIN: Dashboard Stats
+// ─────────────────────────────────────────────────────────────────────────────
+export const getDashboardStats = async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments();
+    const todayBookings = await BikeBooking.countDocuments({
+      createdAt: { $gte: new Date().setHours(0, 0, 0, 0) }
+    });
+    const bikesHired = await BikeBooking.countDocuments({ status: "active" });
+    const upcomingEvents = 5; // Replace with real events later
+    const trainingSessions = 9; // Replace later
+    const totalOrders = 321; // Replace later
+
+    res.json({
+      totalUsers,
+      bookingsToday: todayBookings,
+      bikesHired,
+      upcomingEvents,
+      trainingSessions,
+      totalOrders
+    });
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+// ─────────────────────────────────────────────────────────────────────────────
+// ADMIN: Recent Activities
+// ─────────────────────────────────────────────────────────────────────────────
+export const getRecentActivities = async (req, res) => {
+  try {
+    const recent = await BikeBooking.find()
+      .sort({ createdAt: -1 })
+      .limit(4)
+      .populate('user', 'fullName')
+      .select('duration createdAt');
+
+    const formatted = recent.map(b => ({
+      type: "booking",
+      message: `${b.user.fullName} booked a bike for ${b.duration} days`,
+      time: b.createdAt
+    }));
+
+    res.json(formatted);
+  } catch (error) {
+    console.error("getRecentActivities error:", error);
+    res.status(500).json({ message: "Server error" });
+  }
+};

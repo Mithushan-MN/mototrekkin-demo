@@ -2,7 +2,9 @@ import express from "express";
 import {
   signup, login, logout, profile, makeAdmin,
   forgotPassword, resetPassword,
-  getAllUsers, createUser, updateUser, updateProfile, deleteUser
+  getAllUsers, createUser, updateUser, updateProfile, deleteUser,
+  getDashboardStats,
+  getRecentActivities
 } from "../controllers/authController.js";
 import { protect, isAdmin } from "../middleware/authMiddleware.js";
 
@@ -20,5 +22,8 @@ router.get("/users", protect, isAdmin, getAllUsers);            // READ
 router.post("/users", protect, isAdmin, createUser);          // CREATE
 router.put("/users/:id", protect, isAdmin, updateUser);       // UPDATE
 router.delete("/users/:id", protect, isAdmin, deleteUser);    // DELETE
+
+router.get("/dashboard/stats", protect, isAdmin, getDashboardStats);
+router.get("/dashboard/activities", protect, isAdmin, getRecentActivities);
 
 export default router;
