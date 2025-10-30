@@ -256,82 +256,112 @@ const UserDashboard = () => {
   ];
 
   return (
-    <div className="flex flex-col lg:flex-row min-h-screen bg-gray-100 relative">
-      {/* Mobile Top Bar */}
-      <div className="flex items-center justify-between bg-white px-4 py-3 border-b lg:hidden">
-        <h2 className="font-semibold text-lg">
-          {user?.fullName || user?.email || "User"}
-        </h2>
-        <button onClick={() => setSidebarOpen(!sidebarOpen)}>
-          {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
+    <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Sidebar */}
-      <aside
-        className={`fixed top-0 left-0 h-screen w-64 bg-white border-r shadow-lg z-50 transform 
-        lg:relative lg:z-auto lg:translate-x-0
-        ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
-        transition-transform duration-300 ease-in-out`}
-      >
-        <div className="p-6 flex flex-col items-center border-b">
-          <h2 className="font-semibold text-lg mb-2">
-            {user?.fullName || user?.email}
-          </h2>
+<aside
+  className={`fixed lg:sticky top-0 left-0 h-screen w-64 z-40 
+  bg-white/80 backdrop-blur-md border-r border-gray-200 
+  shadow-[0_4px_20px_rgba(0,0,0,0.05)] 
+   transform lg:translate-x-0
+  ${sidebarOpen ? "translate-x-0" : "-translate-x-full"} 
+  transition-transform duration-300 ease-in-out`}
+>
+  {/* Mobile Header (inside sidebar) */}
+  <div className="flex items-center justify-between p-4 lg:hidden border-b border-gray-200">
+    <h2 className="font-semibold text-lg text-gray-800">
+      {user?.fullName || user?.email || "User"}
+    </h2>
+    <button onClick={() => setSidebarOpen(false)}>
+      <X size={24} className="text-gray-700" />
+    </button>
+  </div>
+
+  {/* User Info */}
+  <div className="p-6 pt-20 lg:pt-5 flex flex-col items-center border-b border-gray-200">
+    <div className="w-16 h-16 bg-gradient-to-tr from-yellow-400 to-orange-400 rounded-full flex items-center justify-center text-white text-xl font-bold">
+      {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
+    </div>
+    <h2 className="font-semibold text-lg mt-3 text-gray-800 text-center">
+      {user?.fullName || user?.email}
+    </h2>
+  </div>
+
+  {/* Navigation */}
+  <nav className="px-4 mt-6">
+    <ul className="space-y-2">
+      {menuItems.map((item) => (
+        <li key={item.name}>
           <button
-            onClick={handleLogout}
-            className="bg-red-500 text-white px-4 py-1 rounded"
+            onClick={() => {
+              setActiveTab(item.name);
+              setSidebarOpen(false);
+            }}
+            className={`flex items-center w-full px-3 py-2 rounded-xl transition-all duration-200
+              ${
+                activeTab === item.name
+                  ? "bg-gradient-to-r from-yellow-400 to-orange-400 text-white shadow-md font-medium"
+                  : "text-gray-600 hover:bg-gray-100"
+              }`}
           >
-            LOGOUT
+            <item.icon
+              className={`w-5 h-5 mr-2 ${
+                activeTab === item.name ? "text-white" : "text-gray-500"
+              }`}
+            />
+            {item.label}
           </button>
-        </div>
+        </li>
+      ))}
 
-        <nav className="px-4 mt-4">
-          <ul className="space-y-2">
-            {menuItems.map((item) => (
-              <li key={item.name}>
-                <button
-                  onClick={() => {
-                    setActiveTab(item.name);
-                    setSidebarOpen(false); // close sidebar on mobile
-                  }}
-                  className={`flex items-center w-full px-3 py-2 rounded-lg ${
-                    activeTab === item.name
-                      ? "bg-yellow-100 text-yellow-700 font-semibold"
-                      : "text-gray-600 hover:bg-gray-100"
-                  }`}
-                >
-                  <item.icon className="w-5 h-5 mr-2" />
-                  {item.label}
-                </button>
-              </li>
-            ))}
+      {/* Logout */}
+      <li className="pt-2 border-t border-gray-200 mt-4">
+        <button
+          onClick={() => {
+            handleLogout();
+            setSidebarOpen(false);
+          }}
+          className="flex items-center w-full px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-all"
+        >
+          <LogOut className="w-5 h-5 mr-2 text-gray-500" /> Logout
+        </button>
+      </li>
+    </ul>
+  </nav>
+</aside>
 
-            <li>
-              <button
-                onClick={() => {
-                  handleLogout();
-                  setSidebarOpen(false);
-                }}
-                className="flex items-center w-full px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
-              >
-                <LogOut className="w-5 h-5 mr-2" /> Logout
-              </button>
-            </li>
-          </ul>
-        </nav>
-      </aside>
+{/* Black overlay for mobile */}
+{sidebarOpen && (
+  <div
+    className="fixed inset-0 bg-black bg-opacity-40 z-30 lg:hidden"
+    onClick={() => setSidebarOpen(false)}
+  ></div>
+)}
+
+
 
       {/* Black overlay for mobile */}
       {sidebarOpen && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-40 z-40 lg:hidden"
+          className="fixed inset-0 bg-black bg-opacity-30 z-1 lg:hidden"
           onClick={() => setSidebarOpen(false)}
         ></div>
       )}
 
-      {/* Main content */}
-      <main className="flex-1 p-4 lg:p-8">{renderContent()}</main>
+      {/* Main Content Area */}
+      <main className="flex-1 overflow-y-auto pt-20 p-4 lg:p-8 ml-0 lg:ml-0">
+        {renderContent()}
+      </main>
+
+      {/* Mobile top bar (outside sidebar) */}
+<div className="fixed  left-0 w-full bg-white px-4 py-3 border-b lg:hidden flex justify-between items-center z-40 shadow-sm">
+  <h2 className="font-semibold text-lg">
+    {user?.fullName || user?.email || "User"}
+  </h2>
+  <button onClick={() => setSidebarOpen(!sidebarOpen)}>
+    {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
+  </button>
+</div>
+
     </div>
   );
 };

@@ -223,7 +223,7 @@ export default function Navbar({ onUserClick }) {
               </button>
 
               {profileOpen && (
-                <div className="absolute right-0 mt-2 w-56 bg-gray-900 border border-gray-700 rounded shadow-lg z-50 p-4 text-white">
+                <div className="absolute right-0 mt-2 w-56 bg-gray-900 border border-gray-700 rounded shadow-lg z-100 p-4 text-white">
                   <p className="font-semibold truncate">{user.fullName}</p>
                   <p className="text-sm text-gray-300 truncate mb-2">
                     {user.email}
