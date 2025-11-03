@@ -251,7 +251,7 @@ const UserDashboard = () => {
     { name: "Bike Hire", icon: Bike, label: "Bike Hires" },
     { name: "events", icon: Calendar, label: "Events" },
     { name: "TrainingBookings", icon: Bike, label: "Training Bookings" },
-    { name: "account", icon: User, label: "Account Details" },
+    { name: "account", icon: User, label: "Personal Details" },
     { name: "vouchers", icon: Ticket, label: "Vouchers" },
   ];
 

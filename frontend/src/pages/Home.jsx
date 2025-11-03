@@ -128,7 +128,7 @@ const Home = () => {
         </div>
         
         <div ref={addToRefs} className="opacity-0 transition-all duration-1000">
-          <RiderHelmet/>
+          {/* <RiderHelmet/> */}
         </div>
         
         <div ref={addToRefs} className="opacity-0 transition-all duration-1000">

@@ -20,7 +20,7 @@ export default function OffroadEvent() {
       </div>
 
       {/* Content with enhanced animations */}
-      <div className="relative z-10 text-center px-4 transform transition-all duration-1000 hover:scale-105">
+      <div className="relative z-10 text-center  px-4 transform transition-all duration-1000 hover:scale-105">
         <div className="animate-fade-in-up">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
             <span className="inline-block animate-slide-in-left animation-delay-200">
@@ -45,11 +45,11 @@ export default function OffroadEvent() {
       </div>
       
       {/* Scroll indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
+      {/* <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 z-10 animate-bounce">
         <div className="w-6 h-10 border-2 border-yellow-500 rounded-full flex justify-center">
           <div className="w-1 h-3 bg-yellow-500 rounded-full mt-2 animate-pulse"></div>
         </div>
-      </div>
+      </div> */}
     </section>
   );
 }

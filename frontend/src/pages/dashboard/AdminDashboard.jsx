@@ -21,6 +21,7 @@ import AdminEventBookings from "../../components/dashboard/admindashboard/AdminE
 import AdminTrainings from "../../components/dashboard/admindashboard/AdminTrainings";
 import { AuthContext } from "../../components/AuthContext";
 import { useContext } from "react";
+import NzBikes from "../../components/dashboard/admindashboard/NzBikes";
 
 const AdminDashboard = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
@@ -43,6 +44,8 @@ const AdminDashboard = () => {
         return <AdminEventBookings />;
       case "Trainings bookings":
         return <AdminTrainings />;
+      case "NzBikes":
+        return <NzBikes />;
       case "products":
         return <AdminProducts />;
       case "events":
@@ -95,6 +98,7 @@ const AdminDashboard = () => {
         { name: "bike hire", icon: Bike },
         { name: "event bookings", icon: Calendar },
         { name: "Trainings bookings", icon: Calendar },
+        { name: "NzBikes", icon: Bike },
         { name: "products", icon: Box },
         { name: "events", icon: Calendar },
       ].map((tab) => (
