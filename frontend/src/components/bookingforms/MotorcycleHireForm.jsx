@@ -10,7 +10,7 @@ import imgCrf250 from "../../assets/bikes/HONDA CRF250 RALLY.jpg";
 import imgBmw310 from "../../assets/bikes/BMW 310 GS.jpg";
 import imgCb500x from "../../assets/bikes/HONDA CB500X.jpg";
 
-const stripePromise = loadStripe("pk_test_51Q5xX9FSb9wGlBwSQN4WE9bFcWqUxWeJ8EmyimzBG77QPTPEhvd62fXTxkr1qipe5Z4OZAlWZyw3otmiQRTPZiIA008HheOzhj");
+const stripePromise = loadStripe("pk_live_6C7fzU00LNNJoD74Cg1AjFeH00bxXpAZGj");
 
 const BikeBookingForm = () => {
   const [step, setStep] = useState(1);
