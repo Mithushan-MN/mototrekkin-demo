@@ -10,12 +10,17 @@ import imgCrf250 from "../../assets/bikes/HONDA CRF250 RALLY.jpg";
 import imgBmw310 from "../../assets/bikes/BMW 310 GS.jpg";
 import imgCb500x from "../../assets/bikes/HONDA CB500X.jpg";
 
+import { useUserAutoFill } from "../../hooks/useUserAutoFill";
+import { USER_FIELDS } from "../../constants/userFields";
+
 const stripePromise = loadStripe("pk_live_6C7fzU00LNNJoD74Cg1AjFeH00bxXpAZGj");
 
 const BikeBookingForm = () => {
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
+
+  const { formRef } = useUserAutoFill(USER_FIELDS);
 
   const [formData, setFormData] = useState({
     // Step 1: Dates
@@ -399,7 +404,7 @@ const BikeBookingForm = () => {
         <img src={Mlogo} alt="Bike Hire" className="mx-auto w-48 h-auto rounded-lg" />
       </div>
 
-      <form className="w-full space-y-8" onSubmit={handleSubmit}>
+      <form className="w-full space-y-8" ref={formRef} onSubmit={handleSubmit} >
         <h2 className="text-3xl font-bold text-gray-800 text-center mb-10">BOOK A BIKE</h2>
 
         {/* Step Progress Bar */}

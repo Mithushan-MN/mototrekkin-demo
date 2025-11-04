@@ -6,6 +6,7 @@ import { User, Phone, Shield, AlertTriangle } from 'lucide-react';
    -------------------------------------------------------------- */
 export const validate = (formData) => {
   const errors = {};
+    const { formRef } = useUserAutoFill(USER_FIELDS);
 
   // ---- personal ------------------------------------------------
   if (!formData.firstName) errors.firstName = 'First name is required';
@@ -210,7 +211,7 @@ const Step1PersonalDetails = ({
         </div>
 
         {/* ---- FORM ---- */}
-        <form onSubmit={handleSubmit} noValidate>
+        <form ref={formRef} onSubmit={handleSubmit} noValidate>
           {/* ==== PERSONAL ==== */}
           <section className="mb-16">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl p-6 mb-8 border border-blue-200">

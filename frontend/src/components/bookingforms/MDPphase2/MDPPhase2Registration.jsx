@@ -4,6 +4,9 @@ import axios from '../../../axiosConfig';
 import { loadStripe } from '@stripe/stripe-js';
 import { ArrowLeft } from 'lucide-react';
 
+import { useUserAutoFill } from "../../../hooks/useUserAutoFill";
+import { USER_FIELDS } from "../../../constants/userFields";
+
 // Step components
 import Step3PersonalDetails from '../MDPphase2/steps/Step1PersonalDetails';
 import Step4EmergencyContacts from '../MDPphase2/steps/Step2EmergencyContacts';
@@ -22,6 +25,8 @@ const MDPPhase2Registration = () => {
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
+
+  const { formRef } = useUserAutoFill(USER_FIELDS);
 
   // ---------- FORM DATA (only fields that exist in UI) ----------
   const [formData, setFormData] = useState({
@@ -599,7 +604,10 @@ const birthdayDate = (() => {
     <div className="min-h-screen bg-gray-100">
       {apiError && <p className="text-red-500 text-center p-4 bg-red-50">{apiError}</p>}
       {loading && <p className="text-blue-500 text-center">Processing...</p>}
+
+      <form ref={formRef}>
       {renderCurrentStep()}
+      </form>
 
      <h2 className="text-center mt-12 mb-8 text-gray-700 text-lg font-semibold tracking-wide">
     Technical difficulties?{" "}
