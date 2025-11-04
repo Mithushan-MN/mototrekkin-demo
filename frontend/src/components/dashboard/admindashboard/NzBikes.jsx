@@ -19,7 +19,7 @@ const NzBikes = () => {
 
   const fetchBikes = async () => {
     try {
-      const res = await axios.get("/api/bike");
+      const res = await axios.get("/api/bikes");
       setBikes(res.data.filter((bike) => bike.available));
     } catch (err) {
       console.error("Fetch error:", err);
@@ -31,7 +31,7 @@ const NzBikes = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Are you sure you want to delete this bike?")) return;
     try {
-      await axios.delete(`/api/bike/${id}`);
+      await axios.delete(`/api/bikes/${id}`);
       setBikes(bikes.filter((b) => b._id !== id));
       setSelectedBike(null);
     } catch (err) {
@@ -81,7 +81,7 @@ const NzBikes = () => {
         ...editData,
         specs: JSON.stringify(editData.specs),
       };
-      const res = await axios.put(`/api/bike/${selectedBike._id}`, payload);
+      const res = await axios.put(`/api/bikes/${selectedBike._id}`, payload);
       setBikes(bikes.map((b) => (b._id === selectedBike._id ? res.data.bike : b)));
       setSelectedBike(res.data.bike);
       setEditMode(false);

@@ -16,7 +16,7 @@ import Step11 from './steps/Step11';
 import Step12 from './steps/Step12';
 import { fetchMotorcycles } from './motorcycles';
 
-const stripePromise = loadStripe('pk_test_51Q5xX9FSb9wGlBwSQN4WE9bFcWqUxWeJ8EmyimzBG77QPTPEhvd62fXTxkr1qipe5Z4OZAlWZyw3otmiQRTPZiIA008HheOzhj');
+const stripePromise = loadStripe('pk_live_6C7fzU00LNNJoD74Cg1AjFeH00bxXpAZGj');
 
 const NZSIRegistrationFormRefactored = () => {
   console.log('NZSIRegistrationFormRefactored: Component loaded');
