@@ -6,7 +6,6 @@ import { User, Phone, Shield, AlertTriangle } from 'lucide-react';
    -------------------------------------------------------------- */
 export const validate = (formData) => {
   const errors = {};
-    const { formRef } = useUserAutoFill(USER_FIELDS);
 
   // ---- personal ------------------------------------------------
   if (!formData.firstName) errors.firstName = 'First name is required';
@@ -72,6 +71,7 @@ const Step1PersonalDetails = ({
   totalSteps,
   onNext,
   onPrev,
+  formRef,
 }) => {
   /* ---------- form submit handler ---------- */
   const handleSubmit = (e) => {

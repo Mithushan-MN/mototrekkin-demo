@@ -8,7 +8,8 @@ const Step4Experience = ({
   currentStep, 
   totalSteps, 
   onNext, 
-  onPrev 
+  onPrev,
+  formRef,
 }) => {
   const handleInputChange = (field, value) => {
     onInputChange(field, value);
@@ -37,7 +38,7 @@ const Step4Experience = ({
 
       {/* Experience Form */}
       <div className="bg-white rounded-lg shadow-lg p-8">
-        <form onSubmit={handleSubmit}>
+        <form ref={formRef} onSubmit={handleSubmit}>
           <div className="space-y-8">
             {/* Question 1: Professional Training */}
             <div className={errors.attendedTraining ? 'ring-2 ring-red-200 rounded-lg p-2 bg-red-50/30' : ''}>

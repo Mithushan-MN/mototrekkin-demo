@@ -129,7 +129,7 @@ const Step8BikeDetails = ({
       </div>
 
       <div className="bg-white rounded-lg shadow-lg p-8">
-        <form onSubmit={handleSubmit}>
+        <form  onSubmit={handleSubmit}>
           <div className="mb-12">
   <h2 className="text-2xl font-bold text-gray-900 mb-6">Training Date</h2>
   <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">

@@ -1,15 +1,12 @@
 // src/hooks/useUserAutoFill.js
 import { useEffect, useRef } from "react";
 
-const STORAGE_KEY = "bikeBookingUser";
+const STORAGE_KEY = "mototrekkinUserData";
 
-/**
- * @param {string[]} whitelist – array of field names you want to sync
- */
-export const useUserAutoFill = (whitelist = []) => {
+export const useUserAutoFill = (fieldNames = []) => {
   const formRef = useRef(null);
 
-  // ---- LOAD saved data when component mounts ----
+  // Load saved data
   useEffect(() => {
     const saved = localStorage.getItem(STORAGE_KEY);
     if (!saved || !formRef.current) return;
@@ -17,44 +14,42 @@ export const useUserAutoFill = (whitelist = []) => {
     const data = JSON.parse(saved);
     const form = formRef.current;
 
-    whitelist.forEach((name) => {
-      const el = form.elements.namedItem(name);
-      if (el && !el.value) {
-        el.value = data[name] ?? "";
+    fieldNames.forEach(name => {
+      const field = form.elements.namedItem(name);
+      if (field && !field.value) {
+        field.value = data[name] ?? "";
       }
     });
-  }, [whitelist]);
+  }, [fieldNames]);
 
-  // ---- SAVE on every input / change (live sync) ----
+  // Save on every input/change
   useEffect(() => {
     const form = formRef.current;
     if (!form) return;
 
-    const handler = () => {
+    const save = () => {
       const payload = {};
-      whitelist.forEach((name) => {
-        const el = form.elements.namedItem(name);
-        if (el && el.value) {
-          payload[name] = el.value.trim();
+      fieldNames.forEach(name => {
+        const field = form.elements.namedItem(name);
+        if (field?.value) {
+          payload[name] = field.value.trim();
         }
       });
 
-      if (Object.keys(payload).length) {
+      if (Object.keys(payload).length > 0) {
         const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-        localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify({ ...existing, ...payload })
-        );
+        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...payload }));
       }
     };
 
-    form.addEventListener("input", handler);
-    form.addEventListener("change", handler);
+    form.addEventListener("input", save);
+    form.addEventListener("change", save);
+
     return () => {
-      form.removeEventListener("input", handler);
-      form.removeEventListener("change", handler);
+      form.removeEventListener("input", save);
+      form.removeEventListener("change", save);
     };
-  }, [whitelist]);
+  }, [fieldNames]);
 
   return { formRef };
 };

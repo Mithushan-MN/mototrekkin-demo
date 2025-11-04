@@ -8,7 +8,8 @@ const Step5TrainingDate = ({
   currentStep, 
   totalSteps, 
   onNext, 
-  onPrev 
+  onPrev,
+  formRef,
 }) => {
   const handleInputChange = (field, value) => {
     onInputChange(field, value);
@@ -37,7 +38,7 @@ const Step5TrainingDate = ({
 
       {/* Form */}
       <div className="bg-white rounded-lg shadow-lg p-8">
-        <form onSubmit={handleSubmit}>
+        <form ref={formRef} onSubmit={handleSubmit} >
           {/* Training Date Section */}
           <div className="mb-8">
             <label className="block text-lg font-semibold text-gray-800 mb-4">

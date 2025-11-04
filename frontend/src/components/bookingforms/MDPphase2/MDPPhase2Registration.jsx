@@ -21,6 +21,9 @@ const TOTAL_STEPS = 8;
 
 
 const MDPPhase2Registration = () => {
+
+    const { formRef } = useUserAutoFill(USER_FIELDS);
+
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [errors, setErrors] = useState({});
@@ -31,6 +34,7 @@ const MDPPhase2Registration = () => {
 
   // ---------- FORM DATA (only fields that exist in UI) ----------
   const [formData, setFormData] = useState({
+    
     // Phase 1
     completedPhase1: '',
     phase1Confirmation: '',
@@ -132,7 +136,7 @@ const MDPPhase2Registration = () => {
     Step7TrainingDate,
     Step8BikeDetails,
   ];
-  const { formRef } = useUserAutoFill(USER_FIELDS);
+
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
@@ -598,6 +602,7 @@ const birthdayDate = (() => {
         currentStep={currentStep}
         totalSteps={TOTAL_STEPS}
         navigate={navigate}
+        formRef={formRef}
       />
     );
   };
@@ -607,9 +612,9 @@ const birthdayDate = (() => {
       {apiError && <p className="text-red-500 text-center p-4 bg-red-50">{apiError}</p>}
       {loading && <p className="text-blue-500 text-center">Processing...</p>}
 
-      <form ref={formRef}>
+      
       {renderCurrentStep()}
-      </form>
+      
 
      <h2 className="text-center mt-12 mb-8 text-gray-700 text-lg font-semibold tracking-wide">
     Technical difficulties?{" "}
