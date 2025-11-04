@@ -12,7 +12,7 @@ import Step6Experience from '../MDPphase2/steps/Step4Experience';
 import Step7TrainingDate from '../MDPphase2/steps/Step5TrainingDate';
 import Step8BikeDetails from '../MDPphase2/steps/Step6BikeDetails';
 
-const stripePromise = loadStripe('pk_test_51Q5xX9FSb9wGlBwSQN4WE9bFcWqUxWeJ8EmyimzBG77QPTPEhvd62fXTxkr1qipe5Z4OZAlWZyw3otmiQRTPZiIA008HheOzhj');
+const stripePromise = loadStripe('pk_live_6C7fzU00LNNJoD74Cg1AjFeH00bxXpAZGj');
 
 const TOTAL_STEPS = 8;
 
