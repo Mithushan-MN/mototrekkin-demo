@@ -31,3 +31,62 @@ export const updateBikeRemaining = async (bikeName, decrement = 1) => {
     throw error;
   }
 };
+
+
+// POST /api/bikes
+export const createBike = async (req, res) => {
+  try {
+    const { name, price, remaining, available, image, specs } = req.body;
+
+    const bike = new Bike({
+      name,
+      price,
+      remaining,
+      available: available ?? true,
+      image,                     // <-- plain string path, e.g. "/assets/..."
+      specs: typeof specs === 'string' ? JSON.parse(specs) : specs,
+    });
+
+    await bike.save();
+    res.status(201).json({ bike });
+  } catch (err) {
+    console.error(err);
+    if (err.code === 11000) return res.status(400).json({ message: 'Name already exists' });
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// PUT /api/bikes/:id
+export const updateBike = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const updates = { ...req.body };
+
+    if (updates.specs && typeof updates.specs === 'string')
+      updates.specs = JSON.parse(updates.specs);
+
+    const bike = await Bike.findByIdAndUpdate(id, updates, {
+      new: true,
+      runValidators: true,
+    });
+
+    if (!bike) return res.status(404).json({ message: 'Bike not found' });
+    res.json({ bike });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};
+
+// DELETE /api/bikes/:id
+export const deleteBike = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const bike = await Bike.findByIdAndDelete(id);
+    if (!bike) return res.status(404).json({ message: 'Bike not found' });
+    res.json({ message: 'Deleted' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: err.message });
+  }
+};
