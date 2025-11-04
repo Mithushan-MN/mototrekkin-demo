@@ -19,6 +19,7 @@ const stripePromise = loadStripe('pk_live_6C7fzU00LNNJoD74Cg1AjFeH00bxXpAZGj');
 
 const TOTAL_STEPS = 8;
 
+
 const MDPPhase2Registration = () => {
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
@@ -26,7 +27,7 @@ const MDPPhase2Registration = () => {
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
 
-  const { formRef } = useUserAutoFill(USER_FIELDS);
+  
 
   // ---------- FORM DATA (only fields that exist in UI) ----------
   const [formData, setFormData] = useState({
@@ -131,6 +132,7 @@ const MDPPhase2Registration = () => {
     Step7TrainingDate,
     Step8BikeDetails,
   ];
+  const { formRef } = useUserAutoFill(USER_FIELDS);
 
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
