@@ -151,12 +151,12 @@ const AdminDashboard = () => {
       )}
 
       {/* Main Content Area */}
-      <main className="flex-1 overflow-y-auto p-4 lg:p-8 ml-0 lg:ml-0">
+      <main className="flex-1 overflow-y-auto pt-20 p-4 lg:p-8 ml-0 lg:ml-0">
         {renderContent()}
       </main>
 
       {/* Mobile top bar */}
-      <div className="fixed top-0 left-0 w-full bg-white px-4 py-3 border-b lg:hidden flex justify-between items-center z-40">
+      <div className="fixed top-13 left-0 w-full bg-white px-4 py-3 border-b lg:hidden flex justify-between items-center z-40">
         <h2 className="font-semibold text-lg">Admin</h2>
         <button onClick={() => setSidebarOpen(!sidebarOpen)}>
           {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
