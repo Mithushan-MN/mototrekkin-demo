@@ -14,7 +14,7 @@ import {
 import AdminDashboardDefaultData from "../../components/dashboard/admindashboard/AdminDashboardDefaultData";
 import AdminUsers from "../../components/dashboard/admindashboard/AdminUsers";
 import AdminOrders from "../../components/dashboard/admindashboard/AdminOrders";
-import AdminProducts from "../../components/dashboard/admindashboard/AdminProducts";
+import MdpPhase2Bikes from "../../components/dashboard/admindashboard/MdpPhase2Bikes";
 import AdminEvents from "../../components/dashboard/admindashboard/AdminTrainings";
 import AdminBikeHire from "../../components/dashboard/admindashboard/AdminBikeHire";
 import AdminEventBookings from "../../components/dashboard/admindashboard/AdminEventBookings";
@@ -46,8 +46,8 @@ const AdminDashboard = () => {
         return <AdminTrainings />;
       case "NzBikes":
         return <NzBikes />;
-      case "products":
-        return <AdminProducts />;
+      case "MdpPhase3Bikes":
+        return <MdpPhase2Bikes />;
       case "events":
         return <AdminEvents />;
       case "logout":
@@ -99,7 +99,7 @@ const AdminDashboard = () => {
         { name: "event bookings", icon: Calendar },
         { name: "Trainings bookings", icon: Calendar },
         { name: "NzBikes", icon: Bike },
-        { name: "products", icon: Box },
+        { name: "MdpPhase3Bikes", icon: Box },
         { name: "events", icon: Calendar },
       ].map((tab) => (
         <li key={tab.name}>
