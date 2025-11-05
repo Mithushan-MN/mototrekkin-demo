@@ -1,123 +1,140 @@
 // src/hooks/useUserAutoFill.js
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 
-const STORAGE_KEY = "mototrekkinUserData";
+const LS_KEY = "profile:v1";
 
-export const useUserAutoFill = (fieldNames = []) => {
+const indexNames = (FIELD_MAP) => {
+  // Map input name -> profile key (for quick reverse lookup)
+  const m = new Map();
+  FIELD_MAP.forEach(({ profile, names }) => {
+    names.forEach((n) => m.set(n, profile));
+  });
+  return m;
+};
+
+export function useUserAutoFill(FIELD_MAP) {
   const formRef = useRef(null);
-  const filledRef = useRef(false); // Prevent double-fill
+  const [profile, setProfile] = useState({});
+  const [ready, setReady] = useState(false);
+  const nameToProfile = useRef(indexNames(FIELD_MAP));
 
+  // load from cache fast
   useEffect(() => {
-    if (!formRef.current || filledRef.current) return;
+    const cached = localStorage.getItem(LS_KEY);
+    if (cached) {
+      try { setProfile(JSON.parse(cached)); } catch {}
+    }
+  }, []);
 
-    const tryFill = () => {
-      const saved = localStorage.getItem(STORAGE_KEY);
-      if (!saved || filledRef.current) return;
+  // fetch from API then merge
+  useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const res = await fetch("/api/profile/me", { credentials: "include" });
+        const data = await res.json();
+        if (!alive) return;
+        const merged = { ...(profile || {}), ...(data || {}) };
+        setProfile(merged);
+        localStorage.setItem(LS_KEY, JSON.stringify(merged));
+      } catch (e) {
+        // ignore network errors for offline-first fill
+      } finally {
+        if (alive) setReady(true);
+      }
+    })();
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-      const data = JSON.parse(saved);
-      let filled = false;
+  // helper: set input value respecting input type
+  const setInputValue = (el, value) => {
+    if (el.type === "checkbox" || el.type === "radio") {
+      el.checked = value === true || value === el.value;
+    } else {
+      el.value = value ?? "";
+      el.dispatchEvent(new Event("input", { bubbles: true })); // let React pick it up
+      el.dispatchEvent(new Event("change", { bubbles: true }));
+    }
+  };
 
-      fieldNames.forEach(name => {
-        const field = formRef.current.elements.namedItem(name);
-        if (!field || field.value) return;
+  // Prefill once DOM is ready & profile loaded
+  const prefill = useCallback(() => {
+    const form = formRef.current;
+    if (!form || !profile) return;
 
-        const value = getNestedValue(data, name);
-        if (value === undefined || value === null) return;
+    // For each profile key, fill all known names if empty in the UI
+    FIELD_MAP.forEach(({ profile: key, names }) => {
+      const value = profile[key];
+      if (value === undefined || value === null || value === "") return;
 
-        // Special: Date fields
-        if (name === "licenceExpiry" && value) {
-          field.value = value;
-          const date = new Date(value);
-          if (!isNaN(date)) {
-            // Trigger DatePicker
-            const datePicker = field.closest('div')?.querySelector('input[readonly]');
-            if (datePicker) datePicker.value = value;
-            filled = true;
-          }
-        }
-        // File name
-        else if (name === "licenceFileName" && value) {
-          field.value = value;
-          const fileInput = formRef.current.elements.namedItem("licenceFile");
-          if (fileInput?.parentElement) {
-            const p = fileInput.parentElement.querySelector('p');
-            if (p) p.textContent = `Selected: ${value}`;
-          }
-          filled = true;
-        }
-        // Normal fields
-        else if (typeof value === "string" || typeof value === "number") {
-          field.value = value;
-          filled = true;
-        }
+      names.forEach((n) => {
+        const el = form.querySelector(`[name="${CSS.escape(n)}"]`);
+        if (!el) return;
+        // only override if field is blank
+        const isBlank =
+          (el.type === "checkbox" || el.type === "radio")
+            ? !el.checked
+            : !el.value;
+        if (isBlank) setInputValue(el, value);
       });
+    });
 
-      if (filled) {
-        filledRef.current = true;
-        formRef.current.dispatchEvent(new Event("input", { bubbles: true }));
-        formRef.current.dispatchEvent(new Event("change", { bubbles: true }));
-      }
-    };
+    // Special case: keep confirmEmail in sync with email if it exists blank
+    const email = profile.email;
+    if (email) {
+      const confirm = form.querySelector('[name="confirmEmail"]');
+      if (confirm && !confirm.value) setInputValue(confirm, email);
+    }
+  }, [FIELD_MAP, profile]);
 
-    // Try now
-    tryFill();
+  useEffect(() => { if (ready) prefill(); }, [ready, prefill]);
 
-    // Retry every 100ms for 3 seconds
-    let attempts = 0;
-    const interval = setInterval(() => {
-      if (attempts++ > 30 || filledRef.current) {
-        clearInterval(interval);
-        return;
-      }
-      tryFill();
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [fieldNames]);
-
-  // SAVE
+  // Push updates to cache + server whenever a mapped input changes
   useEffect(() => {
     const form = formRef.current;
     if (!form) return;
 
-    const save = () => {
-      const payload = {};
-      fieldNames.forEach(name => {
-        const field = form.elements.namedItem(name);
-        if (field?.value) {
-          setNestedValue(payload, name, field.value.trim());
-        }
-      });
+    const handler = (e) => {
+      const { name, type, value, checked } = e.target;
+      const key = nameToProfile.current.get(name);
+      if (!key) return; // not a common field
 
-      if (Object.keys(payload).length > 0) {
-        const existing = JSON.parse(localStorage.getItem(STORAGE_KEY) || "{}");
-        localStorage.setItem(STORAGE_KEY, JSON.stringify({ ...existing, ...payload }));
-      }
+      const next = { ...profile };
+      next[key] = (type === "checkbox") ? !!checked : value;
+
+      setProfile(next);
+      localStorage.setItem(LS_KEY, JSON.stringify(next));
+
+      // fire-and-forget save (debounced in a real app)
+      fetch("/api/profile/me", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify(next),
+      }).catch(() => {});
     };
 
-    form.addEventListener("input", save);
-    form.addEventListener("change", save);
-
+    form.addEventListener("input", handler, true);
+    form.addEventListener("change", handler, true);
     return () => {
-      form.removeEventListener("input", save);
-      form.removeEventListener("change", save);
+      form.removeEventListener("input", handler, true);
+      form.removeEventListener("change", handler, true);
     };
-  }, [fieldNames]);
+  }, [profile]);
 
-  return { formRef };
-};
+  const saveProfile = async (partial) => {
+    const next = { ...profile, ...partial };
+    setProfile(next);
+    localStorage.setItem(LS_KEY, JSON.stringify(next));
+    const res = await fetch("/api/profile/me", {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      credentials: "include",
+      body: JSON.stringify(next),
+    });
+    return res.json();
+  };
 
-// === HELPERS ===
-function getNestedValue(obj, path) {
-  return path.split('.').reduce((acc, part) => acc?.[part], obj);
-}
-
-function setNestedValue(obj, path, value) {
-  const parts = path.split('.');
-  let current = obj;
-  for (let i = 0; i < parts.length - 1; i++) {
-    if (!current[parts[i]]) current[parts[i]] = {};
-    current = current[parts[i]];
-  }
-  current[parts[parts.length - 1]] = value;
+  return { formRef, profile, saveProfile };
 }

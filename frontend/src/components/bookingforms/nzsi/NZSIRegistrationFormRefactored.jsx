@@ -15,10 +15,13 @@ import Step10 from './steps/Step10';
 import Step11 from './steps/Step11';
 import Step12 from './steps/Step12';
 import { fetchMotorcycles } from './motorcycles';
+import { USER_FIELDS } from '../../../constants/userFields';
 
 const stripePromise = loadStripe('pk_live_6C7fzU00LNNJoD74Cg1AjFeH00bxXpAZGj');
 
 const NZSIRegistrationFormRefactored = () => {
+
+  const { formRef } = useUserAutoFill(USER_FIELDS);
   console.log('NZSIRegistrationFormRefactored: Component loaded');
   
   const [currentStep, setCurrentStep] = useState(1);
@@ -793,7 +796,7 @@ const NZSIRegistrationFormRefactored = () => {
             ))}
           </div>
           <div className="bg-white rounded-lg shadow-lg p-4 sm:p-6 lg:p-8">
-            <form onSubmit={handleSubmit}>
+            <form ref={formRef} onSubmit={handleSubmit}>
               {renderStepContent()}
               <div className="flex justify-between mt-6 sm:mt-8">
                 <button
