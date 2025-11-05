@@ -1,13 +1,19 @@
 // components/AdminEventsNZSIRegistration.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from '../../../axiosConfig';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay } from 'date-fns';
 
 const AdminEventsNZSIRegistration = () => {
   const [registrations, setRegistrations] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [editModal, setEditModal] = useState({ open: false, reg: null });
+
+  // ────── FILTER STATE ──────
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [accommodationFilter, setAccommodationFilter] = useState("All");
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
 
   useEffect(() => {
     const fetchRegistrations = async () => {
@@ -31,6 +37,46 @@ const AdminEventsNZSIRegistration = () => {
     fetchRegistrations();
   }, []);
 
+  // ────── UNIQUE ACCOMMODATIONS FOR FILTER ──────
+  const uniqueAccommodations = useMemo(() => {
+    const prefs = registrations.map(r => r.accommodation?.accommodationPreference).filter(Boolean);
+    return ["All", ...Array.from(new Set(prefs))];
+  }, [registrations]);
+
+  // ────── FILTERED REGISTRATIONS ──────
+  const filteredRegistrations = useMemo(() => {
+    return registrations.filter(reg => {
+      const name = `${reg.personalDetails?.firstName || ''} ${reg.personalDetails?.lastName || ''}`.toLowerCase();
+      const email = (reg.personalDetails?.email || '').toLowerCase();
+      const licence = (reg.licenceDetails?.licenceNumber || '').toLowerCase();
+      const term = search.toLowerCase();
+
+      const matchesSearch = !search ||
+        name.includes(term) ||
+        email.includes(term) ||
+        licence.includes(term);
+
+      const matchesStatus = statusFilter === "All" || reg.payment?.paymentStatus === statusFilter;
+
+      const matchesAccommodation = accommodationFilter === "All" ||
+        reg.accommodation?.accommodationPreference === accommodationFilter;
+
+      let matchesDate = true;
+      if (dateRange.start || dateRange.end) {
+        const created = new Date(reg.createdAt);
+        if (dateRange.start) {
+          matchesDate = created >= startOfDay(new Date(dateRange.start));
+        }
+        if (dateRange.end) {
+          matchesDate = matchesDate && created <= endOfDay(new Date(dateRange.end));
+        }
+      }
+
+      return matchesSearch && matchesStatus && matchesAccommodation && matchesDate;
+    });
+  }, [registrations, search, statusFilter, accommodationFilter, dateRange]);
+
+  // ────── MODAL HELPERS ──────
   const openEditModal = (reg) => {
     setEditModal({ open: true, reg: { ...reg } });
   };
@@ -106,10 +152,10 @@ const AdminEventsNZSIRegistration = () => {
   };
 
   const exportCSV = () => {
-    if (registrations.length === 0) return alert('No data');
+    if (filteredRegistrations.length === 0) return alert('No data to export');
 
     const headers = ['Name', 'Email', 'Accommodation', 'Total', 'Status', 'Created'];
-    const rows = registrations.map(r => [
+    const rows = filteredRegistrations.map(r => [
       `${r.personalDetails?.firstName} ${r.personalDetails?.lastName}`,
       r.personalDetails?.email,
       r.accommodation?.accommodationPreference || '',
@@ -133,20 +179,72 @@ const AdminEventsNZSIRegistration = () => {
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4">
       <div className="max-w-7xl mx-auto">
-        <div className="flex justify-between items-center mb-8">
+        {/* ────── HEADER + FILTERS ────── */}
+        <div className="flex flex-col md:flex-col justify-between items-start md:items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold">NZ South Island 2025</h1>
-          <div className="flex gap-3">
-            <span className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm">
-              {registrations.length} total
-            </span>
-            <button onClick={exportCSV} className="bg-green-600 text-white px-4 py-2 rounded">
-              Export CSV
-            </button>
+
+          <div className="flex flex-wrap gap-2 w-full md:w-auto">
+            {/* Search */}
+            <input
+              type="text"
+              placeholder="Search name / email / licence..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 w-full sm:w-64"
+            />
+
+            {/* Status */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="All">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+
+            {/* Accommodation */}
+            <select
+              value={accommodationFilter}
+              onChange={(e) => setAccommodationFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              {uniqueAccommodations.map(opt => (
+                <option key={opt} value={opt}>{opt}</option>
+              ))}
+            </select>
+
+            {/* Date Range */}
+            <input
+              type="date"
+              value={dateRange.start}
+              onChange={(e) => setDateRange(p => ({ ...p, start: e.target.value }))}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+            <input
+              type="date"
+              value={dateRange.end}
+              onChange={(e) => setDateRange(p => ({ ...p, end: e.target.value }))}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
           </div>
         </div>
 
-        {registrations.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg">No registrations yet</div>
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex gap-3">
+            <span className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm">
+              {filteredRegistrations.length} shown ({registrations.length} total)
+            </span>
+          </div>
+          <button onClick={exportCSV} className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
+            Export CSV
+          </button>
+        </div>
+
+        {filteredRegistrations.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-lg">No registrations match filters</div>
         ) : (
           <div className="overflow-x-auto bg-white rounded-lg shadow">
             <table className="min-w-full">
@@ -162,22 +260,21 @@ const AdminEventsNZSIRegistration = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {registrations.map(reg => (
+                {filteredRegistrations.map(reg => (
                   <tr key={reg._id} className="hover:bg-gray-50">
                     <td className="py-4 px-6">{`${reg.personalDetails?.firstName} ${reg.personalDetails?.lastName}`}</td>
-                 <td className="py-4 px-6 text-sm">
-  {reg.personalDetails?.email ? (
-    <a
-      href={`mailto:${reg.personalDetails.email}`}
-      className="text-blue-600 hover:underline"
-    >
-      {reg.personalDetails.email}
-    </a>
-  ) : (
-    "N/A"
-  )}
-</td>
-
+                    <td className="py-4 px-6 text-sm">
+                      {reg.personalDetails?.email ? (
+                        <a
+                          href={`mailto:${reg.personalDetails.email}`}
+                          className="text-blue-600 hover:underline"
+                        >
+                          {reg.personalDetails.email}
+                        </a>
+                      ) : (
+                        "N/A"
+                      )}
+                    </td>
                     <td className="py-4 px-6">
                       <span className="inline-flex px-2 py-1 text-xs rounded-full bg-green-100 text-green-800">
                         {reg.accommodation?.accommodationPreference || '—'}
@@ -208,14 +305,13 @@ const AdminEventsNZSIRegistration = () => {
           </div>
         )}
 
-        {/* EDIT MODAL */}
+        {/* ────── EDIT MODAL (unchanged) ────── */}
         {editModal.open && editModal.reg && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-4xl w-full max-h-screen overflow-y-auto p-6">
               <h2 className="text-2xl font-bold mb-6">Edit Registration</h2>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                {/* Personal */}
                 <div><label className="block text-sm font-medium mb-1">First Name</label>
                   <input type="text" value={editModal.reg.personalDetails?.firstName || ''} onChange={e => updateField('personalDetails', 'firstName', e.target.value)} className="w-full px-3 py-2 border rounded-md" />
                 </div>
@@ -226,7 +322,6 @@ const AdminEventsNZSIRegistration = () => {
                   <input type="email" value={editModal.reg.personalDetails?.email || ''} onChange={e => updateField('personalDetails', 'email', e.target.value)} className="w-full px-3 py-2 border rounded-md" />
                 </div>
 
-                {/* Licence */}
                 <div><label className="block text-sm font-medium mb-1">Licence Valid</label>
                   <select value={editModal.reg.licenceDetails?.licenceValid || 'No'} onChange={e => setEditModal({ ...editModal, reg: { ...editModal.reg, licenceDetails: { ...editModal.reg.licenceDetails, licenceValid: e.target.value } } })} className="w-full px-3 py-2 border rounded-md">
                     <option value="Yes">Yes</option>
@@ -243,7 +338,6 @@ const AdminEventsNZSIRegistration = () => {
                   <input type="date" value={editModal.reg.licenceDetails?.licenceExpiryDate?.split('T')[0] || ''} onChange={e => setEditModal({ ...editModal, reg: { ...editModal.reg, licenceDetails: { ...editModal.reg.licenceDetails, licenceExpiryDate: e.target.value } } })} className="w-full px-3 py-2 border rounded-md" />
                 </div>
 
-                {/* Motorcycle */}
                 <div><label className="block text-sm font-medium mb-1">Hire Option</label>
                   <select value={editModal.reg.motorcycle?.hireOption || ''} onChange={e => updateField('motorcycle', 'hireOption', e.target.value)} className="w-full px-3 py-2 border rounded-md">
                     <option value="Hire a Motorcycle">Hire</option>
@@ -251,7 +345,6 @@ const AdminEventsNZSIRegistration = () => {
                   </select>
                 </div>
 
-                {/* Payment */}
                 <div><label className="block text-sm font-medium mb-1">Status</label>
                   <select value={editModal.reg.payment?.paymentStatus || 'Pending'} onChange={e => updateField('payment', 'paymentStatus', e.target.value)} className="w-full px-3 py-2 border rounded-md">
                     <option value="Pending">Pending</option>
@@ -265,8 +358,8 @@ const AdminEventsNZSIRegistration = () => {
               </div>
 
               <div className="mt-8 flex justify-end gap-3">
-                <button onClick={closeEditModal} className="px-5 py-2 bg-gray-300 rounded">Cancel</button>
-                <button onClick={handleUpdate} className="px-5 py-2 bg-blue-600 text-white rounded">Save</button>
+                <button onClick={closeEditModal} className="px-5 py-2 bg-gray-300 rounded hover:bg-gray-400">Cancel</button>
+                <button onClick={handleUpdate} className="px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
               </div>
             </div>
           </div>

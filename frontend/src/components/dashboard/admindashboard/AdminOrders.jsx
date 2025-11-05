@@ -1,31 +1,38 @@
 // components/AdminOrders.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "../../../axiosConfig";
-import { format, isValid } from "date-fns";
+import { format, isValid, startOfDay, endOfDay } from "date-fns";
 
 const AdminOrders = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  // Modal
+  // ────── FILTER STATE ──────
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+  const [makeFilter, setMakeFilter] = useState("");
+
+  // ────── MODAL STATE ──────
   const [modal, setModal] = useState({ open: false, mode: "create", booking: null });
   const [form, setForm] = useState({});
   const [saving, setSaving] = useState(false);
 
-  // FETCH ALL BOOKINGS
+  // ────── FETCH ALL BOOKINGS ──────
   const fetchBookings = async () => {
     try {
       setLoading(true);
       setError(null);
       const res = await axios.get("/api/bookings");
       setBookings(res.data);
-      setLoading(false);
     } catch (err) {
-      const msg = err.response?.status === 401
-        ? "Please log in as admin"
-        : err.response?.data?.message || "Failed to load";
+      const msg =
+        err.response?.status === 401
+          ? "Please log in as admin"
+          : err.response?.data?.message || "Failed to load";
       setError(msg);
+    } finally {
       setLoading(false);
     }
   };
@@ -34,7 +41,41 @@ const AdminOrders = () => {
     fetchBookings();
   }, []);
 
-  // OPEN MODAL
+  // ────── FILTERED LIST (memoized) ──────
+  const filteredBookings = useMemo(() => {
+    return bookings.filter((b) => {
+      // 1. Global search (name / email / mobile / bike)
+      const term = search.toLowerCase();
+      const matchesSearch =
+        !search ||
+        `${b.firstName} ${b.lastName}`.toLowerCase().includes(term) ||
+        b.email.toLowerCase().includes(term) ||
+        b.mobileNumber?.toLowerCase().includes(term) ||
+        `${b.motorcycleMake} ${b.motorcycleModel}`.toLowerCase().includes(term);
+
+      // 2. Status
+      const matchesStatus = statusFilter === "All" || b.status === statusFilter;
+
+      // 3. Date range
+      let matchesDate = true;
+      if (dateRange.start || dateRange.end) {
+        const bookingDate = new Date(b.preferredDateTime);
+        if (dateRange.start) {
+          matchesDate = bookingDate >= startOfDay(new Date(dateRange.start));
+        }
+        if (dateRange.end) {
+          matchesDate = matchesDate && bookingDate <= endOfDay(new Date(dateRange.end));
+        }
+      }
+
+      // 4. Make (partial match)
+      const matchesMake = !makeFilter || b.motorcycleMake?.toLowerCase().includes(makeFilter.toLowerCase());
+
+      return matchesSearch && matchesStatus && matchesDate && matchesMake;
+    });
+  }, [bookings, search, statusFilter, dateRange, makeFilter]);
+
+  // ────── MODAL HELPERS ──────
   const openModal = (mode, booking = null) => {
     setModal({ open: true, mode, booking });
     if (mode === "create") {
@@ -54,7 +95,7 @@ const AdminOrders = () => {
     setSaving(false);
   };
 
-  // SAVE (CREATE / UPDATE)
+  // ────── SAVE (CREATE / UPDATE) ──────
   const handleSave = async () => {
     if (!form.firstName || !form.email || !form.preferredDateTime) {
       return alert("First Name, Email, and Preferred Date are required");
@@ -65,11 +106,13 @@ const AdminOrders = () => {
       let res;
       if (modal.mode === "create") {
         res = await axios.post("/api/bookings", form);
-        setBookings(prev => [res.data.booking, ...prev]);
+        setBookings((prev) => [res.data.booking, ...prev]);
         alert("Booking created");
       } else {
         res = await axios.put(`/api/bookings/${modal.booking._id}`, form);
-        setBookings(prev => prev.map(b => b._id === modal.booking._id ? res.data.booking : b));
+        setBookings((prev) =>
+          prev.map((b) => (b._id === modal.booking._id ? res.data.booking : b))
+        );
         alert("Booking updated");
       }
       closeModal();
@@ -80,50 +123,99 @@ const AdminOrders = () => {
     }
   };
 
-  // DELETE
+  // ────── DELETE ──────
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this booking?")) return;
     try {
       await axios.delete(`/api/bookings/${id}`);
-      setBookings(prev => prev.filter(b => b._id !== id));
+      setBookings((prev) => prev.filter((b) => b._id !== id));
       alert("Deleted");
     } catch (err) {
       alert("Error: " + (err.response?.data?.message || err.message));
     }
   };
 
-  // SAFE DATE FORMAT
+  // ────── DATE FORMAT ──────
   const formatDate = (date) => {
     if (!date) return "N/A";
     const d = new Date(date);
     return isValid(d) ? format(d, "MMM dd, yyyy HH:mm") : "Invalid";
   };
 
+  // ────── RENDER ──────
   if (loading) return <p className="text-black p-4">Loading...</p>;
-  if (error) return (
-    <div className="text-red-500 p-4">
-      <p>{error}</p>
-      {error.includes("log in") && (
-        <button onClick={() => window.location.href = "/?openAuthModal=true"}
-          className="mt-2 px-4 py-2 bg-blue-600 text-white rounded">
-          Log In
-        </button>
-      )}
-    </div>
-  );
+  if (error)
+    return (
+      <div className="text-red-500 p-4">
+        <p>{error}</p>
+        {error.includes("log in") && (
+          <button
+            onClick={() => (window.location.href = "/?openAuthModal=true")}
+            className="mt-2 px-4 py-2 bg-blue-600 text-white rounded"
+          >
+            Log In
+          </button>
+        )}
+      </div>
+    );
 
   return (
     <div className="p-4 w-full h-full text-black">
-      <div className="flex justify-between items-center mb-4">
+      {/* ────── HEADER ────── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-3">
         <h1 className="text-2xl font-bold">All Service Bookings</h1>
-        {/* <button
-          onClick={() => openModal("create")}
-          className="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700"
-        >
-          + Add Booking
-        </button> */}  
+
+        {/* ────── GLOBAL FILTERS ────── */}
+        <div className="flex flex-wrap gap-2 w-full md:w-auto">
+          {/* Search */}
+          <input
+            type="text"
+            placeholder="Search name / email / bike..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 w-full sm:w-64"
+          />
+
+          {/* Status */}
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            <option value="All">All Status</option>
+            <option value="Pending">Pending</option>
+            <option value="Confirmed">Confirmed</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Completed">Completed</option>
+            <option value="Cancelled">Cancelled</option>
+          </select>
+
+          {/* Make */}
+          <input
+            type="text"
+            placeholder="Make..."
+            value={makeFilter}
+            onChange={(e) => setMakeFilter(e.target.value)}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 w-32"
+          />
+
+          {/* Date range */}
+          <input
+            type="date"
+            value={dateRange.start}
+            onChange={(e) => setDateRange((p) => ({ ...p, start: e.target.value }))}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+          />
+          <input
+            type="date"
+            value={dateRange.end}
+            onChange={(e) => setDateRange((p) => ({ ...p, end: e.target.value }))}
+            className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+          />
+        </div>
       </div>
 
+      {/* ────── TABLE ────── */}
       <div className="max-w-full overflow-auto border rounded-lg shadow-lg max-h-[80vh]">
         <table className="min-w-full table-auto text-sm text-left">
           <thead className="bg-gray-200 sticky top-0 z-10">
@@ -139,54 +231,70 @@ const AdminOrders = () => {
             </tr>
           </thead>
           <tbody>
-            {bookings.map(b => (
-              <tr key={b._id} className="hover:bg-gray-50 border-b">
-                <td className="px-3 py-2 text-xs">{b._id.slice(-6)}</td>
-                <td className="px-3 py-2">{b.firstName} {b.lastName}</td>
-                <td className="px-3 py-2">
-                  <a href={`mailto:${b.email}`} className="text-blue-600 hover:underline text-xs">
-                    {b.email}
-                  </a>
-                </td>
-                <td className="px-3 py-2">
-                  <a href={`tel:${b.mobileNumber}`} className="text-blue-600 hover:underline text-xs">
-                    {b.mobileNumber}
-                  </a>
-                </td>
-                <td className="px-3 py-2 text-xs">
-                  {b.motorcycleMake} {b.motorcycleModel}
-                </td>
-                <td className="px-3 py-2 text-xs">{formatDate(b.preferredDateTime)}</td>
-                <td className="px-3 py-2">
-                  <span className={`px-2 py-1 text-xs rounded-full ${
-                    b.status === "Confirmed" ? "bg-green-100 text-green-800" :
-                    b.status === "Pending" ? "bg-yellow-100 text-yellow-800" :
-                    "bg-gray-100 text-gray-800"
-                  }`}>
-                    {b.status || "Pending"}
-                  </span>
-                </td>
-                <td className="px-3 py-2 space-x-1">
-                  <button
-                    onClick={() => openModal("edit", b)}
-                    className="text-indigo-600 hover:text-indigo-900 text-xs"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(b._id)}
-                    className="text-red-600 hover:text-red-900 text-xs"
-                  >
-                    Delete
-                  </button>
+            {filteredBookings.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="text-center py-4 text-gray-500">
+                  No bookings match the current filters.
                 </td>
               </tr>
-            ))}
+            ) : (
+              filteredBookings.map((b) => (
+                <tr key={b._id} className="hover:bg-gray-50 border-b">
+                  <td className="px-3 py-2 text-xs">{b._id.slice(-6)}</td>
+                  <td className="px-3 py-2">{b.firstName} {b.lastName}</td>
+                  <td className="px-3 py-2">
+                    <a href={`mailto:${b.email}`} className="text-blue-600 hover:underline text-xs">
+                      {b.email}
+                    </a>
+                  </td>
+                  <td className="px-3 py-2">
+                    <a href={`tel:${b.mobileNumber}`} className="text-blue-600 hover:underline text-xs">
+                      {b.mobileNumber}
+                    </a>
+                  </td>
+                  <td className="px-3 py-2 text-xs">
+                    {b.motorcycleMake} {b.motorcycleModel}
+                  </td>
+                  <td className="px-3 py-2 text-xs">{formatDate(b.preferredDateTime)}</td>
+                  <td className="px-3 py-2">
+                    <span
+                      className={`px-2 py-1 text-xs rounded-full ${
+                        b.status === "Confirmed"
+                          ? "bg-green-100 text-green-800"
+                          : b.status === "Pending"
+                          ? "bg-yellow-100 text-yellow-800"
+                          : b.status === "In Progress"
+                          ? "bg-blue-100 text-blue-800"
+                          : b.status === "Completed"
+                          ? "bg-gray-100 text-gray-800"
+                          : "bg-red-100 text-red-800"
+                      }`}
+                    >
+                      {b.status || "Pending"}
+                    </span>
+                  </td>
+                  <td className="px-3 py-2 space-x-1">
+                    <button
+                      onClick={() => openModal("edit", b)}
+                      className="text-indigo-600 hover:text-indigo-900 text-xs"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      onClick={() => handleDelete(b._id)}
+                      className="text-red-600 hover:text-red-900 text-xs"
+                    >
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
 
-      {/* CREATE / EDIT MODAL */}
+      {/* ────── CREATE / EDIT MODAL ────── */}
       {modal.open && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto p-6">
@@ -195,12 +303,13 @@ const AdminOrders = () => {
             </h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+              {/* ... (all input fields stay exactly the same) ... */}
               <div>
                 <label className="block font-medium mb-1">First Name *</label>
                 <input
                   type="text"
                   value={form.firstName || ""}
-                  onChange={e => setForm({ ...form, firstName: e.target.value })}
+                  onChange={(e) => setForm({ ...form, firstName: e.target.value })}
                   className="w-full px-3 py-1 border rounded"
                 />
               </div>
@@ -209,7 +318,7 @@ const AdminOrders = () => {
                 <input
                   type="text"
                   value={form.lastName || ""}
-                  onChange={e => setForm({ ...form, lastName: e.target.value })}
+                  onChange={(e) => setForm({ ...form, lastName: e.target.value })}
                   className="w-full px-3 py-1 border rounded"
                 />
               </div>
@@ -218,7 +327,7 @@ const AdminOrders = () => {
                 <input
                   type="email"
                   value={form.email || ""}
-                  onChange={e => setForm({ ...form, email: e.target.value })}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
                   className="w-full px-3 py-1 border rounded"
                 />
               </div>
@@ -227,7 +336,7 @@ const AdminOrders = () => {
                 <input
                   type="text"
                   value={form.mobileNumber || ""}
-                  onChange={e => setForm({ ...form, mobileNumber: e.target.value })}
+                  onChange={(e) => setForm({ ...form, mobileNumber: e.target.value })}
                   className="w-full px-3 py-1 border rounded"
                 />
               </div>
@@ -236,7 +345,7 @@ const AdminOrders = () => {
                 <input
                   type="text"
                   value={form.motorcycleMake || ""}
-                  onChange={e => setForm({ ...form, motorcycleMake: e.target.value })}
+                  onChange={(e) => setForm({ ...form, motorcycleMake: e.target.value })}
                   className="w-full px-3 py-1 border rounded"
                 />
               </div>
@@ -245,7 +354,7 @@ const AdminOrders = () => {
                 <input
                   type="text"
                   value={form.motorcycleModel || ""}
-                  onChange={e => setForm({ ...form, motorcycleModel: e.target.value })}
+                  onChange={(e) => setForm({ ...form, motorcycleModel: e.target.value })}
                   className="w-full px-3 py-1 border rounded"
                 />
               </div>
@@ -254,7 +363,7 @@ const AdminOrders = () => {
                 <input
                   type="datetime-local"
                   value={form.preferredDateTime ? form.preferredDateTime.slice(0, 16) : ""}
-                  onChange={e => setForm({ ...form, preferredDateTime: e.target.value })}
+                  onChange={(e) => setForm({ ...form, preferredDateTime: e.target.value })}
                   className="w-full px-3 py-1 border rounded"
                 />
               </div>
@@ -262,7 +371,7 @@ const AdminOrders = () => {
                 <label className="block font-medium mb-1">Status</label>
                 <select
                   value={form.status || "Pending"}
-                  onChange={e => setForm({ ...form, status: e.target.value })}
+                  onChange={(e) => setForm({ ...form, status: e.target.value })}
                   className="w-full px-3 py-1 border rounded"
                 >
                   <option value="Pending">Pending</option>
@@ -276,8 +385,8 @@ const AdminOrders = () => {
                 <label className="block font-medium mb-1">Work Summary</label>
                 <textarea
                   value={form.summaryOfWork || ""}
-                  onChange={e => setForm({ ...form, summaryOfWork: e.target.value })}
-                  rows="3"
+                  onChange={(e) => setForm({ ...form, summaryOfWork: e.target.value })}
+                  rows={3}
                   className="w-full px-3 py-1 border rounded"
                 />
               </div>
@@ -305,8 +414,10 @@ const AdminOrders = () => {
                     </svg>
                     Saving...
                   </>
+                ) : modal.mode === "create" ? (
+                  "Create"
                 ) : (
-                  modal.mode === "create" ? "Create" : "Update"
+                  "Update"
                 )}
               </button>
             </div>

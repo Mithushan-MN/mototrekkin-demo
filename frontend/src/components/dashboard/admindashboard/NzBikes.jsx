@@ -1,9 +1,10 @@
 // components/NzBikes.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import axios from "../../../axiosConfig";
-import { useNavigate } from "react-router-dom";
+import { format } from "date-fns";
 
 const NzBikes = () => {
+  /* ────────────────────── STATE ────────────────────── */
   const [bikes, setBikes] = useState([]);
   const [loading, setLoading] = useState(true);
   const [selectedBike, setSelectedBike] = useState(null);
@@ -11,7 +12,6 @@ const NzBikes = () => {
   const [editData, setEditData] = useState({ specs: {} });
   const [editError, setEditError] = useState("");
 
-  // ---------- Add-modal ----------
   const [addMode, setAddMode] = useState(false);
   const [addData, setAddData] = useState({
     name: "",
@@ -34,22 +34,19 @@ const NzBikes = () => {
   });
   const [addError, setAddError] = useState("");
 
-  const navigate = useNavigate();
+  /* ────── FILTER STATE ────── */
+  const [search, setSearch] = useState("");
+  const [availFilter, setAvailFilter] = useState("All"); // All | true | false
 
-  /* ------------------------------------------------------------------ */
-  /* 1. FETCH ALL BIKES (no .filter – show everything, then UI can hide) */
-  /* ------------------------------------------------------------------ */
+  /* ────────────────────── FETCH ────────────────────── */
   useEffect(() => {
     fetchBikes();
   }, []);
 
   const fetchBikes = async () => {
     try {
-      const res = await axios.get("/api/nz-bikes");
-      console.log("API raw response:", res); // <-- keep for a moment, then delete
-
-      // Safety – always work with an array
-      const list = Array.isArray(res.data) ? res.data : [];
+      const { data } = await axios.get("/api/nz-bikes");
+      const list = Array.isArray(data) ? data : [];
       setBikes(list);
     } catch (err) {
       console.error("Fetch error:", err);
@@ -59,26 +56,45 @@ const NzBikes = () => {
     }
   };
 
-  /* ------------------------------------------------------------------ */
-  /* 2. DELETE */
-  /* ------------------------------------------------------------------ */
+  /* ────── FILTERED LIST (search + availability) ────── */
+  const filteredBikes = useMemo(() => {
+    return bikes.filter((bike) => {
+      // ---- search ----
+      const term = search.toLowerCase();
+      const nameMatch = bike.name?.toLowerCase().includes(term);
+      const priceMatch = bike.price?.toString().includes(term);
+      const remainingMatch = bike.remaining?.toString().includes(term);
+      const specsMatch = Object.values(bike.specs || {})
+        .join(" ")
+        .toLowerCase()
+        .includes(term);
+      const searchOk = !search || nameMatch || priceMatch || remainingMatch || specsMatch;
+
+      // ---- availability ----
+      const availOk =
+        availFilter === "All" ||
+        (availFilter === "true" && bike.available) ||
+        (availFilter === "false" && !bike.available);
+
+      return searchOk && availOk;
+    });
+  }, [bikes, search, availFilter]);
+
+  /* ────────────────────── CRUD ────────────────────── */
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this bike?")) return;
     try {
       await axios.delete(`/api/nz-bikes/${id}`);
-      setBikes((prev) => prev.filter((b) => b._id !== id));
+      setBikes((p) => p.filter((b) => b._id !== id));
       setSelectedBike(null);
     } catch (err) {
       alert(err.response?.data?.message || "Delete failed");
     }
   };
 
-  /* ------------------------------------------------------------------ */
-  /* 3. EDIT – open modal */
-  /* ------------------------------------------------------------------ */
-  const handleEditClick = () => {
+  /* ────── EDIT ────── */
+  const openEdit = () => {
     if (!selectedBike) return;
-
     const specsObj =
       typeof selectedBike.specs === "string"
         ? JSON.parse(selectedBike.specs)
@@ -99,21 +115,20 @@ const NzBikes = () => {
   const handleEditChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (name in editData.specs) {
-      setEditData((prev) => ({
-        ...prev,
-        specs: { ...prev.specs, [name]: value },
+      setEditData((p) => ({
+        ...p,
+        specs: { ...p.specs, [name]: value },
       }));
     } else if (type === "checkbox") {
-      setEditData((prev) => ({ ...prev, [name]: checked }));
+      setEditData((p) => ({ ...p, [name]: checked }));
     } else {
-      setEditData((prev) => ({ ...prev, [name]: value }));
+      setEditData((p) => ({ ...p, [name]: value }));
     }
   };
 
   const handleEditSubmit = async (e) => {
     e.preventDefault();
     setEditError("");
-
     try {
       const payload = {
         ...editData,
@@ -121,41 +136,38 @@ const NzBikes = () => {
         remaining: Number(editData.remaining),
         specs: editData.specs,
       };
-      const res = await axios.put(`/api/nz-bikes/${selectedBike._id}`, payload);
-      setBikes((prev) =>
-        prev.map((b) => (b._id === selectedBike._id ? res.data.bike : b))
+      const { data } = await axios.put(
+        `/api/nz-bikes/${selectedBike._id}`,
+        payload
       );
-      setSelectedBike(res.data.bike);
+      setBikes((p) =>
+        p.map((b) => (b._id === selectedBike._id ? data.bike : b))
+      );
+      setSelectedBike(data.bike);
       setEditMode(false);
     } catch (err) {
       setEditError(err.response?.data?.message || "Update failed");
     }
   };
 
-  /* ------------------------------------------------------------------ */
-  /* 4. ADD – change handler */
-  /* ------------------------------------------------------------------ */
+  /* ────── ADD ────── */
   const handleAddChange = (e) => {
     const { name, value, type, checked } = e.target;
     if (name in addData.specs) {
-      setAddData((prev) => ({
-        ...prev,
-        specs: { ...prev.specs, [name]: value },
+      setAddData((p) => ({
+        ...p,
+        specs: { ...p.specs, [name]: value },
       }));
     } else if (type === "checkbox") {
-      setAddData((prev) => ({ ...prev, [name]: checked }));
+      setAddData((p) => ({ ...p, [name]: checked }));
     } else {
-      setAddData((prev) => ({ ...prev, [name]: value }));
+      setAddData((p) => ({ ...p, [name]: value }));
     }
   };
 
-  /* ------------------------------------------------------------------ */
-  /* 5. ADD – submit */
-  /* ------------------------------------------------------------------ */
   const handleAddSubmit = async (e) => {
     e.preventDefault();
     setAddError("");
-
     try {
       const payload = {
         ...addData,
@@ -163,10 +175,11 @@ const NzBikes = () => {
         remaining: Number(addData.remaining),
         specs: addData.specs,
       };
-      const res = await axios.post("/api/nz-bikes", payload);
-      setBikes((prev) => [...prev, res.data.bike]);
+      constObject;
+      const { data } = await axios.post("/api/nz-bikes", payload);
+      setBikes((p) => [...p, data.bike]);
       setAddMode(false);
-      // reset form
+      // reset form (keep spec keys)
       setAddData({
         name: "",
         price: "",
@@ -180,47 +193,112 @@ const NzBikes = () => {
     }
   };
 
-  /* ------------------------------------------------------------------ */
-  /* 6. IMAGE URL (static assets) */
-  /* ------------------------------------------------------------------ */
-  const getImageUrl = (image) => (image ? image : null);
+  /* ────── IMAGE ────── */
+  const getImageUrl = (img) => (img ? img : null);
 
-  /* ------------------------------------------------------------------ */
-  /* UI */
-  /* ------------------------------------------------------------------ */
+  /* ────── EXPORT CSV ────── */
+  const exportCSV = () => {
+    if (filteredBikes.length === 0) return alert("No bikes to export");
+
+    const headers = [
+      "Name",
+      "Price $/Day",
+      "Remaining",
+      "Available",
+      "Image",
+      ...Object.keys(addData.specs), // all spec columns
+    ];
+    const rows = filteredBikes.map((b) => [
+      b.name,
+      b.price,
+      b.remaining,
+      b.available ? "Yes" : "No",
+      b.image || "",
+      ...Object.values(b.specs || {}),
+    ]);
+
+    const csv = [headers, ...rows].map((r) => r.join(",")).join("\n");
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `nz-bikes-${format(new Date(), "yyyy-MM-dd")}.csv`;
+    a.click();
+  };
+
+  /* ────────────────────── UI ────────────────────── */
   if (loading)
     return (
       <p className="text-center mt-20 text-gray-400">Loading bikes...</p>
     );
 
   return (
-    <div className="bg-gray-900 p-6 sm:p-8 font-sans min-h-screen">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-center mb-6">
-        <h2 className="text-3xl text-white font-bold mb-4 sm:mb-0">
-          All Bikes
-        </h2>
-        <button
-          onClick={() => {
-            setAddMode(true);
-            setAddError("");
-          }}
-          className="px-4 py-2 bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded"
-        >
-          + Add New Bike
-        </button>
+    <div className="bg-gray-900 p-6 sm:p-8 font-sans min-h-screen text-white">
+      {/* ────── HEADER + FILTERS ────── */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center mb-6 gap-4">
+        <h2 className="text-3xl font-bold">All Bikes</h2>
+
+        <div className="flex flex-wrap gap-3 w-full lg:w-auto">
+          {/* Search */}
+          <input
+            type="text"
+            placeholder="Search name, price, specs..."
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 w-full lg:w-64"
+          />
+
+          {/* Availability */}
+          <select
+            value={availFilter}
+            onChange={(e) => setAvailFilter(e.target.value)}
+            className="px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+          >
+            <option value="All">All Availability</option>
+            <option value="true">Available</option>
+            <option value="false">Unavailable</option>
+          </select>
+
+          {/* Export */}
+          <button
+            onClick={exportCSV}
+            className="px-4 py-2 bg-green-600 hover:bg-green-700 rounded-lg text-sm font-semibold transition"
+          >
+            Export CSV
+          </button>
+
+          {/* Add */}
+          <button
+            onClick={() => {
+              setAddMode(true);
+              setAddError("");
+            }}
+            className="px-4 py-2 bg-orange-600 hover:bg-orange-700 rounded-lg text-sm font-semibold transition"
+          >
+            + Add New Bike
+          </button>
+        </div>
       </div>
 
-      {/* No bikes message */}
-      {bikes.length === 0 && (
+      {/* Counter */}
+      <div className="mb-4">
+        <span className="bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium">
+          {filteredBikes.length} shown ({bikes.length} total)
+        </span>
+      </div>
+
+      {/* Empty */}
+      {filteredBikes.length === 0 && (
         <p className="text-center mt-10 text-yellow-500">
-          No bikes found. Click “+ Add New Bike” to start.
+          {bikes.length === 0
+            ? "No bikes found. Click “+ Add New Bike” to start."
+            : "No bikes match your filters."}
         </p>
       )}
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
-        {bikes.map((bike) => (
+        {filteredBikes.map((bike) => (
           <div
             key={bike._id}
             className="bg-gray-800 rounded-lg p-4 shadow-md flex flex-col items-center cursor-pointer hover:shadow-xl transition"
@@ -237,18 +315,19 @@ const NzBikes = () => {
                 No Image
               </div>
             )}
-            <h3 className="text-white font-semibold text-center">
-              {bike.name}
-            </h3>
+            <h3 className="font-semibold text-center">{bike.name}</h3>
             <p className="text-yellow-400 text-center">{bike.price} $/Day</p>
             <p className="text-green-400 text-center">
               Remaining: {bike.remaining}
+            </p>
+            <p className={`text-xs mt-1 ${bike.available ? "text-green-400" : "text-red-400"}`}>
+              {bike.available ? "Available" : "Unavailable"}
             </p>
           </div>
         ))}
       </div>
 
-      {/* ------------------- DETAIL / EDIT / DELETE MODAL ------------------- */}
+      {/* ────── DETAIL / EDIT / DELETE MODAL ────── */}
       {selectedBike && (
         <div
           className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4"
@@ -264,7 +343,7 @@ const NzBikes = () => {
           >
             {!editMode ? (
               <>
-                <h2 className="text-2xl font-bold text-white mb-4 text-center">
+                <h2 className="text-2xl font-bold mb-4 text-center">
                   {selectedBike.name}
                 </h2>
 
@@ -291,14 +370,12 @@ const NzBikes = () => {
                   {new Date(selectedBike.createdAt).toLocaleDateString()}
                 </p>
 
-                <h3 className="text-white font-semibold mt-3 mb-1">
-                  Specifications:
-                </h3>
+                <h3 className="font-semibold mt-3 mb-1">Specifications:</h3>
                 <ul className="text-gray-300 text-sm space-y-1 mb-4">
                   {Object.entries(selectedBike.specs || {}).map(
-                    ([key, value]) => (
-                      <li key={key}>
-                        <b className="capitalize">{key}:</b> {value}
+                    ([k, v]) => (
+                      <li key={k}>
+                        <b className="capitalize">{k}:</b> {v}
                       </li>
                     )
                   )}
@@ -306,29 +383,29 @@ const NzBikes = () => {
 
                 <div className="flex flex-col sm:flex-row gap-2 mt-4">
                   <button
-                    onClick={handleEditClick}
-                    className="px-4 py-2 rounded bg-yellow-500 hover:bg-yellow-400 text-white font-semibold flex-1"
+                    onClick={openEdit}
+                    className="px-4 py-2 rounded bg-yellow-500 hover:bg-yellow-400 font-semibold flex-1"
                   >
                     Edit
                   </button>
                   <button
                     onClick={() => handleDelete(selectedBike._id)}
-                    className="px-4 py-2 rounded bg-red-600 hover:bg-red-500 text-white font-semibold flex-1"
+                    className="px-4 py-2 rounded bg-red-600 hover:bg-red-500 font-semibold flex-1"
                   >
                     Delete
                   </button>
                   <button
                     onClick={() => setSelectedBike(null)}
-                    className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 text-white font-semibold flex-1"
+                    className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 font-semibold flex-1"
                   >
                     Close
                   </button>
                 </div>
               </>
             ) : (
-              /* ------------------- EDIT FORM ------------------- */
+              /* ────── EDIT FORM ────── */
               <form onSubmit={handleEditSubmit} className="space-y-3">
-                <h2 className="text-2xl font-bold text-white mb-2 text-center">
+                <h2 className="text-2xl font-bold mb-2 text-center">
                   Edit {selectedBike.name}
                 </h2>
 
@@ -369,7 +446,7 @@ const NzBikes = () => {
                     name="image"
                     value={editData.image}
                     onChange={handleEditChange}
-                    placeholder="Image path (e.g. /assets/...)"
+                    placeholder="Image path"
                     className="w-full p-2 rounded bg-gray-700 text-white"
                   />
                   <div className="flex items-center space-x-2 text-white">
@@ -383,19 +460,17 @@ const NzBikes = () => {
                   </div>
                 </div>
 
-                <h3 className="text-white font-semibold mt-2 mb-1">
-                  Specifications:
-                </h3>
+                <h3 className="font-semibold mt-2 mb-1">Specifications:</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                  {Object.entries(editData.specs).map(([key, value]) => (
-                    <div key={key} className="flex flex-col">
+                  {Object.entries(editData.specs).map(([k, v]) => (
+                    <div key={k} className="flex flex-col">
                       <label className="text-gray-300 text-sm mb-1 capitalize">
-                        {key}
+                        {k}
                       </label>
                       <input
                         type="text"
-                        name={key}
-                        value={value}
+                        name={k}
+                        value={v}
                         onChange={handleEditChange}
                         className="w-full p-2 rounded bg-gray-700 text-white text-sm"
                       />
@@ -406,7 +481,7 @@ const NzBikes = () => {
                 <div className="flex flex-col sm:flex-row gap-2 mt-4">
                   <button
                     type="submit"
-                    className="px-4 py-2 rounded bg-green-500 hover:bg-green-400 text-white font-semibold flex-1"
+                    className="px-4 py-2 rounded bg-green-500 hover:bg-green-400 font-semibold flex-1"
                   >
                     Save
                   </button>
@@ -416,7 +491,7 @@ const NzBikes = () => {
                       setEditMode(false);
                       setEditError("");
                     }}
-                    className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 text-white font-semibold flex-1"
+                    className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 font-semibold flex-1"
                   >
                     Cancel
                   </button>
@@ -427,7 +502,7 @@ const NzBikes = () => {
         </div>
       )}
 
-      {/* ------------------- ADD MODAL ------------------- */}
+      {/* ────── ADD MODAL ────── */}
       {addMode && (
         <div
           className="fixed inset-0 bg-black bg-opacity-70 flex justify-center items-center z-50 p-4"
@@ -441,7 +516,7 @@ const NzBikes = () => {
             onClick={(e) => e.stopPropagation()}
           >
             <form onSubmit={handleAddSubmit} className="space-y-3">
-              <h2 className="text-2xl font-bold text-white mb-2 text-center">
+              <h2 className="text-2xl font-bold mb-2 text-center">
                 Add New Bike
               </h2>
 
@@ -480,7 +555,7 @@ const NzBikes = () => {
                   name="image"
                   value={addData.image}
                   onChange={handleAddChange}
-                  placeholder="Image path (e.g. /assets/...)"
+                  placeholder="Image path"
                   className="w-full p-2 rounded bg-gray-700 text-white"
                 />
                 <div className="flex items-center space-x-2 text-white">
@@ -494,19 +569,17 @@ const NzBikes = () => {
                 </div>
               </div>
 
-              <h3 className="text-white font-semibold mt-2 mb-1">
-                Specifications:
-              </h3>
+              <h3 className="font-semibold mt-2 mb-1">Specifications:</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-2">
-                {Object.entries(addData.specs).map(([key, value]) => (
-                  <div key={key} className="flex flex-col">
+                {Object.entries(addData.specs).map(([k, v]) => (
+                  <div key={k} className="flex flex-col">
                     <label className="text-gray-300 text-sm mb-1 capitalize">
-                      {key}
+                      {k}
                     </label>
                     <input
                       type="text"
-                      name={key}
-                      value={value}
+                      name={k}
+                      value={v}
                       onChange={handleAddChange}
                       className="w-full p-2 rounded bg-gray-700 text-white text-sm"
                     />
@@ -517,7 +590,7 @@ const NzBikes = () => {
               <div className="flex flex-col sm:flex-row gap-2 mt-4">
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded bg-green-500 hover:bg-green-400 text-white font-semibold flex-1"
+                  className="px-4 py-2 rounded bg-green-500 hover:bg-green-400 font-semibold flex-1"
                 >
                   Add Bike
                 </button>
@@ -527,7 +600,7 @@ const NzBikes = () => {
                     setAddMode(false);
                     setAddError("");
                   }}
-                  className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 text-white font-semibold flex-1"
+                  className="px-4 py-2 rounded bg-gray-600 hover:bg-gray-500 font-semibold flex-1"
                 >
                   Cancel
                 </button>

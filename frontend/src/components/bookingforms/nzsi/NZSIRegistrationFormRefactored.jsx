@@ -16,6 +16,7 @@ import Step11 from './steps/Step11';
 import Step12 from './steps/Step12';
 import { fetchMotorcycles } from './motorcycles';
 import { USER_FIELDS } from '../../../constants/userFields';
+import { useUserAutoFill } from '../../../hooks/useUserAutoFill';
 
 const stripePromise = loadStripe('pk_live_6C7fzU00LNNJoD74Cg1AjFeH00bxXpAZGj');
 

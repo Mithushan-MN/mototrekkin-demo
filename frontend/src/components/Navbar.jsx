@@ -217,7 +217,7 @@ export default function Navbar({ onUserClick }) {
             <div className="relative">
               <button
                 onClick={() => setProfileOpen(!profileOpen)}
-                className="px-3 py-1 text-white bg-yellow-600 rounded hover:bg-yellow-700 transition"
+                className="btn-header"
               >
                 My Account
               </button>

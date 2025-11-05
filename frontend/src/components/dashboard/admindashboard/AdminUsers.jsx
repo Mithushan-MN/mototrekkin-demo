@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+// components/AdminUsers.jsx
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from '../../../axiosConfig';
-import { format, isValid } from 'date-fns';
+import { format, isValid, startOfDay, endOfDay } from 'date-fns';
 
 const AdminUsers = () => {
   const [users, setUsers] = useState([]);
@@ -9,6 +10,11 @@ const AdminUsers = () => {
   const [modal, setModal] = useState({ open: false, mode: 'create', user: null });
   const [form, setForm] = useState({ fullName: '', email: '', password: '', role: 'user' });
   const [saving, setSaving] = useState(false);
+
+  // ────── FILTER STATE ──────
+  const [search, setSearch] = useState("");
+  const [roleFilter, setRoleFilter] = useState("All");
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
 
   useEffect(() => {
     fetchUsers();
@@ -28,6 +34,36 @@ const AdminUsers = () => {
     }
   };
 
+  // ────── FILTERED USERS ──────
+  const filteredUsers = useMemo(() => {
+    return users.filter(user => {
+      const name = (user.fullName || '').toLowerCase();
+      const email = (user.email || '').toLowerCase();
+      const term = search.toLowerCase();
+
+      const matchesSearch = !search ||
+        name.includes(term) ||
+        email.includes(term);
+
+      const matchesRole = roleFilter === "All" || user.role === roleFilter;
+
+      let matchesDate = true;
+      if (dateRange.start || dateRange.end) {
+        const created = new Date(user.createdAt);
+        if (isNaN(created.getTime())) return false;
+        if (dateRange.start) {
+          matchesDate = created >= startOfDay(new Date(dateRange.start));
+        }
+        if (dateRange.end) {
+          matchesDate = matchesDate && created <= endOfDay(new Date(dateRange.end));
+        }
+      }
+
+      return matchesSearch && matchesRole && matchesDate;
+    });
+  }, [users, search, roleFilter, dateRange]);
+
+  // ────── MODAL HANDLERS ──────
   const openModal = (mode, user = null) => {
     setModal({ open: true, mode, user });
     setForm(
@@ -95,31 +131,109 @@ const AdminUsers = () => {
     return isValid(date) ? format(date, 'MMM dd, yyyy') : 'Invalid Date';
   };
 
+  // ────── EXPORT CSV ──────
+  const exportCSV = () => {
+    if (filteredUsers.length === 0) return alert('No users to export');
+
+    const headers = ['Name', 'Email', 'Role', 'Created'];
+    const rows = filteredUsers.map(u => [
+      u.fullName || '',
+      u.email,
+      u.role,
+      format(new Date(u.createdAt), 'yyyy-MM-dd'),
+    ]);
+
+    const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `users-${format(new Date(), 'yyyy-MM-dd')}.csv`;
+    a.click();
+  };
+
+  // ────── LOADING / ERROR ──────
   if (loading) return <div className="text-center py-10">Loading users...</div>;
   if (error) return <div className="text-center text-red-600 py-10">{error}</div>;
 
   return (
     <div className="min-h-screen bg-gray-100 py-6 px-3 sm:px-6">
       <div className="max-w-6xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+        {/* ────── HEADER + FILTERS ────── */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-2xl sm:text-3xl font-bold">Manage Users</h1>
-          <div className="flex flex-wrap gap-3">
-            <span className="bg-blue-100 text-blue-800 px-4 py-2 rounded-full text-sm">
-              {users.length} user{users.length !== 1 ? 's' : ''}
+
+          <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+            {/* Search */}
+            <input
+              type="text"
+              placeholder="Search name / email..."
+              value={search}
+              onChange={e => setSearch(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 w-full sm:w-64"
+            />
+
+            {/* Role Filter */}
+            <select
+              value={roleFilter}
+              onChange={e => setRoleFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              <option value="All">All Roles</option>
+              <option value="user">User</option>
+              <option value="admin">Admin</option>
+            </select>
+
+            {/* Date Range */}
+            <input
+              type="date"
+              value={dateRange.start}
+              onChange={e => setDateRange(p => ({ ...p, start: e.target.value }))}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+            <input
+              type="date"
+              value={dateRange.end}
+              onChange={e => setDateRange(p => ({ ...p, end: e.target.value }))}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+          </div>
+        </div>
+
+        {/* ────── COUNTER + ACTIONS ────── */}
+        <div className="flex justify-between items-center mb-4">
+          <div className="flex gap-3">
+            <span className="bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium">
+              {filteredUsers.length} shown ({users.length} total)
             </span>
+          </div>
+          <div className="flex gap-3">
+            <button
+              onClick={exportCSV}
+              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+            >
+              Export CSV
+            </button>
             <button
               onClick={() => openModal('create')}
-              className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 text-sm sm:text-base"
+              className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
             >
               + Add User
             </button>
           </div>
         </div>
 
-        {/* Responsive Table */}
-        {users.length === 0 ? (
-          <div className="text-center py-12 bg-white rounded-lg">No users</div>
+        {/* ────── TABLE OR EMPTY STATE ────── */}
+        {filteredUsers.length === 0 ? (
+          <div className="text-center py-12 bg-white rounded-lg shadow">
+            <div className="text-gray-400 text-6xl mb-4">Users</div>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {users.length === 0 ? "No users yet" : "No users match filters"}
+            </h3>
+            <p className="text-gray-500">
+              {users.length === 0 ? "Create your first user above." : "Try adjusting your filters."}
+            </p>
+          </div>
         ) : (
           <div className="bg-white rounded-lg shadow overflow-x-auto">
             <table className="min-w-full text-sm sm:text-base">
@@ -133,13 +247,17 @@ const AdminUsers = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {users.map(user => (
-                  <tr key={user._id} className="hover:bg-gray-50">
+                {filteredUsers.map(user => (
+                  <tr key={user._id} className="hover:bg-gray-50 transition">
                     <td className="py-3 px-4 sm:px-6">{user.fullName || '—'}</td>
-                    <td className="py-3 px-4 sm:px-6">{user.email}</td>
+                    <td className="py-3 px-4 sm:px-6">
+                      <a href={`mailto:${user.email}`} className="text-blue-600 hover:underline">
+                        {user.email}
+                      </a>
+                    </td>
                     <td className="py-3 px-4 sm:px-6">
                       <span
-                        className={`inline-flex px-2 py-1 text-xs rounded-full ${
+                        className={`inline-flex px-2 py-1 text-xs rounded-full font-medium ${
                           user.role === 'admin'
                             ? 'bg-purple-100 text-purple-800'
                             : 'bg-gray-100 text-gray-800'
@@ -152,13 +270,13 @@ const AdminUsers = () => {
                     <td className="py-3 px-4 sm:px-6 space-x-2 whitespace-nowrap">
                       <button
                         onClick={() => openModal('edit', user)}
-                        className="text-indigo-600 hover:text-indigo-900"
+                        className="text-indigo-600 hover:text-indigo-900 font-medium"
                       >
                         Edit
                       </button>
                       <button
                         onClick={() => handleDelete(user._id)}
-                        className="text-red-600 hover:text-red-900"
+                        className="text-red-600 hover:text-red-900 font-medium"
                       >
                         Delete
                       </button>
@@ -170,44 +288,44 @@ const AdminUsers = () => {
           </div>
         )}
 
-        {/* MODAL */}
+        {/* ────── MODAL (Styled like others) ────── */}
         {modal.open && (
           <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-3">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-md mx-auto p-6 sm:p-8 relative">
               <button
                 onClick={closeModal}
-                className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl"
+                className="absolute top-3 right-3 text-gray-400 hover:text-gray-700 text-xl font-bold"
               >
-                ✕
+                X
               </button>
 
-              <h2 className="text-xl sm:text-2xl font-bold mb-4">
+              <h2 className="text-xl sm:text-2xl font-bold mb-6 text-orange-600">
                 {modal.mode === 'create' ? 'Add New User' : 'Edit User'}
               </h2>
 
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium mb-1">Full Name</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                   <input
                     type="text"
                     value={form.fullName}
                     onChange={e => setForm({ ...form, fullName: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Email</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input
                     type="email"
                     value={form.email}
                     onChange={e => setForm({ ...form, email: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     {modal.mode === 'create' ? 'Password' : 'New Password (optional)'}
                   </label>
                   <input
@@ -215,16 +333,16 @@ const AdminUsers = () => {
                     value={form.password}
                     onChange={e => setForm({ ...form, password: e.target.value })}
                     placeholder={modal.mode === 'edit' ? 'Leave blank to keep current' : ''}
-                    className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium mb-1">Role</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Role</label>
                   <select
                     value={form.role}
                     onChange={e => setForm({ ...form, role: e.target.value })}
-                    className="w-full px-3 py-2 border rounded-md focus:ring-2 focus:ring-blue-400"
+                    className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500"
                   >
                     <option value="user">User</option>
                     <option value="admin">Admin</option>
@@ -232,21 +350,23 @@ const AdminUsers = () => {
                 </div>
               </div>
 
-              <div className="mt-6 flex justify-end gap-3">
+              <div className="mt-8 flex justify-end gap-3">
                 <button
                   onClick={closeModal}
-                  className="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400 text-sm sm:text-base"
+                  className="px-5 py-2 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition font-medium"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleSave}
                   disabled={saving}
-                  className={`px-4 py-2 rounded text-white text-sm sm:text-base ${
-                    saving ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                  className={`px-5 py-2 rounded-lg text-white font-medium transition ${
+                    saving
+                      ? 'bg-orange-400 cursor-not-allowed'
+                      : 'bg-orange-600 hover:bg-orange-700'
                   }`}
                 >
-                  {saving ? 'Saving...' : modal.mode === 'create' ? 'Create' : 'Update'}
+                  {saving ? 'Saving...' : modal.mode === 'create' ? 'Create User' : 'Update User'}
                 </button>
               </div>
             </div>

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+// components/AdminTrainings.jsx
+import React, { useState, useEffect, useMemo } from 'react';
 import axios from '../../../axiosConfig';
-import { format } from 'date-fns';
+import { format, startOfDay, endOfDay } from 'date-fns';
 
 const AdminTrainings = () => {
   const [registrations, setRegistrations] = useState([]);
@@ -8,17 +9,21 @@ const AdminTrainings = () => {
   const [error, setError] = useState(null);
   const [editModal, setEditModal] = useState({ open: false, reg: null });
 
+  // ────── FILTER STATE ──────
+  const [search, setSearch] = useState("");
+  const [statusFilter, setStatusFilter] = useState("All");
+  const [locationFilter, setLocationFilter] = useState("All");
+  const [dateRange, setDateRange] = useState({ start: "", end: "" });
+
   useEffect(() => {
     const fetchRegistrations = async () => {
       try {
         console.log('AdminTrainings: Fetching all MDP Phase 2 registrations');
         const token = localStorage.getItem('token');
         if (!token) throw new Error('Admin authentication required');
-
         const response = await axios.get('/api/mdpPhase2Registrations/admin', {
           headers: { Authorization: `Bearer ${token}` },
         });
-
         console.log('AdminTrainings: Loaded', response.data.length, 'registrations');
         setRegistrations(response.data);
         setLoading(false);
@@ -37,7 +42,58 @@ const AdminTrainings = () => {
     fetchRegistrations();
   }, []);
 
-  // ────────────── EDIT MODAL HANDLERS ──────────────
+  // ────── UNIQUE LOCATIONS FOR FILTER ──────
+  const uniqueLocations = useMemo(() => {
+    const locations = registrations.map(r => r.trainingState).filter(Boolean);
+    return ["All", ...Array.from(new Set(locations))];
+  }, [registrations]);
+
+  // ────── BIKE TEXT HELPER (for search) ──────
+  const getBikeSearchText = (reg) => {
+    if (reg.bikeDetails?.bikeChoice === 'hire') {
+      return (reg.bikeDetails?.hireBike || '').toLowerCase();
+    }
+    return [
+      reg.bikeDetails?.bikeMake || '',
+      reg.bikeDetails?.bikeModel || '',
+      reg.bikeDetails?.bikeYear || ''
+    ].join(' ').toLowerCase();
+  };
+
+  // ────── FILTERED REGISTRATIONS ──────
+  const filteredRegistrations = useMemo(() => {
+    return registrations.filter(reg => {
+      const name = `${reg.personalDetails.firstName || ''} ${reg.personalDetails.lastName || ''}`.toLowerCase();
+      const email = (reg.personalDetails.email || '').toLowerCase();
+      const bikeText = getBikeSearchText(reg);
+      const term = search.toLowerCase();
+
+      const matchesSearch = !search ||
+        name.includes(term) ||
+        email.includes(term) ||
+        bikeText.includes(term);
+
+      const matchesStatus = statusFilter === "All" || reg.payment.paymentStatus === statusFilter;
+
+      const matchesLocation = locationFilter === "All" || reg.trainingState === locationFilter;
+
+      let matchesDate = true;
+      if (dateRange.start || dateRange.end) {
+        const trainingDate = new Date(reg.trainingDate);
+        if (isNaN(trainingDate.getTime())) return false;
+        if (dateRange.start) {
+          matchesDate = trainingDate >= startOfDay(new Date(dateRange.start));
+        }
+        if (dateRange.end) {
+          matchesDate = matchesDate && trainingDate <= endOfDay(new Date(dateRange.end));
+        }
+      }
+
+      return matchesSearch && matchesStatus && matchesLocation && matchesDate;
+    });
+  }, [registrations, search, statusFilter, locationFilter, dateRange]);
+
+  // ────── MODAL HANDLERS ──────
   const openEditModal = (reg) => {
     setEditModal({ open: true, reg: { ...reg } });
   };
@@ -64,7 +120,6 @@ const AdminTrainings = () => {
     }
   };
 
-  // ────────────── DELETE HANDLER ──────────────
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this registration? This cannot be undone.')) return;
     try {
@@ -73,11 +128,10 @@ const AdminTrainings = () => {
       });
       setRegistrations((prev) => prev.filter((r) => r._id !== id));
     } catch (err) {
-      alert('Delete failed: ' + (err.response?.data?.message || err.message));
+      alert('Delete failed: ' +_you (err.response?.data?.message || err.message));
     }
   };
 
-  // ────────────── RESEND PAYMENT LINK ──────────────
   const handleResendPayment = async (reg) => {
     try {
       await axios.post(
@@ -91,23 +145,16 @@ const AdminTrainings = () => {
     }
   };
 
-  // ────────────── EXPORT CSV ──────────────
   const exportCSV = () => {
+    if (filteredRegistrations.length === 0) return alert('No data to export');
+
     const headers = [
-      'Name',
-      'Email',
-      'Training Location',
-      'Training Date',
-      'Bike',
-      'Total',
-      'Payment Status',
-      'Created',
+      'Name', 'Email', 'Training Location', 'Training Date', 'Bike', 'Total', 'Payment Status', 'Created'
     ];
-    const rows = registrations.map((r) => {
+    const rows = filteredRegistrations.map((r) => {
       const bike = r.bikeDetails?.bikeChoice === 'hire'
         ? r.bikeDetails?.hireBike || 'Hired'
-        : `${r.bikeDetails?.bikeMake || ''} ${r.bikeDetails?.bikeModel || ''} ${r.bikeDetails?.bikeYear || ''}`
-            .trim() || 'Own Bike';
+        : `${r.bikeDetails?.bikeMake || ''} ${r.bikeDetails?.bikeModel || ''} ${r.bikeDetails?.bikeYear || ''}`.trim() || 'Own Bike';
       return [
         `${r.personalDetails.firstName} ${r.personalDetails.lastName}`,
         r.personalDetails.email,
@@ -119,8 +166,7 @@ const AdminTrainings = () => {
         format(new Date(r.createdAt), 'yyyy-MM-dd'),
       ];
     });
-
-    const csv = [headers, ...rows].map((row) => row.join(',')).join('\n');
+    const csv = [headers, ...rows].map(row => row.join(',')).join('\n');
     const blob = new Blob([csv], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -129,7 +175,7 @@ const AdminTrainings = () => {
     a.click();
   };
 
-  // ────────────── UI STATES ──────────────
+  // ────── LOADING / ERROR ──────
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -162,74 +208,108 @@ const AdminTrainings = () => {
   return (
     <div className="min-h-screen bg-gray-100 py-8 px-4 sm:px-6 lg:px-8 max-w-6xl">
       <div className="max-w-7xl mx-auto">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8 gap-4">
+        {/* ────── HEADER + FILTERS (Styled like your UI) ────── */}
+        <div className="flex flex-col sm:flex-col justify-between items-start sm:items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-gray-900">
             MDP Phase III Training Registrations
           </h1>
-          <div className="flex gap-3">
-            <span className="bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium self-center">
-              {registrations.length} total
-            </span>
-            <button
-              onClick={exportCSV}
-              className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+
+          <div className="flex flex-wrap gap-3 w-full sm:w-auto">
+            {/* Search */}
+            <input
+              type="text"
+              placeholder="Search name, email, bike..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 focus:border-orange-500 w-full sm:w-64"
+            />
+
+            {/* Status */}
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
             >
-              Export CSV
-            </button>
+              <option value="All">All Status</option>
+              <option value="Pending">Pending</option>
+              <option value="Paid">Paid</option>
+              <option value="Cancelled">Cancelled</option>
+            </select>
+
+            {/* Location */}
+            <select
+              value={locationFilter}
+              onChange={(e) => setLocationFilter(e.target.value)}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            >
+              {uniqueLocations.map(loc => (
+                <option key={loc} value={loc}>{loc}</option>
+              ))}
+            </select>
+
+            {/* Date Range */}
+            <input
+              type="date"
+              value={dateRange.start}
+              onChange={(e) => setDateRange(p => ({ ...p, start: e.target.value }))}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
+            <input
+              type="date"
+              value={dateRange.end}
+              onChange={(e) => setDateRange(p => ({ ...p, end: e.target.value }))}
+              className="px-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-orange-500"
+            />
           </div>
         </div>
 
-        {/* Empty State */}
-        {registrations.length === 0 ? (
+        {/* ────── COUNTER + EXPORT ────── */}
+        <div className="flex justify-between items-center mb-4">
+          <span className="bg-orange-100 text-orange-800 px-4 py-2 rounded-full text-sm font-medium">
+            {filteredRegistrations.length} shown ({registrations.length} total)
+          </span>
+          <button
+            onClick={exportCSV}
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-lg text-sm font-semibold transition"
+          >
+            Export CSV
+          </button>
+        </div>
+
+        {/* ────── EMPTY STATE ────── */}
+        {filteredRegistrations.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow-sm">
             <div className="text-gray-400 text-6xl mb-4">Calendar</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No registrations yet</h3>
-            <p className="text-gray-500">Training bookings will appear here.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">
+              {registrations.length === 0 ? "No registrations yet" : "No matches found"}
+            </h3>
+            <p className="text-gray-500">
+              {registrations.length === 0 ? "Training bookings will appear here." : "Try adjusting your filters."}
+            </p>
           </div>
         ) : (
-          /* Table */
+          /* ────── TABLE ────── */
           <div className="overflow-x-auto bg-white shadow-lg rounded-lg">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">
                 <tr>
-                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Location
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Date
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Bike
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Created
-                  </th>
-                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Location</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Bike</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Created</th>
+                  <th className="py-3 px-6 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
-                {registrations.map((reg) => {
+                {filteredRegistrations.map((reg) => {
                   const isHire = reg.bikeDetails?.bikeChoice === 'hire';
                   const bikeText = isHire
                     ? reg.bikeDetails?.hireBike || 'Hired'
-                    : `${reg.bikeDetails?.bikeMake || ''} ${reg.bikeDetails?.bikeModel || ''} ${reg.bikeDetails?.bikeYear || ''}`
-                        .trim() || 'Own Bike';
-
+                    : `${reg.bikeDetails?.bikeMake || ''} ${reg.bikeDetails?.bikeModel || ''} ${reg.bikeDetails?.bikeYear || ''}`.trim() || 'Own Bike';
                   return (
                     <tr key={reg._id} className="hover:bg-gray-50 transition">
                       <td className="py-4 px-6 whitespace-nowrap">
@@ -238,18 +318,12 @@ const AdminTrainings = () => {
                         </div>
                       </td>
                       <td className="py-4 px-6 whitespace-nowrap text-sm text-gray-900">
-  {reg.personalDetails?.email ? (
-    <a
-      href={`mailto:${reg.personalDetails.email}`}
-      className="text-blue-600 hover:underline"
-    >
-      {reg.personalDetails.email}
-    </a>
-  ) : (
-    "N/A"
-  )}
-</td>
-
+                        {reg.personalDetails?.email ? (
+                          <a href={`mailto:${reg.personalDetails.email}`} className="text-blue-600 hover:underline">
+                            {reg.personalDetails.email}
+                          </a>
+                        ) : "N/A"}
+                      </td>
                       <td className="py-4 px-6 whitespace-nowrap">
                         <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
                           {reg.trainingState || '—'}
@@ -265,15 +339,13 @@ const AdminTrainings = () => {
                         ${reg.payment.totalPayment?.toFixed(2) || '0.00'}
                       </td>
                       <td className="py-4 px-6 whitespace-nowrap">
-                        <span
-                          className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
-                            reg.payment.paymentStatus === 'Paid'
-                              ? 'bg-green-100 text-green-800'
-                              : reg.payment.paymentStatus === 'Pending'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-gray-100 text-gray-800'
-                          }`}
-                        >
+                        <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                          reg.payment.paymentStatus === 'Paid'
+                            ? 'bg-green-100 text-green-800'
+                            : reg.payment.paymentStatus === 'Pending'
+                            ? 'bg-yellow-100 text-yellow-800'
+                            : 'bg-gray-100 text-gray-800'
+                        }`}>
                           {reg.payment.paymentStatus || 'Pending'}
                         </span>
                       </td>
@@ -281,24 +353,9 @@ const AdminTrainings = () => {
                         {format(new Date(reg.createdAt), 'MMM dd, yyyy')}
                       </td>
                       <td className="py-4 px-6 whitespace-nowrap text-sm font-medium space-x-2">
-                        <button
-                          onClick={() => openEditModal(reg)}
-                          className="text-green-600 hover:text-green-900 font-semibold"
-                        >
-                          Edit
-                        </button>
-                        <button
-                          onClick={() => handleResendPayment(reg)}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          Resend
-                        </button>
-                        <button
-                          onClick={() => handleDelete(reg._id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          Delete
-                        </button>
+                        <button onClick={() => openEditModal(reg)} className="text-green-600 hover:text-green-900 font-semibold">Edit</button>
+                        <button onClick={() => handleResendPayment(reg)} className="text-blue-600 hover:text-blue-900">Resend</button>
+                        <button onClick={() => handleDelete(reg._id)} className="text-red-600 hover:text-red-900">Delete</button>
                       </td>
                     </tr>
                   );
@@ -308,12 +365,11 @@ const AdminTrainings = () => {
           </div>
         )}
 
-        {/* ────────────── EDIT MODAL ────────────── */}
+        {/* ────── EDIT MODAL (unchanged) ────── */}
         {editModal.open && editModal.reg && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-screen overflow-y-auto p-6">
               <h2 className="text-2xl font-bold mb-6 text-orange-600">Edit Registration</h2>
-
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">First Name</label>
@@ -335,7 +391,6 @@ const AdminTrainings = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
                   <input
@@ -356,7 +411,6 @@ const AdminTrainings = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
                   <input
@@ -377,7 +431,6 @@ const AdminTrainings = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Training Location</label>
                   <input
@@ -392,7 +445,6 @@ const AdminTrainings = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Training Date</label>
                   <input
@@ -407,7 +459,6 @@ const AdminTrainings = () => {
                     className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
                   />
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Payment Status</label>
                   <select
@@ -431,7 +482,6 @@ const AdminTrainings = () => {
                     <option value="Cancelled">Cancelled</option>
                   </select>
                 </div>
-
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Total Payment ($)</label>
                   <input
@@ -454,7 +504,6 @@ const AdminTrainings = () => {
                   />
                 </div>
               </div>
-
               <div className="mt-8 flex justify-end gap-3">
                 <button
                   onClick={closeEditModal}
