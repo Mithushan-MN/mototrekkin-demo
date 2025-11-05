@@ -5,40 +5,67 @@ const STORAGE_KEY = "mototrekkinUserData";
 
 export const useUserAutoFill = (fieldNames = []) => {
   const formRef = useRef(null);
+  const filledRef = useRef(false); // Prevent double-fill
 
-  // === LOAD DATA ===
   useEffect(() => {
-    if (!formRef.current) return;
+    if (!formRef.current || filledRef.current) return;
 
     const tryFill = () => {
       const saved = localStorage.getItem(STORAGE_KEY);
-      if (!saved) return;
+      if (!saved || filledRef.current) return;
 
       const data = JSON.parse(saved);
       let filled = false;
 
       fieldNames.forEach(name => {
+        const field = formRef.current.elements.namedItem(name);
+        if (!field || field.value) return;
+
         const value = getNestedValue(data, name);
         if (value === undefined || value === null) return;
 
-        const field = formRef.current.elements.namedItem(name);
-        if (field && !field.value) {
+        // Special: Date fields
+        if (name === "licenceExpiry" && value) {
+          field.value = value;
+          const date = new Date(value);
+          if (!isNaN(date)) {
+            // Trigger DatePicker
+            const datePicker = field.closest('div')?.querySelector('input[readonly]');
+            if (datePicker) datePicker.value = value;
+            filled = true;
+          }
+        }
+        // File name
+        else if (name === "licenceFileName" && value) {
+          field.value = value;
+          const fileInput = formRef.current.elements.namedItem("licenceFile");
+          if (fileInput?.parentElement) {
+            const p = fileInput.parentElement.querySelector('p');
+            if (p) p.textContent = `Selected: ${value}`;
+          }
+          filled = true;
+        }
+        // Normal fields
+        else if (typeof value === "string" || typeof value === "number") {
           field.value = value;
           filled = true;
         }
       });
 
       if (filled) {
+        filledRef.current = true;
         formRef.current.dispatchEvent(new Event("input", { bubbles: true }));
+        formRef.current.dispatchEvent(new Event("change", { bubbles: true }));
       }
     };
 
+    // Try now
     tryFill();
 
-    // Retry until form is ready (for conditional steps)
+    // Retry every 100ms for 3 seconds
     let attempts = 0;
     const interval = setInterval(() => {
-      if (attempts++ > 30) {
+      if (attempts++ > 30 || filledRef.current) {
         clearInterval(interval);
         return;
       }
@@ -48,7 +75,7 @@ export const useUserAutoFill = (fieldNames = []) => {
     return () => clearInterval(interval);
   }, [fieldNames]);
 
-  // === SAVE DATA ===
+  // SAVE
   useEffect(() => {
     const form = formRef.current;
     if (!form) return;
