@@ -6,23 +6,49 @@ const STORAGE_KEY = "mototrekkinUserData";
 export const useUserAutoFill = (fieldNames = []) => {
   const formRef = useRef(null);
 
-  // Load saved data
+  // === LOAD DATA ===
   useEffect(() => {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (!saved || !formRef.current) return;
+    if (!formRef.current) return;
 
-    const data = JSON.parse(saved);
-    const form = formRef.current;
+    const tryFill = () => {
+      const saved = localStorage.getItem(STORAGE_KEY);
+      if (!saved) return;
 
-    fieldNames.forEach(name => {
-      const field = form.elements.namedItem(name);
-      if (field && !field.value) {
-        field.value = data[name] ?? "";
+      const data = JSON.parse(saved);
+      let filled = false;
+
+      fieldNames.forEach(name => {
+        const value = getNestedValue(data, name);
+        if (value === undefined || value === null) return;
+
+        const field = formRef.current.elements.namedItem(name);
+        if (field && !field.value) {
+          field.value = value;
+          filled = true;
+        }
+      });
+
+      if (filled) {
+        formRef.current.dispatchEvent(new Event("input", { bubbles: true }));
       }
-    });
+    };
+
+    tryFill();
+
+    // Retry until form is ready (for conditional steps)
+    let attempts = 0;
+    const interval = setInterval(() => {
+      if (attempts++ > 30) {
+        clearInterval(interval);
+        return;
+      }
+      tryFill();
+    }, 100);
+
+    return () => clearInterval(interval);
   }, [fieldNames]);
 
-  // Save on every input/change
+  // === SAVE DATA ===
   useEffect(() => {
     const form = formRef.current;
     if (!form) return;
@@ -32,7 +58,7 @@ export const useUserAutoFill = (fieldNames = []) => {
       fieldNames.forEach(name => {
         const field = form.elements.namedItem(name);
         if (field?.value) {
-          payload[name] = field.value.trim();
+          setNestedValue(payload, name, field.value.trim());
         }
       });
 
@@ -53,3 +79,18 @@ export const useUserAutoFill = (fieldNames = []) => {
 
   return { formRef };
 };
+
+// === HELPERS ===
+function getNestedValue(obj, path) {
+  return path.split('.').reduce((acc, part) => acc?.[part], obj);
+}
+
+function setNestedValue(obj, path, value) {
+  const parts = path.split('.');
+  let current = obj;
+  for (let i = 0; i < parts.length - 1; i++) {
+    if (!current[parts[i]]) current[parts[i]] = {};
+    current = current[parts[i]];
+  }
+  current[parts[parts.length - 1]] = value;
+}
