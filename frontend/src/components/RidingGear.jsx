@@ -3,7 +3,7 @@ import ridinggearbg from "../assets/ridinggears.webp"
 export default function RidingGear() {
   return (
     <section
-      className="relative h-screen bg-cover bg-center flex items-center justify-center overflow-hidden"
+      className="relative h-screen bg-cover bg-right flex items-center justify-center overflow-hidden"
       style={{
         backgroundImage: `url(${ridinggearbg})`, 
         backgroundAttachment: 'fixed'

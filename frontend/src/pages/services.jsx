@@ -6,7 +6,7 @@ import m2 from "../assets/services/m2.webp";
 import m3 from "../assets/services/m3.webp";
 import m4 from "../assets/services/m4.webp";
 import m5 from "../assets/services/m5.webp";
-import mvideo from "../assets/services/MTG-VIDEO-v2 (1).mp4";
+import mvideo from "../assets/services/SERVICEVIDEO.mp4";
 
 export default function ServicesPage() {
   return (

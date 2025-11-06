@@ -1,4 +1,4 @@
-import SafetySystembg from "../assets/safetysystems.png"
+import SafetySystembg from "../assets/safetysystems.webp"
 
 export default function SafetySystem() {
   return (
