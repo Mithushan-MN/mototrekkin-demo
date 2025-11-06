@@ -1,54 +1,39 @@
+// src/models/UserProfile.js
+
 import mongoose from "mongoose";
 
-const userProfileSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", unique: true, required: true },
 
-  // Basic info
+const userProfileSchema = new mongoose.Schema({
+  userId: { type: String, required: true, unique: true },
   firstName: String,
   lastName: String,
   gender: String,
   email: String,
-  mobile: String,
-  landline: String,
+  confirmEmail: String,
   birthday: String,
   occupation: String,
-
-  // Address
-  address: String,
-  address2: String,
+  mobile: String,
+  landline: String,
+  streetAddress: String,
+  streetAddress2: String,
   city: String,
+  state: String,
   postCode: String,
   country: String,
-  state: String,
 
-  // Extra contact info
-  phonePlatform: String,
-  phoneModel: String,
-  hasGPS: String,
-  hasFacebook: String,
+  emergencyFirstName: String,
+  emergencyLastName: String,
+  emergencyEmail: String,
+  emergencyMobile: String,
+  emergencyLandline: String,
+  emergencyRelation: String,
 
-  // Emergency Contacts
-  emergency1FirstName: String,
-  emergency1LastName: String,
-  emergency1Email: String,
-  emergency1Mobile: String,
-  emergency1Landline: String,
-  emergency1Relationship: String,
-
-  emergency2FirstName: String,
-  emergency2LastName: String,
-  emergency2Email: String,
-  emergency2Mobile: String,
-  emergency2Landline: String,
-  emergency2Relationship: String,
-
-  // Licence
-  licenceValid: String,
   licenceNumber: String,
-  licenceExpiryDate: String,
+  licenceExpiry: Date,
   licenceState: String,
 
 
-}, { timestamps: true });
+  updatedAt: { type: Date, default: Date.now }
+});
 
-export default mongoose.model("UserProfile", userProfileSchema);
+export default mongoose.model('UserProfile', userProfileSchema);

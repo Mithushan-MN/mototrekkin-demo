@@ -1,26 +1,24 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import axios from "../../axiosConfig"; // Use the configured axios instance
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
 import { format } from "date-fns";
 import { loadStripe } from "@stripe/stripe-js";
+import { useAuth } from "../AuthContext"; // Fixed: useAuth now exported
 import Mlogo from "../../assets/services/mlogo.webp";
 import agreementpdf from "../../assets/MT-CUSTOM-MOLDED-EAR-PROTECTION.pdf";
 import imgCrf250 from "../../assets/bikes/HONDA CRF250 RALLY.jpg";
 import imgBmw310 from "../../assets/bikes/BMW 310 GS.jpg";
 import imgCb500x from "../../assets/bikes/HONDA CB500X.jpg";
 
-import { useUserAutoFill } from "../../hooks/useUserAutoFill";
-import { USER_FIELDS } from "../../constants/userFields";
-
 const stripePromise = loadStripe("pk_live_6C7fzU00LNNJoD74Cg1AjFeH00bxXpAZGj");
 
 const BikeBookingForm = () => {
+  const { user } = useAuth(); // Gets user.id from JWT
+
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [apiError, setApiError] = useState(null);
-
-  const { formRef } = useUserAutoFill(USER_FIELDS);
 
   const [formData, setFormData] = useState({
     // Step 1: Dates
@@ -64,13 +62,13 @@ const BikeBookingForm = () => {
     emergencyMobile: "",
     emergencyLandline: "",
     emergencyRelation: "",
-    
+
     licenceDetails: {
       licenceValid: "Yes",
       licenceNumber: "",
       licenceExpiry: null,
       licenceState: "",
-      licenceFile: null,
+      licenceFile: null, // Never pre-filled
     },
 
     // Step 5: Agreement
@@ -103,6 +101,61 @@ const BikeBookingForm = () => {
     ],
   };
 
+  // AUTO-LOAD PROFILE FROM DB
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user?.id) return;
+
+      try {
+        const { data } = await axios.get(`/api/userProfile/${user.id}`);
+        setFormData((prev) => ({
+          ...prev,
+          firstName: data.firstName || "",
+          lastName: data.lastName || "",
+          gender: data.gender || "",
+          email: data.email || "",
+          confirmEmail: data.confirmEmail || "",
+          birthday: data.birthday || "",
+          occupation: data.occupation || "",
+          mobile: data.mobile || "",
+          landline: data.landline || "",
+          streetAddress: data.streetAddress || "",
+          streetAddress2: data.streetAddress2 || "",
+          city: data.city || "",
+          postCode: data.postCode || "",
+          country: data.country || "",
+          state: data.state || "",
+          emergency1FirstName: data.emergency1FirstName || "",
+          emergency1LastName: data.emergency1LastName || "",
+          emergency1Email: data.emergency1Email || "",
+          emergency1Mobile: data.emergency1Mobile || "",
+          emergency1Landline: data.emergency1Landline || "",
+          emergency1Relation: data.emergency1Relation || "",
+          licenceDetails: {
+            ...prev.licenceDetails,
+            licenceNumber: data.licenceNumber || "",
+            licenceExpiry: data.licenceExpiry ? new Date(data.licenceExpiry) : null,
+            licenceState: data.licenceState || "",
+          },
+        }));
+      } catch (err) {
+        console.log("No profile found – will create on save", err);
+      }
+    };
+
+    loadProfile();
+  }, [user?.id]);
+
+  // AUTO-SAVE SINGLE FIELD
+  const saveField = async (field, value) => {
+    if (!user?.id) return;
+    try {
+      await axios.patch(`/api/userProfile/${user.id}`, { [field]: value });
+    } catch (err) {
+      console.warn("Auto-save failed:", field, err);
+    }
+  };
+
   // Handle Inputs
   const handleChange = (e) => {
     const { name, value, type, checked, files } = e.target;
@@ -113,46 +166,58 @@ const BikeBookingForm = () => {
         ...prev,
         gear: { ...prev.gear, [gearKey]: checked },
       }));
-    } else if (name.startsWith("addOns.")) {
+      return;
+    }
+
+    if (name.startsWith("addOns.")) {
       const addOnKey = name.split(".")[1];
       setFormData((prev) => ({
         ...prev,
         addOns: { ...prev.addOns, [addOnKey]: checked },
       }));
-    } else if (name === "agreementAccepted") {
+      return;
+    }
+
+    if (name === "agreementAccepted") {
       setFormData((prev) => ({ ...prev, agreementAccepted: checked }));
-    } else if (name === "licenceFile") {
+      return;
+    }
+
+    if (name === "licenceFile") {
       setFormData((prev) => ({
         ...prev,
         licenceDetails: { ...prev.licenceDetails, licenceFile: files[0] },
       }));
-    } else if (name === "paymentOption") {
+      return;
+    }
+
+    if (name === "paymentOption") {
       setFormData((prev) => ({ ...prev, paymentOption: value }));
-    } else if (name.startsWith("licenceDetails.")) {
+      return;
+    }
+
+    if (name.startsWith("licenceDetails.")) {
       const licenceKey = name.split(".")[1];
+      const newValue = type === "number" ? Number(value) : value;
       setFormData((prev) => ({
         ...prev,
         licenceDetails: {
           ...prev.licenceDetails,
-          [licenceKey]: type === "number" ? Number(value) : value,
+          [licenceKey]: newValue,
         },
       }));
-    } else {
-      setFormData((prev) => ({
-        ...prev,
-        [name]: type === "number" ? Number(value) : value,
-        riderDetails: {
-          ...prev.riderDetails,
-          [name]: type === "number" ? Number(value) : value,
-        },
-      }));
+      saveField(name, newValue);
+      return;
     }
+
+    const newValue = type === "number" ? Number(value) : value;
+    setFormData((prev) => ({ ...prev, [name]: newValue }));
+    saveField(name, newValue);
   };
 
   // Date Change
   const handleDateChange = (key, date) => {
     const updated = { ...formData, [key]: date };
-
     if (key === "pickupDate" || key === "returnDate") {
       if (updated.pickupDate && updated.returnDate) {
         const days = (updated.returnDate - updated.pickupDate) / (1000 * 60 * 60 * 24) + 1;
@@ -160,8 +225,8 @@ const BikeBookingForm = () => {
       }
     } else if (key === "licenceExpiry") {
       updated.licenceDetails = { ...updated.licenceDetails, licenceExpiry: date };
+      saveField("licenceExpiry", date);
     }
-
     setFormData(updated);
   };
 
@@ -205,7 +270,7 @@ const BikeBookingForm = () => {
           formData.emergencyEmail &&
           formData.emergencyMobile &&
           formData.emergencyRelation &&
-          formData.licenceDetails.licenceValid &&
+          formData.licenceDetails.licenceValid === "Yes" &&
           formData.licenceDetails.licenceNumber &&
           formData.licenceDetails.licenceExpiry &&
           formData.licenceDetails.licenceState &&
@@ -241,156 +306,140 @@ const BikeBookingForm = () => {
   };
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setApiError(null);
+    e.preventDefault();
+    setLoading(true);
+    setApiError(null);
 
-  if (!formData.licenceDetails.licenceNumber.trim()) {
-    alert("Licence number is required.");
-    setLoading(false);
-    return;
-  }
-  if (!formData.licenceDetails.licenceExpiry) {
-    alert("Licence expiry date is required.");
-    setLoading(false);
-    return;
-  }
-
-  try {
-    if (!formData.totalDays || formData.totalDays <= 0) {
-      throw new Error("Total days must be greater than 0");
+    if (!formData.licenceDetails.licenceNumber.trim()) {
+      alert("Licence number is required.");
+      setLoading(false);
+      return;
+    }
+    if (!formData.licenceDetails.licenceExpiry) {
+      alert("Licence expiry date is required.");
+      setLoading(false);
+      return;
     }
 
-    // FLAT PAYLOAD — NO NESTED OBJECTS
-    const payload = {
-      // Dates
-      pickupDate: formData.pickupDate ? format(formData.pickupDate, "yyyy-MM-dd") : "",
-      returnDate: formData.returnDate ? format(formData.returnDate, "yyyy-MM-dd") : "",
-      pickupTime: formData.pickupTime,
-      returnTime: formData.returnTime,
-      totalDays: formData.totalDays,
-
-      // Bike
-      bikeModel: formData.bikeModel,
-      bikePrice: formData.bikePrice,
-      gearOption: formData.gearOption,
-      subGearOption: formData.subGearOption || "",
-      gear: formData.gear,
-      addOns: formData.addOns,
-
-      // RIDER DETAILS (FLAT)
-      firstName: formData.firstName,
-      lastName: formData.lastName,
-      gender: formData.gender,
-      email: formData.email,
-      birthday: formData.birthday || "",
-      occupation: formData.occupation || "",
-      mobile: formData.mobile,
-      landline: formData.landline || "",
-      streetAddress: formData.streetAddress,
-      streetAddress2: formData.streetAddress2 || "",
-      city: formData.city,
-      postCode: formData.postCode,
-      country: formData.country,
-      state: formData.state,
-
-      // EMERGENCY CONTACT (FLAT)
-      emergencyFirstName: formData.emergencyFirstName,
-      emergencyLastName: formData.emergencyLastName,
-      emergencyEmail: formData.emergencyEmail,
-      emergencyMobile: formData.emergencyMobile,
-      emergencyLandline: formData.emergencyLandline || "",
-      emergencyRelation: formData.emergencyRelation,
-
-      // LICENCE
-      licenceValid: formData.licenceDetails.licenceValid,
-      licenceNumber: formData.licenceDetails.licenceNumber,
-      licenceExpiry: formData.licenceDetails.licenceExpiry
-        ? format(formData.licenceDetails.licenceExpiry, "yyyy-MM-dd")
-        : "",
-      licenceState: formData.licenceDetails.licenceState,
-
-      // Final
-      agreementAccepted: formData.agreementAccepted,
-      paymentOption: formData.paymentOption,
-    };
-
-    const formDataToSend = new FormData();
-
-    // Append licence file
-    if (formData.licenceDetails.licenceFile instanceof File) {
-      formDataToSend.append("licenceFile", formData.licenceDetails.licenceFile);
-    }
-
-    // Append all other fields
-    Object.keys(payload).forEach((key) => {
-      const value = payload[key];
-      if (value === null || value === undefined) {
-        formDataToSend.append(key, "");
-      } else if (typeof value === "object" && !(value instanceof File)) {
-        formDataToSend.append(key, JSON.stringify(value));
-      } else {
-        formDataToSend.append(key, String(value));
+    try {
+      if (!formData.totalDays || formData.totalDays <= 0) {
+        throw new Error("Total days must be greater than 0");
       }
-    });
 
-    // DEBUG: Log FormData
-    console.log("Submitting FormData:");
-    for (let pair of formDataToSend.entries()) {
-      console.log(`${pair[0]}: ${pair[1] instanceof File ? "File Object" : pair[1]}`);
-    }
+      const payload = {
+        pickupDate: formData.pickupDate ? format(formData.pickupDate, "yyyy-MM-dd") : "",
+        returnDate: formData.returnDate ? format(formData.returnDate, "yyyy-MM-dd") : "",
+        pickupTime: formData.pickupTime,
+        returnTime: formData.returnTime,
+        totalDays: formData.totalDays,
+        bikeModel: formData.bikeModel,
+        bikePrice: formData.bikePrice,
+        gearOption: formData.gearOption,
+        subGearOption: formData.subGearOption || "",
+        gear: formData.gear,
+        addOns: formData.addOns,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        gender: formData.gender,
+        email: formData.email,
+        birthday: formData.birthday || "",
+        occupation: formData.occupation || "",
+        mobile: formData.mobile,
+        landline: formData.landline || "",
+        streetAddress: formData.streetAddress,
+        streetAddress2: formData.streetAddress2 || "",
+        city: formData.city,
+        postCode: formData.postCode,
+        country: formData.country,
+        state: formData.state,
+        emergencyFirstName: formData.emergencyFirstName,
+        emergencyLastName: formData.emergencyLastName,
+        emergencyEmail: formData.emergencyEmail,
+        emergencyMobile: formData.emergencyMobile,
+        emergencyLandline: formData.emergencyLandline || "",
+        emergencyRelation: formData.emergencyRelation,
+        licenceValid: formData.licenceDetails.licenceValid,
+        licenceNumber: formData.licenceDetails.licenceNumber,
+        licenceExpiry: formData.licenceDetails.licenceExpiry
+          ? format(formData.licenceDetails.licenceExpiry, "yyyy-MM-dd")
+          : "",
+        licenceState: formData.licenceDetails.licenceState,
+        agreementAccepted: formData.agreementAccepted,
+        paymentOption: formData.paymentOption,
+      };
 
-    const bookingResponse = await axios.post("/api/bikeBookings/create", formDataToSend, {
-      headers: { "Content-Type": "multipart/form-data" },
-    });
-
-    const { bookingId, emailStatus, paymentSessionId } = bookingResponse.data;
-    console.log("Booking created with ID:", bookingId);
-
-    let message = "Bike booking submitted successfully!";
-    if (emailStatus) {
-      const { userEmailSent, adminEmailSent, errors } = emailStatus;
-      if (userEmailSent && adminEmailSent) {
-        message += " Confirmation emails sent.";
-      } else if (userEmailSent) {
-        message += " Email sent to you, but admin failed.";
-      } else if (adminEmailSent) {
-        message += " Email sent to admin, but you failed.";
-      } else {
-        message += " Email notifications failed.";
+      const formDataToSend = new FormData();
+      if (formData.licenceDetails.licenceFile instanceof File) {
+        formDataToSend.append("licenceFile", formData.licenceDetails.licenceFile);
       }
-      if (errors?.length > 0) message += " Some emails failed.";
-    }
 
-    alert(message);
-    setStep(1);
-    setFormData({
-      pickupDate: null, returnDate: null, pickupTime: "", returnTime: "", totalDays: 0,
-      bikeModel: "", bikePrice: 0, gearOption: "Bike hire only", subGearOption: "", gear: { helmet: false, jacket: false, gloves: false },
-      addOns: { excessReduction: false, tyreProtection: false, windscreen: false },
-      firstName: "", lastName: "", gender: "", email: "", confirmEmail: "", birthday: "", occupation: "", mobile: "", landline: "",
-      streetAddress: "", streetAddress2: "", city: "", postCode: "", country: "", state: "",
-      emergencyFirstName: "", emergencyLastName: "", emergencyEmail: "", emergencyMobile: "", emergencyLandline: "", emergencyRelation: "",
-      licenceDetails: { licenceValid: "Yes", licenceNumber: "", licenceExpiry: null, licenceState: "", licenceFile: null },
-      agreementAccepted: false, paymentOption: "Full Payment"
-    });
+      Object.keys(payload).forEach((key) => {
+        const value = payload[key];
+        if (value === null || value === undefined) {
+          formDataToSend.append(key, "");
+        } else if (typeof value === "object" && !(value instanceof File)) {
+          formDataToSend.append(key, JSON.stringify(value));
+        } else {
+          formDataToSend.append(key, String(value));
+        }
+      });
 
-    if (paymentSessionId) {
-      const stripe = await stripePromise;
-      const { error } = await stripe.redirectToCheckout({ sessionId: paymentSessionId });
-      if (error) throw error;
-    } else {
-      alert("Booking created, but payment failed. Contact support.");
+      console.log("Submitting FormData:");
+      for (let pair of formDataToSend.entries()) {
+        console.log(`${pair[0]}: ${pair[1] instanceof File ? "File Object" : pair[1]}`);
+      }
+
+      const bookingResponse = await axios.post("/api/bikeBookings/create", formDataToSend, {
+        headers: { "Content-Type": "multipart/form-data" },
+      });
+
+      const { bookingId, emailStatus, paymentSessionId } = bookingResponse.data;
+      console.log("Booking created with ID:", bookingId);
+
+      let message = "Bike booking submitted successfully!";
+      if (emailStatus) {
+        const { userEmailSent, adminEmailSent, errors } = emailStatus;
+        if (userEmailSent && adminEmailSent) {
+          message += " Confirmation emails sent.";
+        } else if (userEmailSent) {
+          message += " Email sent to you, but admin failed.";
+        } else if (adminEmailSent) {
+          message += " Email sent to admin, but you failed.";
+        } else {
+          message += " Email notifications failed.";
+        }
+        if (errors?.length > 0) message += " Some emails failed.";
+      }
+      alert(message);
+
+      setStep(1);
+      setFormData({
+        pickupDate: null, returnDate: null, pickupTime: "", returnTime: "", totalDays: 0,
+        bikeModel: "", bikePrice: 0, gearOption: "Bike hire only", subGearOption: "", gear: { helmet: false, jacket: false, gloves: false },
+        addOns: { excessReduction: false, tyreProtection: false, windscreen: false },
+        firstName: "", lastName: "", gender: "", email: "", confirmEmail: "", birthday: "", occupation: "", mobile: "", landline: "",
+        streetAddress: "", streetAddress2: "", city: "", postCode: "", country: "", state: "",
+        emergencyFirstName: "", emergencyLastName: "", emergencyEmail: "", emergencyMobile: "", emergencyLandline: "", emergencyRelation: "",
+        licenceDetails: { licenceValid: "Yes", licenceNumber: "", licenceExpiry: null, licenceState: "", licenceFile: null },
+        agreementAccepted: false, paymentOption: "Full Payment"
+      });
+
+      if (paymentSessionId) {
+        const stripe = await stripePromise;
+        const { error } = await stripe.redirectToCheckout({ sessionId: paymentSessionId });
+        if (error) throw error;
+      } else {
+        alert("Booking created, but payment failed. Contact support.");
+      }
+    } catch (err) {
+      console.error("Submission error:", err);
+      const message = err.response?.data?.message || "Failed to submit. Try again.";
+      setApiError(message);
+      alert(message);
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    console.error("Submission error:", err);
-    const message = err.response?.data?.message || "Failed to submit. Try again.";
-    setApiError(message);
-    alert(message);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   // Button Style
   const getButtonClass = (enabled) =>
@@ -403,8 +452,7 @@ const BikeBookingForm = () => {
       <div className="mb-8">
         <img src={Mlogo} alt="Bike Hire" className="mx-auto w-48 h-auto rounded-lg" />
       </div>
-
-      <form className="w-full space-y-8" ref={formRef} onSubmit={handleSubmit} >
+      <form className="w-full space-y-8" onSubmit={handleSubmit}>
         <h2 className="text-3xl font-bold text-gray-800 text-center mb-10">BOOK A BIKE</h2>
 
         {/* Step Progress Bar */}
@@ -449,7 +497,6 @@ const BikeBookingForm = () => {
                 />
               </div>
             </div>
-
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
                 <label className="font-medium">Pickup Time</label>
@@ -493,7 +540,6 @@ const BikeBookingForm = () => {
                 />
               </div>
             </div>
-
             <div className="flex justify-end">
               <button
                 type="button"
@@ -512,7 +558,7 @@ const BikeBookingForm = () => {
           <div className="space-y-6 px-4 sm:px-6 lg:px-8">
             <h3 className="text-2xl font-bold text-gray-800">Choose Bike & Gear</h3>
             <hr className="border-t border-gray-300" />
-            
+
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
               {[
                 {
@@ -542,6 +588,7 @@ const BikeBookingForm = () => {
                   img: imgCb500x,
                   specs: { engine: "471cc Parallel Twin", weight: "197 kg", fuel: "17.7 L" },
                 },
+                // Add more bikes here if needed
               ].map((bike) => (
                 <div
                   key={bike.id}
@@ -646,7 +693,6 @@ const BikeBookingForm = () => {
                   />
                   <span className="text-sm sm:text-base">Individually</span>
                 </label>
-
                 {formData.subGearOption === "Individually" && (
                   <div className="ml-0 sm:ml-6 mt-4 space-y-3 p-3 border-t border-gray-200">
                     <h6 className="font-semibold text-sm mb-2">Select Individual Items:</h6>
@@ -686,7 +732,7 @@ const BikeBookingForm = () => {
             )}
 
             <h4 className="text-xl font-bold mt-8 text-gray-800">Add-On Options</h4>
-            <div className="space-y-3 p-4 border rounded-lg bg-white shadow-sm">
+            <div className="space  space-y-3 p-4 border rounded-lg bg-white shadow-sm">
               <label className="flex items-center space-x-3">
                 <input
                   type="checkbox"
@@ -743,7 +789,6 @@ const BikeBookingForm = () => {
             <p className="text-base text-gray-600">
               Enter your personal information, contact details, and current address.
             </p>
-
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-8">
               <div>
                 <label htmlFor="firstName" className="block text-sm font-medium text-gray-700">
@@ -995,7 +1040,6 @@ const BikeBookingForm = () => {
                 </div>
               </div>
             </div>
-
             <div className="flex justify-between mt-12 pt-4 border-t border-gray-200">
               <button type="button" onClick={handlePrev} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-2 rounded-lg transition duration-150 shadow-md">
                 Previous
@@ -1019,7 +1063,7 @@ const BikeBookingForm = () => {
               <h3 className="text-2xl font-bold text-gray-800">Emergency Contact</h3>
               <hr className="border-t border-gray-300" />
               <p className="text-base text-gray-600">Provide details of a person to contact in case of an emergency. All fields are required.</p>
-              
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-6">
                 <div>
                   <label htmlFor="emergencyFirstName" className="block text-sm font-medium text-gray-700">
@@ -1117,7 +1161,7 @@ const BikeBookingForm = () => {
               <h3 className="text-2xl font-bold text-gray-800">Driver's Licence Details</h3>
               <hr className="border-t border-gray-300" />
               <p className="text-base text-gray-600">Provide your driver's licence information and supporting documents.</p>
-              
+
               <div className="space-y-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -1262,7 +1306,6 @@ const BikeBookingForm = () => {
             <p className="text-base text-gray-600">
               Please **review the rental agreement below** and accept the terms & conditions to proceed to payment.
             </p>
-
             <div className="p-6 sm:p-8 border border-gray-200 rounded-xl shadow-lg bg-white space-y-4">
               <h4 className="text-xl font-semibold text-gray-800">Review Document</h4>
               <iframe
@@ -1283,7 +1326,6 @@ const BikeBookingForm = () => {
                 .
               </p>
             </div>
-
             <div className="pt-2">
               <label className="flex items-center gap-3 text-lg font-medium text-gray-700 cursor-pointer">
                 <input
@@ -1300,7 +1342,6 @@ const BikeBookingForm = () => {
                 </span>
               </label>
             </div>
-
             <div className="flex justify-between mt-10 pt-4 border-t border-gray-200">
               <button type="button" onClick={handlePrev} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-2 rounded-lg transition duration-150 shadow-md">
                 Previous
@@ -1327,7 +1368,6 @@ const BikeBookingForm = () => {
               <br />
               This summary was generated on **{format(new Date(), "MMMM dd, yyyy 'at' hh:mm a z")}**.
             </p>
-
             <div className="p-6 sm:p-8 border border-gray-200 rounded-xl shadow-lg bg-white space-y-6">
               <h4 className="text-xl font-semibold text-gray-800 border-b pb-3 mb-3">Itemized Purchase Details</h4>
               <div className="hidden sm:grid grid-cols-6 text-sm font-semibold text-gray-500 border-b pb-2">
@@ -1335,7 +1375,6 @@ const BikeBookingForm = () => {
                 <div className="col-span-1 text-center">Days</div>
                 <div className="col-span-2 text-right">Total Price</div>
               </div>
-
               <div className="space-y-4">
                 {formData.bikeModel && (
                   <div className="grid grid-cols-6 items-center text-gray-700">
@@ -1349,7 +1388,6 @@ const BikeBookingForm = () => {
                     </div>
                   </div>
                 )}
-
                 {formData.gearOption === "Bike hire + gear" &&
                   formData.subGearOption === "Package Option - $100/day" && (
                     <div className="grid grid-cols-6 items-center text-gray-700">
@@ -1363,7 +1401,6 @@ const BikeBookingForm = () => {
                       </div>
                     </div>
                   )}
-
                 {formData.gearOption === "Bike hire + gear" &&
                   formData.subGearOption === "Individually" && (
                     <div className="space-y-2 border-t pt-4 mt-4">
@@ -1391,7 +1428,6 @@ const BikeBookingForm = () => {
                       )}
                     </div>
                   )}
-
                 {(formData.addOns.excessReduction || formData.addOns.tyreProtection || formData.addOns.windscreen) && (
                   <div className="space-y-2 border-t pt-4 mt-4">
                     <p className="text-sm font-semibold text-gray-600">Selected Add-Ons:</p>
@@ -1420,7 +1456,6 @@ const BikeBookingForm = () => {
                 )}
               </div>
             </div>
-
             <div className="p-6 sm:p-8 border border-gray-200 rounded-xl shadow-lg bg-gray-50 space-y-6">
               <h4 className="text-xl font-semibold text-gray-800 border-b pb-3 mb-3">Payment Summary</h4>
               <div>
@@ -1462,7 +1497,6 @@ const BikeBookingForm = () => {
                 Upon clicking "**Next**," you'll be directed to the Stripe Checkout form for a secure payment experience.
               </p>
             </div>
-
             <div className="flex justify-between mt-10 pt-4 border-t border-gray-200">
               <button type="button" onClick={handlePrev} className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-semibold px-6 py-2 rounded-lg transition duration-150 shadow-md">
                 Previous
@@ -1485,7 +1519,7 @@ const BikeBookingForm = () => {
             <h3 className="text-2xl font-bold text-gray-800">Finalize Payment</h3>
             <hr className="border-t border-gray-300" />
             <p className="text-base text-gray-600">
-              Your total payment is **${(calculateTotal() + calculateTotal() * 0.015 + 0.02).toFixed(2)}**. 
+              Your total payment is **${(calculateTotal() + calculateTotal() * 0.015 + 0.02).toFixed(2)}**.
               You will be redirected to Stripe's secure checkout page.
             </p>
             <div className="flex justify-between mt-10 pt-4 border-t border-gray-200">

@@ -15,7 +15,7 @@ import mdpPhase2Routes from './routes/mdpPhase2Routes.js';
 import MDPPhase2Registration from './models/MDPPhase2Registration.js';
 import mdpPhase2BikesRouter from './routes/mdpPhase2Bikes.js'; // Added import
 import nzBikesRouter from './routes/nzBikes.js';
-import profileRoutes from "./routes/profile.routes.js";
+import userProfileRouter from './routes/userProfile.js';
 
 dotenv.config();
 
@@ -56,7 +56,7 @@ app.use('/api/bikes', mdpPhase2BikesRouter);
 
 app.use('/api/nz-bikes', nzBikesRouter);
 
-app.use("/api/profile", profileRoutes);
+app.use('/api/userProfile', userProfileRouter);
 
 // Stripe webhook
 app.post("/api/webhook", (req, res) => {
