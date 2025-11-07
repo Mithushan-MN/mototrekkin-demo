@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useCallback } from "react";
 const LS_KEY = "profile:v1";
 
 const indexNames = (FIELD_MAP) => {
-  // Map input name -> profile key (for quick reverse lookup)
   const m = new Map();
   FIELD_MAP.forEach(({ profile, names }) => {
     names.forEach((n) => m.set(n, profile));
@@ -13,12 +12,12 @@ const indexNames = (FIELD_MAP) => {
 };
 
 export function useUserAutoFill(FIELD_MAP) {
-  const formRef = useRef(null);
+  const formRef = useRef({});
   const [profile, setProfile] = useState({});
   const [ready, setReady] = useState(false);
   const nameToProfile = useRef(indexNames(FIELD_MAP));
 
-  // load from cache fast
+  // Load from cache
   useEffect(() => {
     const cached = localStorage.getItem(LS_KEY);
     if (cached) {
@@ -26,114 +25,93 @@ export function useUserAutoFill(FIELD_MAP) {
     }
   }, []);
 
-  // fetch from API then merge
+  // FETCH FROM YOUR REAL API
   useEffect(() => {
     let alive = true;
     (async () => {
       try {
-        const res = await fetch("/api/profile/me", { credentials: "include" });
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const userId = JSON.parse(atob(token.split('.')[1])).id;
+        const res = await fetch(`/api/userProfile/${userId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!res.ok) throw new Error('Failed to fetch profile');
+
         const data = await res.json();
         if (!alive) return;
-        const merged = { ...(profile || {}), ...(data || {}) };
+
+        const merged = { ...(profile || {}), ...data };
         setProfile(merged);
         localStorage.setItem(LS_KEY, JSON.stringify(merged));
       } catch (e) {
-        // ignore network errors for offline-first fill
+        console.warn("Profile load failed (offline OK):", e);
       } finally {
         if (alive) setReady(true);
       }
     })();
     return () => { alive = false; };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // helper: set input value respecting input type
-  const setInputValue = (el, value) => {
-    if (el.type === "checkbox" || el.type === "radio") {
-      el.checked = value === true || value === el.value;
-    } else {
-      el.value = value ?? "";
-      el.dispatchEvent(new Event("input", { bubbles: true })); // let React pick it up
-      el.dispatchEvent(new Event("change", { bubbles: true }));
-    }
-  };
-
-  // Prefill once DOM is ready & profile loaded
+  // PREFILL: Use formRef.current object
   const prefill = useCallback(() => {
-    const form = formRef.current;
-    if (!form || !profile) return;
+    if (!formRef.current || !profile) return;
 
-    // For each profile key, fill all known names if empty in the UI
     FIELD_MAP.forEach(({ profile: key, names }) => {
       const value = profile[key];
       if (value === undefined || value === null || value === "") return;
 
-      names.forEach((n) => {
-        const el = form.querySelector(`[name="${CSS.escape(n)}"]`);
-        if (!el) return;
-        // only override if field is blank
-        const isBlank =
-          (el.type === "checkbox" || el.type === "radio")
-            ? !el.checked
-            : !el.value;
-        if (isBlank) setInputValue(el, value);
+      names.forEach((name) => {
+        const keys = name.split('.');
+        let target = formRef.current;
+
+        for (let i = 0; i < keys.length - 1; i++) {
+          if (!target[keys[i]]) target[keys[i]] = {};
+          target = target[keys[i]];
+        }
+
+        const finalKey = keys[keys.length - 1];
+        if (target[finalKey] === undefined || target[finalKey] === "") {
+          target[finalKey] = value;
+        }
       });
     });
 
-    // Special case: keep confirmEmail in sync with email if it exists blank
-    const email = profile.email;
-    if (email) {
-      const confirm = form.querySelector('[name="confirmEmail"]');
-      if (confirm && !confirm.value) setInputValue(confirm, email);
+    if (profile.email && !formRef.current.confirmEmail) {
+      formRef.current.confirmEmail = profile.email;
     }
-  }, [FIELD_MAP, profile]);
 
-  useEffect(() => { if (ready) prefill(); }, [ready, prefill]);
-
-  // Push updates to cache + server whenever a mapped input changes
-  useEffect(() => {
-    const form = formRef.current;
-    if (!form) return;
-
-    const handler = (e) => {
-      const { name, type, value, checked } = e.target;
-      const key = nameToProfile.current.get(name);
-      if (!key) return; // not a common field
-
-      const next = { ...profile };
-      next[key] = (type === "checkbox") ? !!checked : value;
-
-      setProfile(next);
-      localStorage.setItem(LS_KEY, JSON.stringify(next));
-
-      // fire-and-forget save (debounced in a real app)
-      fetch("/api/profile/me", {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(next),
-      }).catch(() => {});
-    };
-
-    form.addEventListener("input", handler, true);
-    form.addEventListener("change", handler, true);
-    return () => {
-      form.removeEventListener("input", handler, true);
-      form.removeEventListener("change", handler, true);
-    };
+    window.dispatchEvent(new Event('userProfileLoaded'));
   }, [profile]);
 
+  useEffect(() => {
+    if (ready) prefill();
+  }, [ready, prefill]);
+
+  // SAVE: Use your real API
   const saveProfile = async (partial) => {
     const next = { ...profile, ...partial };
     setProfile(next);
     localStorage.setItem(LS_KEY, JSON.stringify(next));
-    const res = await fetch("/api/profile/me", {
-      method: "PUT",
-      headers: { "Content-Type": "application/json" },
-      credentials: "include",
-      body: JSON.stringify(next),
-    });
-    return res.json();
+
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const userId = JSON.parse(atob(token.split('.')[1])).id;
+      await fetch(`/api/userProfile/${userId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify(partial)
+      });
+    } catch (e) {
+      console.warn("Profile save failed", e);
+    }
   };
 
   return { formRef, profile, saveProfile };

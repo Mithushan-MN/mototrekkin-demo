@@ -632,7 +632,7 @@
 
 
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import axios from '../../../axiosConfig';
 import { loadStripe } from '@stripe/stripe-js';
@@ -744,28 +744,36 @@ const MDPPhase2Registration = () => {
     termsConfirmation: '',
   });
 
-  // ---------- SYNC formRef → formData ----------
+  // ---------- SYNC formRef → formData (IMMEDIATE + EVENT) ----------
   useEffect(() => {
-    const syncForm = () => {
-      setFormData(prev => ({ ...prev, ...formRef.current }));
+    const sync = () => {
+      if (formRef.current && Object.keys(formRef.current).length > 0) {
+        setFormData(prev => ({ ...prev, ...formRef.current }));
+      }
     };
-    window.addEventListener('userProfileLoaded', syncForm);
-    return () => window.removeEventListener('userProfileLoaded', syncForm);
-  }, []);
 
-  // ---------- AUTO-SAVE ON BLUR ----------
+    // Immediate sync
+    sync();
+
+    // Listen for future loads
+    window.addEventListener('userProfileLoaded', sync);
+    return () => window.removeEventListener('userProfileLoaded', sync);
+  }, [formRef]);
+
+  // ---------- AUTO-SAVE ON CHANGE ----------
   const saveField = async (field, value) => {
     const token = localStorage.getItem('token');
     if (!token) return;
+
     try {
       const userId = JSON.parse(atob(token.split('.')[1])).id;
       await axios.patch(`/api/userProfile/${userId}`, { [field]: value });
     } catch (err) {
-      console.warn("Auto-save failed:", field, err);
+      console.warn("Auto-save failed:", field);
     }
   };
 
-  // ---------- HANDLE INPUT CHANGE ----------
+  // ---------- INPUT HANDLERS ----------
   const handleInputChange = (field, value) => {
     setFormData(prev => ({ ...prev, [field]: value }));
     formRef.current[field] = value;
