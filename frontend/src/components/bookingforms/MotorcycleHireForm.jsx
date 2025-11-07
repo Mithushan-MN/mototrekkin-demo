@@ -202,15 +202,25 @@ const BikeBookingForm = () => {
 
     if (name.startsWith("licenceDetails.")) {
   const licenceKey = name.split(".")[1];
-  const newValue = type === "number" ? Number(value) : value;
+  const fieldMap = {
+    licenceValid: "licenceValid",
+    licenceNumber: "licenceNumber",
+    licenceExpiry: "licenceExpiry",
+    licenceState: "licenceState",
+  };
+  const dbField = fieldMap[licenceKey];
+
   setFormData((prev) => ({
     ...prev,
     licenceDetails: {
       ...prev.licenceDetails,
-      [licenceKey]: newValue,
+      [licenceKey]: type === "file" ? files[0] : value,
     },
   }));
-  saveField(name, newValue); // ← This saves "licenceDetails.licenceNumber" → wrong key!
+
+  if (dbField) {
+    saveField(dbField, value); // ← CORRECT: saves "licenceNumber"
+  }
   return;
 }
 
