@@ -125,18 +125,22 @@ const BikeBookingForm = () => {
           postCode: data.postCode || "",
           country: data.country || "",
           state: data.state || "",
-          emergency1FirstName: data.emergency1FirstName || "",
-          emergency1LastName: data.emergency1LastName || "",
-          emergency1Email: data.emergency1Email || "",
-          emergency1Mobile: data.emergency1Mobile || "",
-          emergency1Landline: data.emergency1Landline || "",
-          emergency1Relation: data.emergency1Relation || "",
-          licenceDetails: {
-            ...prev.licenceDetails,
-            licenceNumber: data.licenceNumber || "",
-            licenceExpiry: data.licenceExpiry ? new Date(data.licenceExpiry) : null,
-            licenceState: data.licenceState || "",
-          },
+          // Step 4: Emergency Contact
+        emergencyFirstName: data.emergencyFirstName || "",
+        emergencyLastName: data.emergencyLastName || "",
+        emergencyEmail: data.emergencyEmail || "",
+        emergencyMobile: data.emergencyMobile || "",
+        emergencyLandline: data.emergencyLandline || "",
+        emergencyRelation: data.emergencyRelation || "",
+
+        // Step 4: Licence Details
+        licenceDetails: {
+          ...prev.licenceDetails,
+          licenceValid: data.licenceValid || "Yes",
+          licenceNumber: data.licenceNumber || "",
+          licenceExpiry: data.licenceExpiry ? new Date(data.licenceExpiry) : null,
+          licenceState: data.licenceState || "",
+        },
         }));
       } catch (err) {
         console.log("No profile found – will create on save", err);
@@ -197,18 +201,18 @@ const BikeBookingForm = () => {
     }
 
     if (name.startsWith("licenceDetails.")) {
-      const licenceKey = name.split(".")[1];
-      const newValue = type === "number" ? Number(value) : value;
-      setFormData((prev) => ({
-        ...prev,
-        licenceDetails: {
-          ...prev.licenceDetails,
-          [licenceKey]: newValue,
-        },
-      }));
-      saveField(name, newValue);
-      return;
-    }
+  const licenceKey = name.split(".")[1];
+  const newValue = type === "number" ? Number(value) : value;
+  setFormData((prev) => ({
+    ...prev,
+    licenceDetails: {
+      ...prev.licenceDetails,
+      [licenceKey]: newValue,
+    },
+  }));
+  saveField(name, newValue); // ← This saves "licenceDetails.licenceNumber" → wrong key!
+  return;
+}
 
     const newValue = type === "number" ? Number(value) : value;
     setFormData((prev) => ({ ...prev, [name]: newValue }));
