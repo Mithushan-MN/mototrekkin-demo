@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react'
-import HeroVideo from '../assets/mototrekkin-intro.mp4'
+
 
 const HomeHero = () => {
   const videoRef = useRef(null)
