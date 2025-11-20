@@ -46,7 +46,8 @@ const HomeHero = () => {
       <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover"
-        src={HeroVideo}
+        // src={HeroVideo}
+        src="/assets/mototrekkin-intro.mp4"
         autoPlay
         loop
         playsInline
