@@ -52,6 +52,7 @@ import ProductShowcase from '../components/ProductShowcase'
 import CardSlider from '../components/CardSlider'
 import HistorySection from '../components/HistorySection'
 import ScrollToTopBubble from '../components/ScrollToTopBubble'
+import HomeHero from '../components/HomeHero'
 
 const Home = () => {
   const sectionRefs = useRef([])
@@ -97,8 +98,12 @@ const Home = () => {
       {/* Background gradient overlay for better visual hierarchy */}
       <div className="fixed inset-0 bg-gradient-to-b from-gray-900 via-gray-800 to-gray-900 -z-10"></div>
       
+      {/* Hero Video Section */}
+      <HomeHero />
+
       {/* Smooth scrolling container */}
       <div className="scroll-smooth">
+
         <div ref={addToRefs} className="opacity-0 transition-all duration-1000">
           <ServiceCenter/>
         </div>

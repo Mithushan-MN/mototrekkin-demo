@@ -488,3 +488,17 @@ html {
   content: '';
   @apply absolute w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin;
 }
+
+
+
+/* hero mute fuction */
+@keyframes soundwave {
+  0%, 100% { transform: translateY(0) scaleY(0.4); opacity: 0.5; }
+  50%      { transform: translateY(-4px) scaleY(1); opacity: 1; }
+}
+
+.animate-soundwave {
+  animation: soundwave 1.4s ease-in-out infinite;
+}
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
