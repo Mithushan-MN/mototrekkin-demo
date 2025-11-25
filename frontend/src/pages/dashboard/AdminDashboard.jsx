@@ -42,7 +42,7 @@ const AdminDashboard = () => {
         return <AdminBikeHire />;
       case "event bookings":
         return <AdminEventBookings />;
-      case "Trainings bookings":
+      case "Rider Training":
         return <AdminTrainings />;
       case "NzBikes":
         return <NzBikes />;
@@ -97,7 +97,7 @@ const AdminDashboard = () => {
         { name: "service bookings", icon: Wrench },
         { name: "bike hire", icon: Bike },
         { name: "event bookings", icon: Calendar },
-        { name: "Trainings bookings", icon: Calendar },
+        { name: "Rider Training", icon: Calendar },
         { name: "NzBikes", icon: Bike },
         { name: "MdpPhase3Bikes", icon: Box },
         { name: "events", icon: Calendar },

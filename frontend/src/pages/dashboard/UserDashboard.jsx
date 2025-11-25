@@ -234,7 +234,7 @@ const UserDashboard = () => {
         return <UpcomingEvents />;
       case "events":
         return <UserEventsNZSIRegistration />;
-      case "TrainingBookings":
+      case "Rider Training":
         return <TrainingBookings />;
       case "account":
         return <AccountDetails />;
@@ -247,11 +247,13 @@ const UserDashboard = () => {
 
   const menuItems = [
     { name: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
+    { name: "account", icon: User, label: "Personal Details" },
+    { name: "future events", icon: Calendar, label: "Future Events" },
+    { name: "events", icon: Calendar, label: "My Events" },
+    { name: "Rider Training", icon: Bike, label: "Rider Training" },
     { name: "orders", icon: ToolCase, label: "Bike Service" },
     { name: "Bike Hire", icon: Bike, label: "Bike Hires" },
-    { name: "events", icon: Calendar, label: "Events" },
-    { name: "TrainingBookings", icon: Bike, label: "Training Bookings" },
-    { name: "account", icon: User, label: "Personal Details" },
+    { name: "My Garage", icon: Bike, label: "My Garage" },
     { name: "vouchers", icon: Ticket, label: "Vouchers" },
   ];
 

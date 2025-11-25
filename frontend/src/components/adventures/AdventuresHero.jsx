@@ -50,11 +50,11 @@ const AdventuresHero = () => {
         <div className="animate-fade-in-up">
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
             <span className="inline-block animate-slide-in-left animation-delay-200 hover:scale-110 transition-transform duration-500">
-              MOTORCYCLE
+              off-road motorcycle 
             </span>
             <br />
             <span className="inline-block animate-slide-in-right animation-delay-400 hover:scale-110 transition-transform duration-500">
-              ADVENTURES
+              Expeditions
             </span>
           </h1>
           
@@ -64,10 +64,10 @@ const AdventuresHero = () => {
           
           <div className="animate-scale-in animation-delay-800">
             <a
-              href="#adventures-content"
+              href="/event-calendar-2025"
               className="btn-primary group"
             >
-              Explore Adventures
+              Let's Explore 
               <span className="btn-arrow group-hover:translate-x-2">→</span>
             </a>
           </div>
