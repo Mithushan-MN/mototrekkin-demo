@@ -21,15 +21,13 @@ export default function RidingGear() {
 
       {/* Content with enhanced animations */}
       <div className="relative z-10 text-center px-4 transform transition-all duration-1000 hover:scale-105">
-        <div className="animate-fade-in-up mt-64">
+        <div className="animate-fade-in-up mt-80 md:mt-64">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
             <span className="inline-block animate-slide-in-left animation-delay-200">
-              RIDING
+              RIDING GEAR
             </span>
-            <br />
-            <span className="inline-block animate-slide-in-right animation-delay-400">
-              GEAR
-            </span>
+       
+            
           </h1>
           
           <div className="animate-scale-in animation-delay-600">
