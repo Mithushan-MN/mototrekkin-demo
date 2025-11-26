@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import dirtBikeRider from '../../assets/dirt-bike-rider.jpg';
+import dirtBikeRider from '../../assets/dirt-bike-rider2.png';
 
 const AdventuresHero = () => {
   const heroRef = useRef(null);
@@ -50,7 +50,7 @@ const AdventuresHero = () => {
         <div className="animate-fade-in-up">
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
             <span className="inline-block animate-slide-in-left animation-delay-200 hover:scale-110 transition-transform duration-500">
-              off-road motorcycle 
+              Off-Road motorcycle 
             </span>
             <br />
             <span className="inline-block animate-slide-in-right animation-delay-400 hover:scale-110 transition-transform duration-500">
