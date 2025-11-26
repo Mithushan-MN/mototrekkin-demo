@@ -216,6 +216,8 @@ import UserDashboardDefaultData from "../../components/dashboard/UserDashboardDe
 import { AuthContext } from "../../components/AuthContext";
 import UserEventsNZSIRegistration from "../../components/dashboard/BikeHire";
 import TrainingBookings from "../../components/dashboard/TrainingBookings";
+import FutureEvents from "../../components/dashboard/FutureEvents";
+import MyGarage from "../../components/dashboard/MyGarage";
 
 const UserDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -234,10 +236,14 @@ const UserDashboard = () => {
         return <UpcomingEvents />;
       case "events":
         return <UserEventsNZSIRegistration />;
+      case "future events":
+        return <FutureEvents />;
       case "Rider Training":
         return <TrainingBookings />;
       case "account":
         return <AccountDetails />;
+      case "My Garage":
+        return <MyGarage />;
       case "vouchers":
         return <Vouchers />;
       default:
