@@ -12,7 +12,7 @@ const AccountDetails = () => {
   const [success, setSuccess] = useState("");
 
   // Get current user ID (adjust based on your auth setup)
-  const userId = localStorage.getItem("userId") || "me"; // or use auth context
+  const userId = localStorage.getItem("userId") || JSON.parse(localStorage.getItem("user"))?.id;
 
   // Fetch full profile
   const fetchProfile = async () => {
