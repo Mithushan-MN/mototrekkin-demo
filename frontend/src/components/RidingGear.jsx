@@ -3,12 +3,14 @@ import ridinggearbg from "../assets/ridinggears.webp"
 export default function RidingGear() {
   return (
     <section
-      className="relative h-screen bg-cover bg-right flex items-center justify-center overflow-hidden"
-      style={{
-        backgroundImage: `url(${ridinggearbg})`, 
-        backgroundAttachment: 'fixed'
-      }}
-    >
+  className="relative h-screen bg-cover bg-center bg-fixed flex items-center justify-center overflow-hidden
+             md:bg-right
+             [background-position-x:80%] 
+             md:[background-position-x:initial]"
+  style={{
+    backgroundImage: `url(${ridinggearbg})`,
+  }}
+>
       {/* Enhanced overlay with gradient */}
       <div className="absolute inset-0 bg-gradient-to-tr from-black/60 via-black/40 to-black/70 z-0"></div>
       
@@ -21,7 +23,7 @@ export default function RidingGear() {
 
       {/* Content with enhanced animations */}
       <div className="relative z-10 text-center px-4 transform transition-all duration-1000 hover:scale-105">
-        <div className="animate-fade-in-up mt-100 md:mt-64">
+        <div className="animate-fade-in-up mt-140 md:mt-64">
           <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
             <span className="inline-block animate-slide-in-left animation-delay-200">
               RIDING GEAR
