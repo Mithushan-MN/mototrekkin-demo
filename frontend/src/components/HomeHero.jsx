@@ -32,7 +32,7 @@ const HomeHero = () => {
       {/* Hero Content */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
         <div className="max-w-4xl">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 tracking-tight">
+          <h1 className="text-5xl md:text-7xl font-bold text-yellow-500 mb-6 tracking-tight">
             Ride with Confidence
           </h1>
           <p className="text-xl md:text-2xl text-white mb-10 opacity-90">
