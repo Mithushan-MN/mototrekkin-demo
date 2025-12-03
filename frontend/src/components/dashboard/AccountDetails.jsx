@@ -1,5 +1,5 @@
 // components/AccountDetails.jsx
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import axios from "../../axiosConfig";
 import { format } from "date-fns";
 
@@ -10,8 +10,13 @@ const AccountDetails = () => {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [uploading, setUploading] = useState(false);
 
   const userId = localStorage.getItem("userId") || JSON.parse(localStorage.getItem("user"))?.id;
+  const fileInputRef = useRef(null);
+
+  // CLOUDINARY CLOUD NAME – CHANGE THIS TO YOURS!
+  const CLOUDINARY_CLOUD_NAME = "doxov8fwn"; // CHANGE THIS
 
   const fetchProfile = async () => {
     try {
@@ -24,11 +29,10 @@ const AccountDetails = () => {
         : "";
 
       setProfile(res.data);
-
       setForm({
         ...res.data,
         licenceExpiry: licenceDate || "",
-        // Ensure medicalInfo exists with defaults
+        photoUrl: res.data.photoUrl || "",
         medicalInfo: {
           hasMedicalCondition: res.data.medicalInfo?.hasMedicalCondition || "",
           medicalCondition: res.data.medicalInfo?.medicalCondition || "",
@@ -57,24 +61,46 @@ const AccountDetails = () => {
     fetchProfile();
   }, []);
 
-  // Handle top-level fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
   };
 
-  // Handle nested medicalInfo fields
   const handleMedicalChange = (e) => {
     const { name, value } = e.target;
-    const field = name.split(".")[1]; // e.g., "hasMedicalCondition"
-
+    const field = name.split(".")[1];
     setForm(prev => ({
       ...prev,
-      medicalInfo: {
-        ...prev.medicalInfo,
-        [field]: value
-      }
+      medicalInfo: { ...prev.medicalInfo, [field]: value }
     }));
+  };
+
+  // PHOTO UPLOAD
+  const handlePhotoUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    setUploading(true);
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", "mototrekkin_profiles"); // you can create this in Cloudinary → Settings → Upload Presets (unsigned)
+
+    try {
+      const res = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
+      const data = await res.json();
+      setForm(prev => ({ ...prev, photoUrl: data.secure_url }));
+      setSuccess("Photo uploaded! Click Save to confirm.");
+    } catch (err) {
+      setError("Photo upload failed");
+    } finally {
+      setUploading(false);
+    }
   };
 
   const handleSave = async (e) => {
@@ -100,6 +126,51 @@ const AccountDetails = () => {
     }
   };
 
+  // Avatar with initials fallback
+  const Avatar = () => {
+    const name = `${form.firstName || ""} ${form.lastName || ""}`.trim();
+    const initials = name
+      .split(" ")
+      .map(n => n[0])
+      .join("")
+      .toUpperCase()
+      .slice(0, 2) || "U";
+
+    return (
+      <div className="relative">
+        {form.photoUrl ? (
+          <img
+            src={form.photoUrl}
+            alt="Profile"
+            className="w-32 h-32 rounded-full object-cover border-4 border-white shadow-lg"
+          />
+        ) : (
+          <div className="w-32 h-32 rounded-full bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center text-white text-4xl font-bold shadow-lg">
+            {initials}
+          </div>
+        )}
+        <button
+          type="button"
+          onClick={() => fileInputRef.current?.click()}
+          className="absolute bottom-0 right-0 bg-blue-600 text-white p-3 rounded-full shadow-lg hover:bg-blue-700 transition"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+        </button>
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handlePhotoUpload}
+          className="hidden"
+        />
+        {uploading && <div className="absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center"><span className="text-white">Uploading...</span></div>}
+      </div>
+    );
+  };
+
   if (loading) return <div className="p-10 text-center text-lg text-gray-600">Loading your profile...</div>;
   if (error && !profile) return (
     <div className="p-10 text-center">
@@ -116,6 +187,18 @@ const AccountDetails = () => {
       {error && <div className="mb-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">{error}</div>}
 
       <form onSubmit={handleSave} className="space-y-8">
+
+        {/* PROFILE PHOTO + NAME */}
+        <Section title="Profile Photo">
+          <div className="flex flex-col items-center md:flex-row gap-8">
+            <Avatar />
+            <div className="text-center md:text-left">
+              <h3 className="text-2xl font-semibold">{form.firstName} {form.lastName}</h3>
+              <p className="text-gray-600">{form.email}</p>
+              <p className="text-sm text-gray-500 mt-2">Click the camera icon to change photo</p>
+            </div>
+          </div>
+        </Section>
 
         {/* PERSONAL INFORMATION */}
         <Section title="Personal Information">

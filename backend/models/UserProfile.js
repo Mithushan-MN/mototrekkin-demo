@@ -45,6 +45,7 @@ import mongoose from "mongoose";
 
 const userProfileSchema = new mongoose.Schema({
   userId: { type: String, required: true, unique: true },
+  photoUrl: { type: String },
   firstName: String,
   lastName: String,
   gender: String,
