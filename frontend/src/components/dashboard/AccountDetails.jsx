@@ -11,26 +11,40 @@ const AccountDetails = () => {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
 
-  // Get current user ID (adjust based on your auth setup)
   const userId = localStorage.getItem("userId") || JSON.parse(localStorage.getItem("user"))?.id;
 
-  // Fetch full profile
   const fetchProfile = async () => {
     try {
       setLoading(true);
       setError("");
       const res = await axios.get(`/api/userProfile/${userId}`);
 
-      setProfile(res.data);
-
-      // Format licence expiry for input[type="date"]
       const licenceDate = res.data.licenceExpiry
         ? format(new Date(res.data.licenceExpiry), "yyyy-MM-dd")
         : "";
 
+      setProfile(res.data);
+
       setForm({
         ...res.data,
         licenceExpiry: licenceDate || "",
+        // Ensure medicalInfo exists with defaults
+        medicalInfo: {
+          hasMedicalCondition: res.data.medicalInfo?.hasMedicalCondition || "",
+          medicalCondition: res.data.medicalInfo?.medicalCondition || "",
+          medications: res.data.medicalInfo?.medications || "",
+          hasMedicationAllergies: res.data.medicalInfo?.hasMedicationAllergies || "",
+          medicationAllergies: res.data.medicalInfo?.medicationAllergies || "",
+          hasFoodAllergies: res.data.medicalInfo?.hasFoodAllergies || "",
+          foodAllergies: res.data.medicalInfo?.foodAllergies || "",
+          dietaryRequirements: res.data.medicalInfo?.dietaryRequirements || "",
+          hasHealthFund: res.data.medicalInfo?.hasHealthFund || "",
+          healthFundName: res.data.medicalInfo?.healthFundName || "",
+          healthFundNumber: res.data.medicalInfo?.healthFundNumber || "",
+          hasAmbulanceCover: res.data.medicalInfo?.hasAmbulanceCover || "",
+          medicareNumber: res.data.medicalInfo?.medicareNumber || "",
+          medicarePosition: res.data.medicalInfo?.medicarePosition || "",
+        },
       });
     } catch (err) {
       setError(err.response?.data?.message || "Failed to load profile");
@@ -43,9 +57,24 @@ const AccountDetails = () => {
     fetchProfile();
   }, []);
 
+  // Handle top-level fields
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Handle nested medicalInfo fields
+  const handleMedicalChange = (e) => {
+    const { name, value } = e.target;
+    const field = name.split(".")[1]; // e.g., "hasMedicalCondition"
+
+    setForm(prev => ({
+      ...prev,
+      medicalInfo: {
+        ...prev.medicalInfo,
+        [field]: value
+      }
+    }));
   };
 
   const handleSave = async (e) => {
@@ -71,39 +100,20 @@ const AccountDetails = () => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="p-10 text-center">
-        <p className="text-lg text-gray-600">Loading your profile...</p>
-      </div>
-    );
-  }
-
-  if (error && !profile) {
-    return (
-      <div className="p-10 text-center">
-        <p className="text-red-600 mb-4">{error}</p>
-        <button onClick={fetchProfile} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-          Retry
-        </button>
-      </div>
-    );
-  }
+  if (loading) return <div className="p-10 text-center text-lg text-gray-600">Loading your profile...</div>;
+  if (error && !profile) return (
+    <div className="p-10 text-center">
+      <p className="text-red-600 mb-4">{error}</p>
+      <button onClick={fetchProfile} className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">Retry</button>
+    </div>
+  );
 
   return (
     <div className="max-w-5xl mx-auto p-6">
       <h2 className="text-3xl font-bold text-gray-800 mb-8">Account Details & Profile</h2>
 
-      {success && (
-        <div className="mb-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
-          {success}
-        </div>
-      )}
-      {error && (
-        <div className="mb-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-          {error}
-        </div>
-      )}
+      {success && <div className="mb-6 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">{success}</div>}
+      {error && <div className="mb-6 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">{error}</div>}
 
       <form onSubmit={handleSave} className="space-y-8">
 
@@ -154,21 +164,88 @@ const AccountDetails = () => {
           </div>
         </Section>
 
+        {/* MEDICAL INFORMATION */}
+        <Section title="Medical Information">
+          <div className="space-y-6">
+
+            <Select
+              label="Do you have any medical conditions?"
+              name="medicalInfo.hasMedicalCondition"
+              value={form.medicalInfo?.hasMedicalCondition || ""}
+              onChange={handleMedicalChange}
+              options={["", "Yes", "No"]}
+              required
+            />
+            {form.medicalInfo?.hasMedicalCondition === "Yes" && (
+              <Input label="Please describe" name="medicalInfo.medicalCondition" value={form.medicalInfo?.medicalCondition || ""} onChange={handleMedicalChange} />
+            )}
+
+            <Input label="Current Medications" name="medicalInfo.medications" value={form.medicalInfo?.medications || ""} onChange={handleMedicalChange} />
+
+            <Select
+              label="Do you have medication allergies?"
+              name="medicalInfo.hasMedicationAllergies"
+              value={form.medicalInfo?.hasMedicationAllergies || ""}
+              onChange={handleMedicalChange}
+              options={["", "Yes", "No"]}
+              required
+            />
+            {form.medicalInfo?.hasMedicationAllergies === "Yes" && (
+              <Input label="List allergies" name="medicalInfo.medicationAllergies" value={form.medicalInfo?.medicationAllergies || ""} onChange={handleMedicalChange} />
+            )}
+
+            <Select
+              label="Do you have food allergies?"
+              name="medicalInfo.hasFoodAllergies"
+              value={form.medicalInfo?.hasFoodAllergies || ""}
+              onChange={handleMedicalChange}
+              options={["", "Yes", "No"]}
+              required
+            />
+            {form.medicalInfo?.hasFoodAllergies === "Yes" && (
+              <Input label="List food allergies" name="medicalInfo.foodAllergies" value={form.medicalInfo?.foodAllergies || ""} onChange={handleMedicalChange} />
+            )}
+
+            <Input label="Dietary Requirements (e.g. vegetarian, gluten-free)" name="medicalInfo.dietaryRequirements" value={form.medicalInfo?.dietaryRequirements || ""} onChange={handleMedicalChange} />
+
+            <Select
+              label="Private Health Fund?"
+              name="medicalInfo.hasHealthFund"
+              value={form.medicalInfo?.hasHealthFund || ""}
+              onChange={handleMedicalChange}
+              options={["", "Yes", "No"]}
+            />
+            {form.medicalInfo?.hasHealthFund === "Yes" && (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <Input label="Health Fund Name" name="medicalInfo.healthFundName" value={form.medicalInfo?.healthFundName || ""} onChange={handleMedicalChange} />
+                <Input label="Membership Number" name="medicalInfo.healthFundNumber" value={form.medicalInfo?.healthFundNumber || ""} onChange={handleMedicalChange} />
+              </div>
+            )}
+
+            <Select
+              label="Ambulance Cover?"
+              name="medicalInfo.hasAmbulanceCover"
+              value={form.medicalInfo?.hasAmbulanceCover || ""}
+              onChange={handleMedicalChange}
+              options={["", "Yes", "No"]}
+            />
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input label="Medicare Number" name="medicalInfo.medicareNumber" value={form.medicalInfo?.medicareNumber || ""} onChange={handleMedicalChange} />
+              <Input label="Position on Card (e.g. 1)" name="medicalInfo.medicarePosition" value={form.medicalInfo?.medicarePosition || ""} onChange={handleMedicalChange} />
+            </div>
+          </div>
+        </Section>
+
         {/* ACTION BUTTONS */}
         <div className="flex justify-end gap-4 pt-8 border-t border-gray-200">
-          <button
-            type="button"
-            onClick={fetchProfile}
-            className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition"
-          >
+          <button type="button" onClick={fetchProfile} className="px-6 py-3 bg-gray-300 text-gray-700 rounded-lg hover:bg-gray-400 transition">
             Cancel
           </button>
           <button
             type="submit"
             disabled={saving}
-            className={`px-8 py-3 rounded-lg font-medium text-white transition ${
-              saving ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"
-            }`}
+            className={`px-8 py-3 rounded-lg font-medium text-white transition ${saving ? "bg-blue-400" : "bg-blue-600 hover:bg-blue-700"}`}
           >
             {saving ? "Saving Changes..." : "Save All Changes"}
           </button>
@@ -199,6 +276,26 @@ const Input = ({ label, name, type = "text", value, onChange, required = false }
       required={required}
       className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition"
     />
+  </div>
+);
+
+const Select = ({ label, name, value, onChange, options, required = false }) => (
+  <div>
+    <label className="block text-sm font-medium text-gray-700 mb-2">
+      {label} {required && <span className="text-red-500">*</span>}
+    </label>
+    <select
+      name={name}
+      value={value}
+      onChange={onChange}
+      required={required}
+      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+    >
+      <option value="">— Select —</option>
+      {options.filter(opt => opt !== "").map(opt => (
+        <option key={opt} value={opt}>{opt}</option>
+      ))}
+    </select>
   </div>
 );
 
