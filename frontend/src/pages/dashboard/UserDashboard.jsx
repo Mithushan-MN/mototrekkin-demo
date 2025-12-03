@@ -218,6 +218,7 @@ import UserEventsNZSIRegistration from "../../components/dashboard/BikeHire";
 import TrainingBookings from "../../components/dashboard/TrainingBookings";
 import FutureEvents from "../../components/dashboard/FutureEvents";
 import MyGarage from "../../components/dashboard/MyGarage";
+import PastEvents from "../../components/dashboard/PastEvent";
 
 const UserDashboard = () => {
   const { user, logout } = useContext(AuthContext);
@@ -253,6 +254,8 @@ const UserDashboard = () => {
         return <UserEventsNZSIRegistration />;
       case "future events":
         return <FutureEvents />;
+      case "past events":
+        return <PastEvents />;
       case "Rider Training":
         return <TrainingBookings />;
       case "account":
@@ -270,6 +273,7 @@ const UserDashboard = () => {
     { name: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { name: "account", icon: User, label: "Personal Details" },
     { name: "future events", icon: Calendar, label: "Future Events" },
+    { name: "past events", icon: Calendar, label: "Past Events" },
     { name: "events", icon: Calendar, label: "My Events" },
     { name: "Rider Training", icon: Bike, label: "Rider Training" },
     { name: "orders", icon: ToolCase, label: "Bike Service" },
@@ -328,8 +332,8 @@ const Avatar = ({ size = "lg" }) => {
 </div>
 
   {/* Navigation */}
-  <nav className="px-4 mt-6">
-    <ul className="space-y-2">
+  <nav className="flex-1 px-4 mt-6 overflow-y-auto">
+    <ul className="space-y-2 pb-20">
       {menuItems.map((item) => (
         <li key={item.name}>
           <button
@@ -352,21 +356,19 @@ const Avatar = ({ size = "lg" }) => {
             {item.label}
           </button>
         </li>
-      ))}
+    ))}
+  </ul>
 
-      {/* Logout */}
-      <li className="pt-2 border-t border-gray-200 mt-4">
-        <button
-          onClick={() => {
-            handleLogout();
-            setSidebarOpen(false);
-          }}
-          className="flex items-center w-full px-3 py-2 text-gray-600 hover:bg-gray-100 rounded-xl transition-all"
-        >
-          <LogOut className="w-5 h-5 mr-2 text-gray-500" /> Logout
-        </button>
-      </li>
-    </ul>
+     {/* Logout — Pinned to bottom */}
+  <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-gray-200 bg-white">
+    <button
+      onClick={handleLogout}
+      className="flex items-center w-full px-4 py-3 text-red-600 hover:bg-red-50 rounded-xl transition-all font-medium"
+    >
+      <LogOut className="w-5 h-5 mr-3" />
+      Logout
+    </button>
+  </div>
   </nav>
 </aside>
 
