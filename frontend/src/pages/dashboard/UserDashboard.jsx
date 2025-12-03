@@ -195,8 +195,8 @@
 
 // export default UserDashboard;
 
-
-import React, { useState, useContext } from "react";
+import axios from "../../axiosConfig";   // ← ADD THIS IMPORT (top with others)
+import React, { useState, useContext, useEffect } from "react";
 import {
   LayoutDashboard,
   Calendar,
@@ -223,6 +223,21 @@ const UserDashboard = () => {
   const { user, logout } = useContext(AuthContext);
   const [activeTab, setActiveTab] = useState("dashboard");
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [profile, setProfile] = useState(null); // ← NEW: to hold photoUrl
+
+  useEffect(() => {
+  const fetchProfilePhoto = async () => {
+    try {
+      const userId = localStorage.getItem("userId") || JSON.parse(localStorage.getItem("user"))?.id;
+      if (!userId) return;
+      const { data } = await axios.get(`/api/userProfile/${userId}`);
+      setProfile(data);
+    } catch (err) {
+      console.log("Profile photo not loaded");
+    }
+  };
+  fetchProfilePhoto();
+}, []);
 
   const handleLogout = () => logout();
 
@@ -263,6 +278,26 @@ const UserDashboard = () => {
     { name: "vouchers", icon: Ticket, label: "Vouchers" },
   ];
 
+  // ADD THIS AVATAR COMPONENT (anywhere inside the component, before return)
+const Avatar = ({ size = "lg" }) => {
+  const sizeClass = size === "lg" ? "w-20 h-20 text-3xl" : "w-12 h-12 text-lg";
+  const name = user?.fullName || user?.email || "User";
+  const initials = name.split(" ").map(n => n[0]).join("").toUpperCase().slice(0, 2);
+
+  return profile?.photoUrl ? (
+    <img
+      src={profile.photoUrl}
+      alt={name}
+      className={`${sizeClass} rounded-full object-cover border-4 border-white shadow-lg`}
+    />
+  ) : (
+    <div className={`${sizeClass} rounded-full bg-gradient-to-br from-yellow-400 to-orange-500 flex items-center justify-center text-white font-bold shadow-lg`}>
+      {initials}
+    </div>
+  );
+};
+
+
   return (
     <div className="flex h-screen bg-gray-100 overflow-hidden">
       {/* Sidebar */}
@@ -286,13 +321,11 @@ const UserDashboard = () => {
 
   {/* User Info */}
   <div className="p-6 pt-20 lg:pt-5 flex flex-col items-center border-b border-gray-200">
-    <div className="w-16 h-16 bg-gradient-to-tr from-yellow-400 to-orange-400 rounded-full flex items-center justify-center text-white text-xl font-bold">
-      {user?.fullName ? user.fullName.charAt(0).toUpperCase() : "U"}
-    </div>
-    <h2 className="font-semibold text-lg mt-3 text-gray-800 text-center">
-      {user?.fullName || user?.email}
-    </h2>
-  </div>
+  <Avatar size="lg" />
+  <h2 className="font-semibold text-lg mt-3 text-gray-800 text-center">
+    {user?.fullName || user?.email}
+  </h2>
+</div>
 
   {/* Navigation */}
   <nav className="px-4 mt-6">
@@ -361,10 +394,15 @@ const UserDashboard = () => {
       </main>
 
       {/* Mobile top bar (outside sidebar) */}
-<div className="fixed  left-0 w-full bg-white px-4 py-3 border-b lg:hidden flex justify-between items-center z-40 shadow-sm">
-  <h2 className="font-semibold text-lg">
-    {user?.fullName || user?.email || "User"}
-  </h2>
+<div className="fixed left-0 w-full bg-white px-4 py-3 border-b lg:hidden flex justify-between items-center z-40 shadow-sm">
+  <div className="flex items-center gap-3">
+    <Avatar size="sm" />
+    <div>
+      <h2 className="font-semibold text-gray-800">
+        {user?.fullName || user?.email || "User"}
+      </h2>
+    </div>
+  </div>
   <button onClick={() => setSidebarOpen(!sidebarOpen)}>
     {sidebarOpen ? <X size={24} /> : <Menu size={24} />}
   </button>

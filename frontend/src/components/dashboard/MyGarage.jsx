@@ -153,7 +153,7 @@ const MyGarage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Remove this bike from your garage?")) return;
     try {
-      await axios.delete(`/api/userbikes/${id}`);
+      await axios.delete(`/api/users/me/bikes/${id}`);
       setMyBikes(prev => prev.filter(b => b._id !== id));
       setSelectedBike(null);
     } catch (err) {
@@ -171,7 +171,7 @@ const MyGarage = () => {
         dailyRate: Number(addData.dailyRate),
         year: addData.year ? Number(addData.year) : undefined,
       };
-      const { data } = await axios.post("/api/userbikes", payload);
+      const { data } = await axios.post("/api/users/me/bikes", payload);
       setMyBikes(prev => [...prev, data.bike]);
       setAddMode(false);
       setAddData({
@@ -199,7 +199,7 @@ const MyGarage = () => {
         dailyRate: Number(editData.dailyRate),
         year: editData.year ? Number(editData.year) : undefined,
       };
-      const { data } = await axios.put(`/api/userbikes/${selectedBike._id}`, payload);
+      const { data } = await axios.put(`/api/users/me/bikes/${selectedBike._id}`, payload);
       setMyBikes(prev => prev.map(b => b._id === selectedBike._id ? data.bike : b));
       setSelectedBike(data.bike);
       setEditMode(false);
@@ -382,41 +382,111 @@ const MyGarage = () => {
       )}
 
       {/* View / Edit Modal */}
-      {selectedBike && !editMode && (
-        <div className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4" onClick={() => setSelectedBike(null)}>
-          <div className="bg-gray-800 rounded-2xl max-w-4xl w-full p-8" onClick={(e) => e.stopPropagation()}>
-            <h2 className="text-4xl font-bold text-center mb-8">{selectedBike.name}</h2>
-            {selectedBike.imageUrl ? (
-              <img src={selectedBike.imageUrl} alt={selectedBike.name} className="w-full h-96 object-cover rounded-xl mb-8 shadow-2xl" />
-            ) : (
-              <div className="bg-gray-700 h-96 rounded-xl mb-8 flex items-center justify-center text-3xl text-gray-500">No Photo</div>
-            )}
-            <div className="grid grid-cols-2 gap-8 text-xl">
-              <p><strong>Brand:</strong> {selectedBike.brand || "-"}</p>
-              <p><strong>Model:</strong> {selectedBike.model || "-"}</p>
-              <p><strong>Year:</strong> {selectedBike.year || "-"}</p>
-              <p><strong>Daily Rate:</strong> <span className="text-yellow-400 font-bold">${selectedBike.dailyRate}</span></p>
-              <p><strong>Status:</strong> <span className={selectedBike.isAvailable ? "text-green-400" : "text-red-400"}>
-                {selectedBike.isAvailable ? "Available" : "Not Available"}
-              </span></p>
+      {/* BIKE DETAIL MODAL – FIXED & BEAUTIFUL */}
+{selectedBike && !editMode && (
+  <div 
+    className="fixed inset-0 bg-black bg-opacity-80 flex items-center justify-center z-50 p-4 overflow-y-auto"
+    onClick={() => setSelectedBike(null)}
+  >
+    <div 
+      className="bg-gray-800 rounded-2xl w-full max-w-4xl mx-auto my-8 shadow-2xl"
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Header */}
+      <div className="p-8 pb-4">
+        <h2 className="text-4xl font-bold text-center text-white mb-6">
+          {selectedBike.name}
+        </h2>
+      </div>
+
+      {/* Scrollable Content */}
+      <div className="max-h-[80vh] overflow-y-auto px-8 pb-8">
+        {/* Bike Image */}
+        <div className="relative mb-8">
+          {selectedBike.imageUrl ? (
+            <img 
+              src={selectedBike.imageUrl} 
+              alt={selectedBike.name}
+              className="w-full h-96 object-cover rounded-xl shadow-xl border-4 border-gray-700"
+            />
+          ) : (
+            <div className="w-full h-96 bg-gray-700 rounded-xl flex items-center justify-center text-4xl font-bold text-gray-500 border-4 border-dashed border-gray-600">
+              No Photo
             </div>
-            {selectedBike.description && (
-              <p className="mt-8 text-lg text-gray-300"><strong>Description:</strong> {selectedBike.description}</p>
-            )}
-            <div className="flex gap-6 mt-10">
-              <button onClick={openEdit} className="flex-1 py-5 bg-yellow-600 hover:bg-yellow-500 rounded-xl font-bold text-xl">
-                Edit Bike
-              </button>
-              <button onClick={() => handleDelete(selectedBike._id)} className="flex-1 py-5 bg-red-600 hover:bg-red-500 rounded-xl font-bold text-xl">
-                Remove from Garage
-              </button>
-              <button onClick={() => setSelectedBike(null)} className="flex-1 py-5 bg-gray-700 hover:bg-gray-600 rounded-xl font-bold text-xl">
-                Close
-              </button>
-            </div>
+          )}
+        </div>
+
+        {/* Details Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-lg">
+          <div className="bg-gray-700/50 p-5 rounded-lg">
+            <strong className="text-gray-400">Brand</strong>
+            <p className="text-xl font-semibold text-white mt-1">
+              {selectedBike.brand || "—"}
+            </p>
+          </div>
+          <div className="bg-gray-700/50 p-5 rounded-lg">
+            <strong className="text-gray-400">Model</strong>
+            <p className="text-xl font-semibold text-white mt-1">
+              {selectedBike.model || "—"}
+            </p>
+          </div>
+          <div className="bg-gray-700/50 p-5 rounded-lg">
+            <strong className="text-gray-400">Year</strong>
+            <p className="text-xl font-semibold text-white mt-1">
+              {selectedBike.year || "—"}
+            </p>
+          </div>
+          <div className="bg-gray-700/50 p-5 rounded-lg">
+            <strong className="text-gray-400">Daily Rate</strong>
+            <p className="text-3xl font-bold text-yellow-400 mt-1">
+              ${selectedBike.dailyRate}
+            </p>
+          </div>
+          <div className="bg-gray-700/50 p-5 rounded-lg md:col-span-2">
+            <strong className="text-gray-400">Status</strong>
+            <p className={`text-2xl font-bold mt-2 ${
+              selectedBike.isAvailable ? "text-green-400" : "text-red-400"
+            }`}>
+              {selectedBike.isAvailable ? "Available for Rent" : "Not Available"}
+            </p>
           </div>
         </div>
-      )}
+
+        {/* Description */}
+        {selectedBike.description && (
+          <div className="mt-8 bg-gray-700/50 p-6 rounded-lg">
+            <strong className="text-gray-400 block mb-3 text-lg">Description</strong>
+            <p className="text-gray-200 leading-relaxed text-lg">
+              {selectedBike.description}
+            </p>
+          </div>
+        )}
+
+        {/* Action Buttons */}
+        <div className="flex flex-col sm:flex-row gap-4 mt-10">
+          <button 
+            onClick={openEdit} 
+            className="flex-1 py-5 bg-yellow-600 hover:bg-yellow-500 rounded-xl font-bold text-xl transition shadow-lg"
+          >
+            Edit Bike
+          </button>
+          <button 
+            onClick={() => handleDelete(selectedBike._id)} 
+            className="flex-1 py-5 bg-red-600 hover:bg-red-500 rounded-xl font-bold text-xl transition shadow-lg"
+          >
+            Remove from Garage
+          </button>
+          <button 
+            onClick={() => setSelectedBike(null)} 
+            className="flex-1 py-5 bg-gray-600 hover:bg-gray-500 rounded-xl font-bold text-xl transition shadow-lg"
+          >
+            Close
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+)}
 
       {/* Edit Modal */}
       {editMode && selectedBike && (
