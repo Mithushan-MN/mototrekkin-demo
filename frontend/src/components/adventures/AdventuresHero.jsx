@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import dirtBikeRider from '../../assets/dirt-bike-rider2.png';
+import dirtBikeRider from '../../assets/dirt-bike-rider3.png';
 
 const AdventuresHero = () => {
   const heroRef = useRef(null);
@@ -20,7 +20,7 @@ const AdventuresHero = () => {
   return (
     <section
       ref={heroRef}
-      className="relative h-screen bg-cover bg-center flex items-center justify-center overflow-hidden"
+      className="relative h-screen bg-cover bg-top-left flex items-center justify-center overflow-hidden"
       style={{
         backgroundImage: `url(${dirtBikeRider})`,
         backgroundAttachment: 'fixed'

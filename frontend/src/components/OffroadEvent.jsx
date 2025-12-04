@@ -1,5 +1,5 @@
-import roadeventbgDesktop from "../assets/roadevent.webp";           // Wide desktop version
-import roadeventbgMobile from "../assets/roadevent.webp";       // Create this for mobile
+import roadeventbgDesktop from "../assets/dirt-bike-rider3.jpg";           // Wide desktop version
+import roadeventbgMobile from "../assets/dirt-bike-rider3.jpg";       // Create this for mobile
 
 export default function OffroadEvent() {
   return (
