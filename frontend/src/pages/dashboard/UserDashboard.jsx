@@ -273,7 +273,7 @@ const UserDashboard = () => {
     { name: "dashboard", icon: LayoutDashboard, label: "Dashboard" },
     { name: "account", icon: User, label: "Personal Details" },
     { name: "future events", icon: Calendar, label: "Future Events" },
-    { name: "past events", icon: Calendar, label: "Past Events" },
+    // { name: "past events", icon: Calendar, label: "Past Events" },
     { name: "events", icon: Calendar, label: "My Events" },
     { name: "Rider Training", icon: Bike, label: "Rider Training" },
     { name: "orders", icon: ToolCase, label: "Bike Service" },

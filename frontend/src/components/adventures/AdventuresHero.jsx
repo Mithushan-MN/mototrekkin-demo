@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import dirtBikeRider from '../../assets/dirt-bike-rider3.png';
+import dirtBikeRider from '../../assets/dirt-bike-rider3.jpg';
 
 const AdventuresHero = () => {
   const heroRef = useRef(null);
@@ -20,7 +20,7 @@ const AdventuresHero = () => {
   return (
     <section
       ref={heroRef}
-      className="relative h-screen bg-cover bg-top-left flex items-center justify-center overflow-hidden"
+      className="relative h-screen bg-cover bg-[65%_center] md:bg-center bg-scroll md:bg-fixed flex items-center justify-center overflow-hidden"
       style={{
         backgroundImage: `url(${dirtBikeRider})`,
         backgroundAttachment: 'fixed'
@@ -48,7 +48,7 @@ const AdventuresHero = () => {
       {/* Content with enhanced animations */}
       <div className="relative z-10 text-center px-4 transform transition-all duration-1000 hover:scale-105">
         <div className="animate-fade-in-up">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
+          <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
             <span className="inline-block animate-slide-in-left animation-delay-200 hover:scale-110 transition-transform duration-500">
               Off-Road Motorcycle 
             </span>

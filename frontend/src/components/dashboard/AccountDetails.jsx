@@ -234,7 +234,7 @@ const AccountDetails = () => {
             <Input label="Relationship" name="emergencyRelation" value={form.emergencyRelation || ""} onChange={handleChange} />
             <Input label="Email" name="emergencyEmail" type="email" value={form.emergencyEmail || ""} onChange={handleChange} />
             <Input label="Mobile" name="emergencyMobile" value={form.emergencyMobile || ""} onChange={handleChange} />
-            <Input label="Landline" name="emergencyLandline" value={form.emergencyLandline || ""} onChange={handleChange} />
+            <Input label="Landline" name="emergencyLandline" value={form.emergencyLandline || ""} onChange={handleChange} placeholder="+61123456789" />
           </div>
         </Section>
 

@@ -77,13 +77,13 @@ const AdventuresGallery = () => {
             {/* Content Overlay */}
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
               <div className="animate-slide-in-left animation-delay-400">
-                <h3 className="text-8xl md:text-9xl font-black text-yellow-500 mb-4 drop-shadow-2xl group-hover:text-yellow-400 transition-colors duration-300">
+                <h3 className="text-4xl md:text-9xl font-black text-yellow-500 mb-4 drop-shadow-2xl group-hover:text-yellow-400 transition-colors duration-300">
                   2025
                 </h3>
                 <p className="text-2xl md:text-3xl font-bold text-white mb-6 drop-shadow-lg group-hover:text-yellow-100 transition-colors duration-300">
                   SCHEDULED EVENTS
                 </p>
-                <div className="space-y-2 text-lg">
+                <div className="space-y-2 text-sm md:text-lg">
                   <p className="font-semibold group-hover:text-yellow-200 transition-colors duration-300">• Spring Adventure Ride - March 15-17</p>
                   <p className="font-semibold group-hover:text-yellow-200 transition-colors duration-300">• Summer Off-Road Challenge - June 20-22</p>
                   <p className="font-semibold group-hover:text-yellow-200 transition-colors duration-300">• Autumn Scenic Tour - October 10-12</p>
@@ -122,13 +122,13 @@ const AdventuresGallery = () => {
             {/* Content Overlay */}
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
               <div className="animate-slide-in-right animation-delay-600">
-                <h3 className="text-8xl md:text-9xl font-black text-yellow-500 mb-4 drop-shadow-2xl group-hover:text-yellow-400 transition-colors duration-300">
+                <h3 className="text-4xl md:text-9xl font-black text-yellow-500 mb-4 drop-shadow-2xl group-hover:text-yellow-400 transition-colors duration-300">
                   2026
                 </h3>
                 <p className="text-2xl md:text-3xl font-bold text-white mb-6 drop-shadow-lg group-hover:text-yellow-100 transition-colors duration-300">
                   SCHEDULED EVENTS
                 </p>
-                <div className="space-y-2 text-lg">
+                <div className="space-y-2 text-sm md:text-lg">
                   <p className="font-semibold group-hover:text-yellow-200 transition-colors duration-300">• New Year Adventure - January 15-17</p>
                   <p className="font-semibold group-hover:text-yellow-200 transition-colors duration-300">• Spring Mountain Expedition - April 5-7</p>
                   <p className="font-semibold group-hover:text-yellow-200 transition-colors duration-300">• Summer Coastal Cruise - August 15-17</p>
