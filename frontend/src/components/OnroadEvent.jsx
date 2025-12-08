@@ -12,7 +12,7 @@ export default function OnroadEvent() {
 
       {/* Mobile Image hidden on desktop */}
       <div
-        className="absolute inset-0 lg:hidden bg-cover bg-center bg-fixed"
+        className="absolute inset-0 lg:hidden bg-cover bg-left bg-fixed"
         style={{ backgroundImage: `url(${roadeventbgMobile})` }}
       />
 

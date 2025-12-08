@@ -14,7 +14,7 @@ export default function HearingProtectionComponent() {
 
       {/* Mobile Image – hidden on desktop */}
       <div
-        className="absolute inset-0 lg:hidden bg-cover bg-center bg-fixed"
+        className="absolute inset-0 lg:hidden bg-cover bg-right bg-fixed"
         style={{ backgroundImage: `url(${hearingprotectionbgMobile})` }}
       />
 

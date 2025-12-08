@@ -38,7 +38,7 @@ export default function Hero() {
       <div className="relative z-30 h-full flex flex-col justify-center">
         <div className="w-full max-w-7xl mx-auto px-6 lg:px-12 xl:px-20">
           <div className="flex justify-center lg:justify-end">
-            <div className="text-center lg:text-right max-w-4xl mt-140 md:mt-0">
+            <div className="text-center lg:text-right max-w-4xl mt-120 md:mt-0">
               <div className="animate-fade-in-up">
                 <h1 className="text-4xl md:text-6xl lg:text-6xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
                   <span className="inline-block animate-slide-in-left animation-delay-200">
