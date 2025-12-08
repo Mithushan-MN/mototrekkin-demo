@@ -104,7 +104,7 @@ const AdventuresContact = () => {
                   <h4 className="font-semibold text-white mb-4">Quick Actions:</h4>
                   <div className="space-y-3">
                     <a
-                      href="#event-schedule"
+                      href="/event-calendar-2026"
                       className="block w-full bg-yellow-500 hover:bg-yellow-600 text-black font-bold py-3 px-6 rounded-lg text-center transition-all duration-300 transform hover:scale-105"
                     >
                       View Event Schedule

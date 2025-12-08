@@ -4,30 +4,14 @@ import event2025 from "../assets/event2025.webp";
 import event2026 from "../assets/event2026.webp";
 import adventureImage from "../assets/helmet-mobile1.png";
 import { Link } from "react-router-dom";
+import OnroadHero from "../components/adventures/OnroadHero";
+import AdventuresContact from "../components/adventures/AdventuresContact";
 
 const MotorcycleAdventureOnroad = () => {
   return (
     <>
-      <section
-        className="relative h-screen bg-cover bg-center flex items-center justify-center"
-        style={{
-          backgroundImage: `url(${servicecenterbg})`,
-        }}
-      >
-        {/* Overlay for dark effect */}
-        <div className="absolute inset-0 bg-black/50 z-0"></div>
-
-        {/* Content */}
-        <div className="relative z-10 text-center px-4 text-white">
-          <h1 className="text-4xl md:text-7xl font-extrabold text-white mb-6 drop-shadow-lg">
-           ONROAD MOTORCYCLE ADVENTURES
-          </h1>
-          <p className="text-xl">
-            Discover new destinations, challenge yourself, and make
-            unforgettable memories with us.
-          </p>
-        </div>
-      </section>
+     <OnroadHero />
+      
 
       <section>
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 ">
@@ -75,6 +59,8 @@ const MotorcycleAdventureOnroad = () => {
     </div>
   </div>
 </section>
+
+<AdventuresContact />
     </>
   );
 };

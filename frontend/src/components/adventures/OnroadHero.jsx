@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
-import dirtBikeRider from '../../assets/dirt-bike-rider3.jpg';
+import dirtBikeRider from '../../assets/bikehire.webp';
 
-const AdventuresHero = () => {
+const OnroadHero = () => {
   const heroRef = useRef(null);
 
   useEffect(() => {
@@ -19,7 +19,7 @@ const AdventuresHero = () => {
 
   return (
     <section
-      // ref={heroRef}
+      
       className="relative h-screen bg-cover bg-[65%_center] md:bg-center bg-scroll md:bg-fixed flex items-center justify-center overflow-hidden"
       style={{
         backgroundImage: `url(${dirtBikeRider})`,
@@ -50,21 +50,22 @@ const AdventuresHero = () => {
         <div className="animate-fade-in-up">
           <h1 className="text-5xl md:text-6xl lg:text-7xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
             <span className="inline-block animate-slide-in-left animation-delay-200 hover:scale-110 transition-transform duration-500">
-              Off-Road Motorcycle 
+              Onroad Motorcycle 
             </span>
             <br />
             <span className="inline-block animate-slide-in-right animation-delay-400 hover:scale-110 transition-transform duration-500">
-              Expeditions
+              Events
             </span>
           </h1>
           
           <p className="text-xl md:text-2xl text-white/90 max-w-4xl mx-auto mb-8 leading-relaxed animate-fade-in-up animation-delay-600 hover:text-white transition-colors duration-300">
-            Discover new destinations, challenge yourself, and make unforgettable memories with us.
+            Discover new destinations, challenge yourself, and make
+            unforgettable memories with us.
           </p>
           
           <div className="animate-scale-in animation-delay-800">
             <a
-              href="/event-calendar-2025"
+              href="/event-calendar-2026"
               className="btn-primary group"
             >
               Let's Explore 
@@ -86,4 +87,4 @@ const AdventuresHero = () => {
   );
 };
 
-export default AdventuresHero;
+export default OnroadHero;
