@@ -27,7 +27,7 @@ export default function RiderTraining() {
       </div>
 
       {/* Content - Responsive Layout */}
-      <div className="relative z-30 h-full flex flex-col justify-center lg:justify-center lg:justify-center">
+      <div className="relative z-30 h-full flex flex-col justify-center lg:justify-center ">
         <div className="w-full max-w-7xl mx-auto px-6 pb-24 lg:pb-0 lg:px-12 xl:px-20">
           <div className="flex justify-center lg:justify-start">
             <div className="text-center mt-140 md:mt-0 lg:text-left max-w-4xl">

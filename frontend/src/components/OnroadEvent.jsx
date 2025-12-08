@@ -1,5 +1,5 @@
 import roadeventbgDesktop from "../assets/roadevent2.webp";           // Wide desktop version
-import roadeventbgMobile from "../assets/roadevent2-MOBILE.JPEG";       // Create this for mobile
+import roadeventbgMobile from "../assets/roadevent2-MOBILE.jpeg";       // Create this for mobile
 
 export default function OnroadEvent() {
   return (
