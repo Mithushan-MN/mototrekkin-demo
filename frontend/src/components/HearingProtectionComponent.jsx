@@ -1,5 +1,5 @@
-import hearingprotectionbgDesktop from "../assets/hearingProtection.webp";           // Your current wide image
-import hearingprotectionbgMobile from "../assets/hearingProtection.webp";     // Create this
+import hearingprotectionbgDesktop from "../assets/hearingProtection2.jpg";           // Your current wide image
+import hearingprotectionbgMobile from "../assets/hearingProtection-mobile.jpg";     // Create this
 
 import { Link } from 'react-router-dom';
 
@@ -49,7 +49,7 @@ export default function HearingProtectionComponent() {
                     to="/hearing-protection"
                     className="btn-primary"
                   >
-                    CLICK TO SHOP
+                    Click To Shop
                     <span className="btn-arrow">→</span>
                   </Link>
                 </div>

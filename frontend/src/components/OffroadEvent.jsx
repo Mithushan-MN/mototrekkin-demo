@@ -1,5 +1,5 @@
 import roadeventbgDesktop from "../assets/dirt-bike-rider3.jpg";           // Wide desktop version
-import roadeventbgMobile from "../assets/dirt-bike-rider3.jpg";       // Create this for mobile
+import roadeventbgMobile from "../assets/dirt-bike-rider3-mobile.png";       // Create this for mobile
 
 export default function OffroadEvent() {
   return (
@@ -34,11 +34,11 @@ export default function OffroadEvent() {
               <div className="animate-fade-in-up">
                 <h1 className="text-4xl md:text-6xl lg:text-6xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
                   <span className="inline-block animate-slide-in-left animation-delay-200">
-                    ULTIMATE OFF ROAD
+                   OFF-ROAD
                   </span>
                   <br />
                   <span className="inline-block animate-slide-in-right animation-delay-400">
-                    EVENTS
+                     EXPEDITIONS
                   </span>
                 </h1>
 
@@ -47,7 +47,7 @@ export default function OffroadEvent() {
                     href="/motorcycle-adventures"
                     className="btn-primary"
                   >
-                    LET'S EXPLORE
+                    Let's Explore
                     <span className="btn-arrow">→</span>
                   </a>
                 </div>

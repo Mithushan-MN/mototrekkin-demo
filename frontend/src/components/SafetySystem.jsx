@@ -1,5 +1,5 @@
 import SafetySystembgDesktop from "../assets/safetysystems2.png";           // Your current wide image
-import SafetySystembgMobile from "../assets/safetysystems2-mobile.png";       // Create this (mobile-optimized)
+import SafetySystembgMobile from "../assets/safetysystems2-mobile2.png";       // Create this (mobile-optimized)
 
 export default function SafetySystem() {
   return (

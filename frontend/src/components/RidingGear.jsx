@@ -1,5 +1,5 @@
 import ridinggearbgDesktop from "../assets/ridinggears.webp";           // Your current wide image
-import ridinggearbgMobile from "../assets/ridinggears.webp";     // Create this (mobile-optimized)
+import ridinggearbgMobile from "../assets/ridinggears-mobile.jpeg";     // Create this (mobile-optimized)
 
 export default function RidingGear() {
   return (
@@ -45,7 +45,7 @@ export default function RidingGear() {
                     target="_blank"
                     rel="noopener noreferrer"
                   >
-                    CLICK TO SHOP
+                    Click To Shop
                     <span className="btn-arrow">→</span>
                   </a>
                 </div>

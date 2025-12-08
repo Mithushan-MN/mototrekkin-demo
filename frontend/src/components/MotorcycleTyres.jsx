@@ -1,5 +1,5 @@
 import tyrebgDesktop from "../assets/tyre-banner.webp";           // Wide desktop version
-import tyrebgMobile from "../assets/tyre-banner.webp";       // Create this (cropped for mobile)
+import tyrebgMobile from "../assets/tyre-banner-mobile.png";       // Create this (cropped for mobile)
 
 export default function MotorcycleTyres() {
   return (

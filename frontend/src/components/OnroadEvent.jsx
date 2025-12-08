@@ -1,5 +1,5 @@
 import roadeventbgDesktop from "../assets/roadevent2.webp";           // Wide desktop version
-import roadeventbgMobile from "../assets/roadevent2.webp";       // Create this for mobile
+import roadeventbgMobile from "../assets/roadevent2-MOBILE.JPEG";       // Create this for mobile
 
 export default function OnroadEvent() {
   return (
@@ -33,12 +33,9 @@ export default function OnroadEvent() {
             <div className="text-center lg:text-right max-w-4xl mt-140 md:mt-0">
               <div className="animate-fade-in-up">
                 <h1 className="text-4xl md:text-6xl lg:text-6xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
-                  <span className="inline-block animate-slide-in-left animation-delay-200">
-                    ULTIMATE ON ROAD
-                  </span>
-                  <br />
+                  
                   <span className="inline-block animate-slide-in-right animation-delay-400">
-                    EVENTS
+                    ROAD EVENTS
                   </span>
                 </h1>
 
@@ -47,7 +44,7 @@ export default function OnroadEvent() {
                     href="/motorcycle-adventures-onroad"
                     className="btn-primary"
                   >
-                    LET'S EXPLORE
+                    Let's Explore
                     <span className="btn-arrow">→</span>
                   </a>
                 </div>

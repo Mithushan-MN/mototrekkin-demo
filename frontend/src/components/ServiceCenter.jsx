@@ -1,46 +1,61 @@
 import servicecenterbg from "../assets/servicecenter.png";
+import servicecenterbgmobile from "../assets/servicecenter-mobile.jpeg";
 
 export default function Hero() {
   return (
-    <section
-      className="relative h-screen bg-cover bg-center lg:bg-top-right 
-                    
-                   flex flex-col justify-end lg:justify-center overflow-hidden"
-      style={{
-        backgroundImage: `url(${servicecenterbg})`,
-        backgroundAttachment: 'fixed',
-      }}
-    >
-      {/* Gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/40 to-black/70 z-0"></div>
+    <section className="relative h-screen overflow-hidden">
+      {/* Desktop Background - Hidden on mobile */}
+      <div
+        className="absolute inset-0 hidden lg:block bg-cover bg-right bg-fixed"
+        style={{ backgroundImage: `url(${servicecenterbg})` }}
+      />
 
-      {/* Particles */}
-      <div className="absolute inset-0 z-10 pointer-events-none">
+      {/* Mobile Background - Hidden on desktop */}
+      <div
+        className="absolute inset-0 lg:hidden bg-cover bg-center bg-fixed"
+        style={{ backgroundImage: `url(${servicecenterbgmobile})` }}
+      />
+
+      {/* Dark gradient overlay */}
+      <div className="absolute inset-0 bg-gradient-to-br from-black/70 via-black/40 to-black/70 z-10" />
+
+      {/* Animated particles */}
+      <div className="absolute inset-0 z-20 pointer-events-none">
         <div className="absolute top-1/4 left-1/4 w-2 h-2 bg-yellow-400 rounded-full animate-pulse opacity-60"></div>
         <div className="absolute top-3/4 right-1/4 w-1 h-1 bg-yellow-300 rounded-full animate-ping opacity-40"></div>
         <div className="absolute top-1/2 right-1/3 w-1.5 h-1.5 bg-yellow-500 rounded-full animate-bounce opacity-50"></div>
       </div>
 
-      {/* Content - Right on desktop, Center-bottom on mobile */}
-      <div className="relative z-20 w-full px-6 pb-20 sm:pb-24 md:pb-32 lg:pb-0 lg:px-12 xl:px-20">
-        <div className="flex justify-center lg:justify-end">
-          <div className="text-center lg:text-right max-w-4xl">
-            <div className="animate-fade-in-up mt-140 md:mt-56 lg:mt-0">
-              <h1 className="text-4xl md:text-6xl lg:text-7xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
-                <span className="inline-block animate-slide-in-left animation-delay-200">
-                  MOTORCYCLE
-                </span>
-                <br />
-                <span className="inline-block animate-slide-in-right animation-delay-400">
-                  SERVICE CENTRE
-                </span>
-              </h1>
+      {/* Floating accent dots - visible only on desktop */}
+      <div className="absolute top-20 left-20 z-20 animate-float hidden lg:block">
+        <div className="w-4 h-4 bg-yellow-400 rounded-full opacity-60"></div>
+      </div>
+      <div className="absolute bottom-32 right-32 z-20 animate-float animation-delay-500 hidden lg:block">
+        <div className="w-3 h-3 bg-orange-400 rounded-full opacity-50"></div>
+      </div>
 
-              <div className="animate-scale-in animation-delay-600">
-                <a href="/services" className="btn-primary">
-                  Learn More
-                  <span className="btn-arrow">→</span>
-                </a>
+      {/* Content - Right-aligned on desktop, centered on mobile */}
+      <div className="relative z-30 h-full flex flex-col justify-center">
+        <div className="w-full max-w-7xl mx-auto px-6 lg:px-12 xl:px-20">
+          <div className="flex justify-center lg:justify-end">
+            <div className="text-center lg:text-right max-w-4xl mt-140 md:mt-0">
+              <div className="animate-fade-in-up">
+                <h1 className="text-4xl md:text-6xl lg:text-6xl font-extrabold text-yellow-500 mb-8 drop-shadow-2xl leading-tight">
+                  <span className="inline-block animate-slide-in-left animation-delay-200">
+                    MOTORCYCLE
+                  </span>
+                  <br />
+                  <span className="inline-block animate-slide-in-right animation-delay-400">
+                    SERVICE CENTRE
+                  </span>
+                </h1>
+
+                <div className="animate-scale-in animation-delay-600">
+                  <a href="/services" className="btn-primary">
+                    Learn More
+                    <span className="btn-arrow">→</span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
