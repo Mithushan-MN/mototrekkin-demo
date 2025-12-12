@@ -199,9 +199,9 @@ export default function Navbar({ onUserClick }) {
           >
             Service
           </NavLink>
-          <a href="tel:0240724511" className="hover:text-yellow-400">
+          {/* <a href="tel:0240724511" className="hover:text-yellow-400">
             02 4072 4511
-          </a>
+          </a> */}
         </div>
 
         {/* Right Section */}

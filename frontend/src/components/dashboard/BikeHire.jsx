@@ -61,7 +61,7 @@ const UserEventsNZSIRegistration = () => {
       <div className="min-h-screen bg-gray-100 flex items-center justify-center">
         <div className="text-center max-w-md mx-auto p-6 bg-white rounded-lg shadow-lg">
           <div className="text-red-500 text-6xl mb-4">⚠️</div>
-          <h2 className="text-xl font-bold text-gray-900 mb-2">Error Loading Registrations</h2>
+          <h2 className="text-xl font-bold text-red-500 mb-2">Error Loading Registrations</h2>
           <p className="text-gray-600 mb-6">{error}</p>
           <button
             onClick={() => window.location.reload()}
@@ -89,8 +89,8 @@ const UserEventsNZSIRegistration = () => {
         {registrations.length === 0 ? (
           <div className="text-center py-12 bg-white rounded-lg shadow-sm">
             <div className="text-gray-400 text-6xl mb-4">📋</div>
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No registrations yet</h3>
-            <p className="text-gray-500">Your registrations will appear here once submitted.</p>
+            <h3 className="text-lg font-medium text-gray-900 mb-2">Event Ticket you purchase it appears here</h3>
+            <p className="text-gray-500">You don’t have any valid tickets..!</p>
             <a
               href="/nzsi-registration"
               className="mt-4 inline-block bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-lg font-semibold transition duration-200"

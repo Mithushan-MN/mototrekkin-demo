@@ -131,6 +131,7 @@ import CancelPage from './pages/CancelPage';
 import RegistrationPage from './components/bookingforms/RegistrationPage';
 import MDPPhase2Registration from './components/bookingforms/MDPphase2/MDPPhase2Registration';
 import ResetPassword from './pages/ResetPassword';
+import FloatingContactButtons from './components/FloatingContactButtons';
 
 
 
@@ -236,6 +237,7 @@ const AppContent = () => {
     
 
       <Footer />
+      <FloatingContactButtons />
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </div>
   );

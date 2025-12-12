@@ -276,10 +276,10 @@ const UserDashboard = () => {
     // { name: "past events", icon: Calendar, label: "Past Events" },
     { name: "events", icon: Calendar, label: "My Events" },
     { name: "Rider Training", icon: Bike, label: "Rider Training" },
-    { name: "orders", icon: ToolCase, label: "Bike Service" },
+    { name: "orders", icon: ToolCase, label: "Book a Service" },
     { name: "Bike Hire", icon: Bike, label: "Bike Hires" },
     { name: "My Garage", icon: Bike, label: "My Garage" },
-    { name: "vouchers", icon: Ticket, label: "Vouchers" },
+    // { name: "vouchers", icon: Ticket, label: "Vouchers" },
   ];
 
   // ADD THIS AVATAR COMPONENT (anywhere inside the component, before return)

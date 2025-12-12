@@ -17,6 +17,7 @@ import mdpPhase2BikesRouter from './routes/mdpPhase2Bikes.js'; // Added import
 import nzBikesRouter from './routes/nzBikes.js';
 import userProfileRouter from './routes/userProfile.js';
 import userBikeRoutes from "./routes/userBikes.js";
+import contactRoutes from './routes/contact.js';
 
 dotenv.config();
 
@@ -60,6 +61,8 @@ app.use('/api/nz-bikes', nzBikesRouter);
 app.use('/api/userProfile', userProfileRouter);
 
 app.use("/api/users/me/bikes", userBikeRoutes);
+
+app.use('/api/contact', contactRoutes);
 
 // Stripe webhook
 app.post("/api/webhook", (req, res) => {

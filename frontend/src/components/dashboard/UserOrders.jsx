@@ -114,6 +114,12 @@ const UserOrders = () => {
             ))}
           </div>
         )}
+
+       <div className="pt-10 flex justify-center">
+  <a href="/service-booking-form" className="btn-primary">
+    Book a Services
+  </a>
+</div>
       </div>
     </div>
   );

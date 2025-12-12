@@ -31,20 +31,20 @@ const HomeHero = () => {
 
       {/* Hero Content */}
       <div className="relative z-10 h-full flex flex-col items-center justify-center text-center px-6">
-        <div className="max-w-4xl">
-          <h1 className="text-5xl md:text-7xl font-bold text-yellow-500 mb-6 tracking-tight">
-            Ride with Confidence
+        <div className="max-w-5xl">
+          <h1 className="text-5xl md:text-7xl font-black text-yellow-500 mb-6 tracking-tight">
+            ADVENTURE LIVES HERE..!
           </h1>
-          <p className="text-xl md:text-2xl text-white mb-10 opacity-90">
+          {/* <p className="text-xl md:text-2xl hidden md:flex text-white mb-10 opacity-90">
             Premium gear, expert training, and unmatched safety for every journey.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <div className="hidden md:flex flex-col sm:flex-row gap-4 justify-center">
             <a href="/services" className="btn-primary">Explore Services</a>
             <a href="/training" className="px-8 py-4 border-2 border-white hover:bg-white hover:text-black text-white font-semibold rounded-lg transition">
               Start Training
             </a>
-          </div>
+          </div> */}
         </div>
       </div>
 
