@@ -95,7 +95,7 @@ const handleSubmit = async (e) => {
 
     console.log("ServiceBookingForm: Submitting booking", { userId: user?.id, payload });
 
-    const response = await axios.post("http://localhost:5000/api/bookings", payload, {
+    const response = await axios.post("/api/bookings", payload, {
       headers: { "Content-Type": "application/json" },
     });
 
