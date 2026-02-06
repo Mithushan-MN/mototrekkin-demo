@@ -43,7 +43,7 @@ const MyGarage = () => {
   const fetchMyBikes = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get("/api/users/me/bikes");
+      const { data } = await axios.get("/users/me/bikes");
       setMyBikes(data.bikes || []);
     } catch (err) {
       console.error(err);
@@ -153,7 +153,7 @@ const MyGarage = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Remove this bike from your garage?")) return;
     try {
-      await axios.delete(`/api/users/me/bikes/${id}`);
+      await axios.delete(`/users/me/bikes/${id}`);
       setMyBikes(prev => prev.filter(b => b._id !== id));
       setSelectedBike(null);
     } catch (err) {
@@ -171,7 +171,7 @@ const MyGarage = () => {
         dailyRate: Number(addData.dailyRate),
         year: addData.year ? Number(addData.year) : undefined,
       };
-      const { data } = await axios.post("/api/users/me/bikes", payload);
+      const { data } = await axios.post("/users/me/bikes", payload);
       setMyBikes(prev => [...prev, data.bike]);
       setAddMode(false);
       setAddData({
@@ -199,7 +199,7 @@ const MyGarage = () => {
         dailyRate: Number(editData.dailyRate),
         year: editData.year ? Number(editData.year) : undefined,
       };
-      const { data } = await axios.put(`/api/users/me/bikes/${selectedBike._id}`, payload);
+      const { data } = await axios.put(`/users/me/bikes/${selectedBike._id}`, payload);
       setMyBikes(prev => prev.map(b => b._id === selectedBike._id ? data.bike : b));
       setSelectedBike(data.bike);
       setEditMode(false);
