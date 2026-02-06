@@ -10,8 +10,8 @@ const FloatingContactButtons = () => {
 
     try {
    
-      // const response = await fetch('https://mototrekkin-frontends.vercel.app/api/contact', {
-      const response = await fetch('/api/contact', {
+      const response = await fetch('https://mototrekkin-frontends.vercel.app/api/contact', {
+      // const response = await fetch('/api/contact', {
         method: 'POST',
         body: formData,
         headers: {

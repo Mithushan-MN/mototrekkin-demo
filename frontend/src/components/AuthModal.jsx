@@ -23,6 +23,8 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
 
   const BASE_URL = "https://mototrekkin-bakend.vercel.app/api/auth";
+  // const BASE_URL = "http://localhost:5000/api/auth";
+
 
   if (!isOpen) return null;
 

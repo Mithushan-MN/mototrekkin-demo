@@ -22,7 +22,8 @@ const AccountDetails = () => {
     try {
       setLoading(true);
       setError("");
-      const res = await axios.get(`/api/userProfile/${userId}`);
+      // const res = await axios.get(`http://localhost:5000/api/userProfile/${userId}`);
+      const res = await axios.get(`api/userProfile/${userId}`);
 
       const licenceDate = res.data.licenceExpiry
         ? format(new Date(res.data.licenceExpiry), "yyyy-MM-dd")

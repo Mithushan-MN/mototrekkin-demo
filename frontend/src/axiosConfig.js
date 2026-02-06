@@ -1,8 +1,8 @@
 import axios from 'axios';
 
 const instance = axios.create({
-  // baseURL: "https://mototrekkin-bakend.vercel.app", // Proxy will route this to http://localhost:5000
-  baseURL: '/api',
+  baseURL: "https://mototrekkin-bakend.vercel.app", // Proxy will route this to http://localhost:5000
+  // baseURL: '/api',
 });
 
 instance.interceptors.request.use((config) => {

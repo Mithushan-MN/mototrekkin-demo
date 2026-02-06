@@ -1,4 +1,5 @@
 import React, { useRef, useState } from 'react'
+import herovideo from "../assets/mototrekkin-intro.mp4"
 
 const HomeHero = () => {
   const videoRef = useRef(null)
@@ -19,7 +20,7 @@ const HomeHero = () => {
       <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover"
-        src="/assets/mototrekkin-intro.mp4"
+        src={herovideo}
         autoPlay
         loop
         playsInline
