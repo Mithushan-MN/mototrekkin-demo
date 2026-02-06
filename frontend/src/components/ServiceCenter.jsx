@@ -1,4 +1,4 @@
-import servicecenterbg from "../assets/servicecenter.png";
+import servicecenterbg from "../assets/servicecenter.webp";
 import servicecenterbgmobile from "../assets/servicecenter-mobile.jpeg";
 
 export default function Hero() {

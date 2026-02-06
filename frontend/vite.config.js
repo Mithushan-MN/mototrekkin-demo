@@ -9,12 +9,20 @@ export default defineConfig({
   ],
   server: {
     port: 5174, // Matches your frontend port
+    // proxy: {
+    //   "/api": {
+    //     target: "https://mototrekkin-bakend.vercel.app", // Backend URL
+    //     changeOrigin: true,
+    //     rewrite: (path) => path.replace(/^\/api/, ""), // Rewrite /api to empty
+    //   },
     proxy: {
-      "/api": {
-        target: "https://mototrekkin-bakend.vercel.app", // Backend URL
+      // All requests starting with /api go to local backend
+      '/api': {
+        target: 'http://localhost:5000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ""), // Rewrite /api to empty
-      },
+        rewrite: (path) => path.replace(/^\/api/, '/api')  // keep /api
+        // or if you want to remove /api in dev too: path.replace(/^\/api/, '')
+      }
     },
   },
 })

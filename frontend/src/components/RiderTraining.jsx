@@ -1,5 +1,5 @@
-import TRAININGbgDesktop from "../assets/TRAINING-PAGE.png";        // Your original wide/desktop image
-import TRAININGbgMobile from "../assets/TRAINING-PAGE-mobile.png";    // Create this cropped version
+import TRAININGbgDesktop from "../assets/TRAINING-PAGE.webp";        // Your original wide/desktop image
+import TRAININGbgMobile from "../assets/TRAINING-PAGE-mobile.webp";    // Create this cropped version
 
 export default function RiderTraining() {
   return (

@@ -1,5 +1,5 @@
-import hearingprotectionbgDesktop from "../assets/hearingProtection2.png";           // Your current wide image
-import hearingprotectionbgMobile from "../assets/hearingProtection-mobile.png";     // Create this
+import hearingprotectionbgDesktop from "../assets/hearingProtection2.webp";           // Your current wide image
+import hearingprotectionbgMobile from "../assets/hearingProtection-mobile.webp";     // Create this
 
 import { Link } from 'react-router-dom';
 
