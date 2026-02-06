@@ -1,8 +1,15 @@
 import axios from 'axios';
 
+// const instance = axios.create({
+//   // baseURL: "https://mototrekkin-bakend.vercel.app", // Proxy will route this to http://localhost:5000
+//   baseURL: '/api',
+  
+//   });
+
 const instance = axios.create({
-  baseURL: "https://mototrekkin-bakend.vercel.app", // Proxy will route this to http://localhost:5000
-  // baseURL: '/api',
+  baseURL: import.meta.env.DEV 
+    ? import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000' 
+    : '/api',
 });
 
 instance.interceptors.request.use((config) => {

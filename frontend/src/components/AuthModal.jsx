@@ -21,10 +21,12 @@ const AuthModal = ({ isOpen, onClose }) => {
   const [showPassword, setShowPassword] = useState(false);
 const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-
-  const BASE_URL = "https://mototrekkin-bakend.vercel.app/api/auth";
+const isDev = import.meta.env.DEV;
+  // const BASE_URL = "https://mototrekkin-bakend.vercel.app/api/auth";
   // const BASE_URL = "http://localhost:5000/api/auth";
-
+const BASE_URL = isDev 
+  ? "http://localhost:5000/api/auth"          // your local backend
+  : "/api/auth";
 
   if (!isOpen) return null;
 
@@ -53,23 +55,24 @@ const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   };
 
   // LOGIN
-  const handleLogin = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await axios.post(`${BASE_URL}/login`, { email, password });
-      console.log("AuthModal: Login successful", {
-        token: res.data.token,
-        user: res.data.user,
-      });
-      login(res.data.token, res.data.user);
-      const from = location.state?.from?.pathname || "/userdashboard";
-      onClose();
-      navigate(from, { replace: true });
-    } catch (err) {
-      console.error("AuthModal: Login failed", err.response?.data || err.message);
-      setMessage(err.response?.data?.message || "Login failed");
-    }
-  };
+const handleLogin = async (e) => {
+  e.preventDefault();          // ← Add this line (prevents page reload)
+
+  try {
+    const res = await axios.post(`${BASE_URL}/login`, { email, password });
+    console.log("AuthModal: Login successful", {
+      token: res.data.token,
+      user: res.data.user,
+    });
+    login(res.data.token, res.data.user);
+    const from = location.state?.from?.pathname || "/userdashboard";
+    onClose();
+    navigate(from, { replace: true });
+  } catch (err) {
+    console.error("AuthModal: Login failed", err.response?.data || err.message);
+    setMessage(err.response?.data?.message || "Login failed");
+  }
+};
 
   // Forgot Password
   const handleForgotPassword = async (e) => {

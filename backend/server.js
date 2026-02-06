@@ -36,7 +36,19 @@ console.log("Environment variables:", {
 });
 
 const app = express();
-app.use(cors());
+app.use(cors({
+  origin: [
+        
+    
+    'http://localhost:5174',     // your current port
+    'http://localhost:5173',     // common Vite port
+    'http://localhost:3000',     // if using CRA sometimes
+    'https://mototrekkin.com',   // production domain
+    'https://www.mototrekkin.com'             // CRA dev
+  ],
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 app.use(express.raw({ type: "application/json" })); // For Stripe webhook
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));

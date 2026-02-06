@@ -19,7 +19,8 @@ const UserOrders = () => {
         }
 
         const response = await axios.get(
-          `https://mototrekkin-bakend.vercel.app/api/bookings/user/${user.id}`
+          // `https://mototrekkin-bakend.vercel.app/api/bookings/user/${user.id}`
+          `/api/bookings/user/${user.id}`
         );
         setBookings(response.data);
         setLoading(false);
