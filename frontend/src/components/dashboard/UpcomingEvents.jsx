@@ -20,7 +20,7 @@ const UpcomingEvents = () => {
         console.log("Fetching bookings for userId:", user.id);
         const response = await axios.get(
           // `https://mototrekkin-bakend.vercel.app/api/bikeBookings/user/${user.id}`,
-          `/api/bikeBookings/user/${user.id}`,
+          `/bikeBookings/user/${user.id}`,
           { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
         );
         console.log("Fetched bookings:", response.data);

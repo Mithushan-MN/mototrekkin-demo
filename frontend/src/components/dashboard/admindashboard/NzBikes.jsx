@@ -45,7 +45,8 @@ const NzBikes = () => {
 
   const fetchBikes = async () => {
     try {
-      const { data } = await axios.get("/api/nz-bikes");
+      // const { data } = await axios.get("/api/nz-bikes");
+      const { data } = await axios.get("/nz-bikes");
       const list = Array.isArray(data) ? data : [];
       setBikes(list);
     } catch (err) {
@@ -84,7 +85,7 @@ const NzBikes = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this bike?")) return;
     try {
-      await axios.delete(`/api/nz-bikes/${id}`);
+      await axios.delete(`/nz-bikes/${id}`);
       setBikes((p) => p.filter((b) => b._id !== id));
       setSelectedBike(null);
     } catch (err) {
@@ -137,7 +138,7 @@ const NzBikes = () => {
         specs: editData.specs,
       };
       const { data } = await axios.put(
-        `/api/nz-bikes/${selectedBike._id}`,
+        `/nz-bikes/${selectedBike._id}`,
         payload
       );
       setBikes((p) =>
@@ -176,7 +177,7 @@ const NzBikes = () => {
         specs: addData.specs,
       };
       constObject;
-      const { data } = await axios.post("/api/nz-bikes", payload);
+      const { data } = await axios.post("/nz-bikes", payload);
       setBikes((p) => [...p, data.bike]);
       setAddMode(false);
       // reset form (keep spec keys)

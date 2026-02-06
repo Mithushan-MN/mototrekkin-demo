@@ -23,7 +23,7 @@ const AccountDetails = () => {
       setLoading(true);
       setError("");
       // const res = await axios.get(`http://localhost:5000/api/userProfile/${userId}`);
-      const res = await axios.get(`api/userProfile/${userId}`);
+      const res = await axios.get(`/userProfile/${userId}`);
 
       const licenceDate = res.data.licenceExpiry
         ? format(new Date(res.data.licenceExpiry), "yyyy-MM-dd")
@@ -116,7 +116,7 @@ const AccountDetails = () => {
         updates.licenceExpiry = new Date(updates.licenceExpiry);
       }
 
-      const res = await axios.patch(`/api/userProfile/${userId}`, updates);
+      const res = await axios.patch(`/userProfile/${userId}`, updates);
       setProfile(res.data);
       setSuccess("All changes saved successfully!");
       setTimeout(() => setSuccess(""), 4000);

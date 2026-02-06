@@ -23,7 +23,8 @@ const AdminUsers = () => {
   const fetchUsers = async () => {
     try {
       const token = localStorage.getItem('token');
-      const res = await axios.get('/api/auth/users', {
+      // const res = await axios.get('/api/auth/users', {
+      const res = await axios.get('/auth/users', {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(res.data);
@@ -91,12 +92,14 @@ const AdminUsers = () => {
 
       let res;
       if (modal.mode === 'create') {
-        res = await axios.post('/api/auth/users', payload, {
+        // res = await axios.post('/api/auth/users', payload, {
+        res = await axios.post('/auth/users', payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUsers(prev => [res.data.user, ...prev]);
       } else {
-        res = await axios.put(`/api/auth/users/${modal.user._id}`, payload, {
+        // res = await axios.put(`/api/auth/users/${modal.user._id}`, payload, {
+        res = await axios.put(`/auth/users/${modal.user._id}`, payload, {
           headers: { Authorization: `Bearer ${token}` },
         });
         setUsers(prev => prev.map(u => (u._id === modal.user._id ? res.data.user : u)));
@@ -115,7 +118,8 @@ const AdminUsers = () => {
     if (!window.confirm('Delete this user?')) return;
     try {
       const token = localStorage.getItem('token');
-      await axios.delete(`/api/auth/users/${id}`, {
+      // await axios.delete(`/api/auth/users/${id}`, {
+      await axios.delete(`/auth/users/${id}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
       setUsers(prev => prev.filter(u => u._id !== id));

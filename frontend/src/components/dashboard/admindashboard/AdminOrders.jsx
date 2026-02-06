@@ -24,7 +24,7 @@ const AdminOrders = () => {
     try {
       setLoading(true);
       setError(null);
-      const res = await axios.get("/api/bookings");
+      const res = await axios.get("/bookings");
       setBookings(res.data);
     } catch (err) {
       const msg =
@@ -105,11 +105,11 @@ const AdminOrders = () => {
     try {
       let res;
       if (modal.mode === "create") {
-        res = await axios.post("/api/bookings", form);
+        res = await axios.post("/bookings", form);
         setBookings((prev) => [res.data.booking, ...prev]);
         alert("Booking created");
       } else {
-        res = await axios.put(`/api/bookings/${modal.booking._id}`, form);
+        res = await axios.put(`/bookings/${modal.booking._id}`, form);
         setBookings((prev) =>
           prev.map((b) => (b._id === modal.booking._id ? res.data.booking : b))
         );
@@ -127,7 +127,7 @@ const AdminOrders = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this booking?")) return;
     try {
-      await axios.delete(`/api/bookings/${id}`);
+      await axios.delete(`/bookings/${id}`);
       setBookings((prev) => prev.filter((b) => b._id !== id));
       alert("Deleted");
     } catch (err) {

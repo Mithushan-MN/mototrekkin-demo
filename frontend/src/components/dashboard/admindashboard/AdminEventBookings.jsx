@@ -21,7 +21,7 @@ const AdminEventsNZSIRegistration = () => {
         const token = localStorage.getItem('token');
         if (!token) throw new Error('Login required');
 
-        const response = await axios.get('/api/nzsiRegistrations/admin', {
+        const response = await axios.get('/nzsiRegistrations/admin', {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -116,7 +116,7 @@ const AdminEventsNZSIRegistration = () => {
 
     try {
       const res = await axios.put(
-        `/api/nzsiRegistrations/${editModal.reg._id}`,
+        `/nzsiRegistrations/${editModal.reg._id}`,
         payload,
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
@@ -131,7 +131,7 @@ const AdminEventsNZSIRegistration = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete?')) return;
     try {
-      await axios.delete(`/api/nzsiRegistrations/${id}`, {
+      await axios.delete(`/nzsiRegistrations/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setRegistrations(prev => prev.filter(r => r._id !== id));
@@ -142,7 +142,7 @@ const AdminEventsNZSIRegistration = () => {
 
   const handleResendPayment = async (reg) => {
     try {
-      const res = await axios.post(`/api/nzsiRegistrations/resend-payment/${reg._id}`, {}, {
+      const res = await axios.post(`/nzsiRegistrations/resend-payment/${reg._id}`, {}, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       alert(`Payment link sent to ${reg.personalDetails.email}`);

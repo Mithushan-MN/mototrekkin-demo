@@ -23,7 +23,7 @@ const AdminBikeHire = () => {
   const fetchBookings = async () => {
     try {
       setLoading(true);
-      const res = await axios.get("/api/bikeBookings");
+      const res = await axios.get("/bikeBookings");
       setBookings(res.data);
     } catch (err) {
       setError(
@@ -102,7 +102,7 @@ const AdminBikeHire = () => {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await axios.put(`/api/bikeBookings/${modal.booking._id}`, form);
+      const res = await axios.put(`/bikeBookings/${modal.booking._id}`, form);
       setBookings((prev) =>
         prev.map((b) => (b._id === modal.booking._id ? res.data.booking : b))
       );
@@ -119,7 +119,7 @@ const AdminBikeHire = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Delete this bike hire booking?")) return;
     try {
-      await axios.delete(`/api/bikeBookings/${id}`);
+      await axios.delete(`/bikeBookings/${id}`);
       setBookings((prev) => prev.filter((b) => b._id !== id));
       alert("Deleted");
     } catch (err) {

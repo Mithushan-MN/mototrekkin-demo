@@ -32,12 +32,12 @@ const AdminDashboardDefaultData = () => {
           nzBikesRes,
           mdpBikesRes,
         ] = await Promise.all([
-          axios.get("/api/auth/users", { headers }),
-          axios.get("/api/mdpPhase2Registrations/admin", { headers }),
-          axios.get("/api/nzsiRegistrations/admin", { headers }), // Adjust if route differs
-          axios.get("/api/bookings", { headers }), // Adjust if route differs
-          axios.get("/api/nz-bikes"),
-          axios.get("/api/bikes"),
+          axios.get("/auth/users", { headers }),
+          axios.get("/mdpPhase2Registrations/admin", { headers }),
+          axios.get("/nzsiRegistrations/admin", { headers }), // Adjust if route differs
+          axios.get("/bookings", { headers }), // Adjust if route differs
+          axios.get("/nz-bikes"),
+          axios.get("/bikes"),
         ]);
 
         // Extract MDP bikes

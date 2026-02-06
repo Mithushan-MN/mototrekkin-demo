@@ -21,7 +21,7 @@ const AdminTrainings = () => {
         console.log('AdminTrainings: Fetching all MDP Phase 2 registrations');
         const token = localStorage.getItem('token');
         if (!token) throw new Error('Admin authentication required');
-        const response = await axios.get('/api/mdpPhase2Registrations/admin', {
+        const response = await axios.get('/mdpPhase2Registrations/admin', {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log('AdminTrainings: Loaded', response.data.length, 'registrations');
@@ -106,7 +106,7 @@ const AdminTrainings = () => {
     if (!editModal.reg) return;
     try {
       const res = await axios.put(
-        `/api/mdpPhase2Registrations/${editModal.reg._id}`,
+        `/mdpPhase2Registrations/${editModal.reg._id}`,
         editModal.reg,
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );
@@ -123,7 +123,7 @@ const AdminTrainings = () => {
   const handleDelete = async (id) => {
     if (!window.confirm('Delete this registration? This cannot be undone.')) return;
     try {
-      await axios.delete(`/api/mdpPhase2Registrations/${id}`, {
+      await axios.delete(`/mdpPhase2Registrations/${id}`, {
         headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
       });
       setRegistrations((prev) => prev.filter((r) => r._id !== id));
@@ -135,7 +135,7 @@ const AdminTrainings = () => {
   const handleResendPayment = async (reg) => {
     try {
       await axios.post(
-        `/api/mdpPhase2Registrations/resend-payment/${reg._id}`,
+        `/mdpPhase2Registrations/resend-payment/${reg._id}`,
         {},
         { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
       );

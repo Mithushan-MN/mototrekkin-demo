@@ -12,7 +12,7 @@ const UserDashboardDefaultData = () => {
     try {
       setLoading(true);
       setError("");
-      const res = await axios.get("/api/auth/profile");
+      const res = await axios.get("/auth/profile");
       setUser(res.data);
       setLoading(false);
     } catch (err) {

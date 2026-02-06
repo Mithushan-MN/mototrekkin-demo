@@ -33,7 +33,8 @@ const MdpPhase2Bikes = () => {
 
   const fetchBikes = async () => {
     try {
-      const { data } = await axios.get("/api/bikes");
+      // const { data } = await axios.get("/api/bikes");
+      const { data } = await axios.get("/bikes");
       const list =
         data.success && Array.isArray(data.bikes) ? data.bikes : [];
       setBikes(list);
@@ -71,7 +72,8 @@ const MdpPhase2Bikes = () => {
   const handleDelete = async (id) => {
     if (!window.confirm("Deactivate this bike?")) return;
     try {
-      await axios.delete(`/api/bikes/${id}`);
+      // await axios.delete(`/api/bikes/${id}`);
+      await axios.delete(`/bikes/${id}`);
       setBikes((p) => p.filter((b) => b._id !== id));
       setSelectedBike(null);
     } catch (err) {
@@ -111,7 +113,8 @@ const MdpPhase2Bikes = () => {
         remaining: Number(editData.remaining),
       };
       const { data } = await axios.put(
-        `/api/bikes/${selectedBike._id}`,
+        // `/api/bikes/${selectedBike._id}`,
+        `/bikes/${selectedBike._id}`,
         payload
       );
       setBikes((p) =>
@@ -142,7 +145,8 @@ const MdpPhase2Bikes = () => {
         dailyRate: Number(addData.dailyRate),
         remaining: Number(addData.remaining),
       };
-      const { data } = await axios.post("/api/bikes", payload);
+      // const { data } = await axios.post("/api/bikes", payload);
+      const { data } = await axios.post("/bikes", payload);
       setBikes((p) => [...p, data.bike]);
       setAddMode(false);
       setAddData({

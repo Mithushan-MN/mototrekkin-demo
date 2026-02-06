@@ -16,7 +16,7 @@ const TrainingBookings = () => {
           throw new Error('Authentication required. Please log in.');
         }
 
-        const response = await axios.get('/api/mdpPhase2Registrations/user', {
+        const response = await axios.get('/mdpPhase2Registrations/user', {
           headers: {
             Authorization: `Bearer ${token}`,
           },

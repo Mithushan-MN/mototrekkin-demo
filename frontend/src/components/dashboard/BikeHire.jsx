@@ -16,7 +16,7 @@ const UserEventsNZSIRegistration = () => {
           throw new Error('Authentication required. Please log in.');
         }
 
-        const response = await axios.get('/api/nzsiRegistrations/user', {
+        const response = await axios.get('/nzsiRegistrations/user', {
           headers: {
             Authorization: `Bearer ${token}`,
           },
