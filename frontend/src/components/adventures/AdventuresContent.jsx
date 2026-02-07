@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import motoFreestyle from '../../assets/adventures/moto-freestyle.jpg';
-import adventureImage from "../../assets/helmet-mobile1.png";
+import adventureImage from "../../assets/helmet-mobile1.webp";
 
 const AdventuresContent = () => {
   const [isVisible, setIsVisible] = useState(false);

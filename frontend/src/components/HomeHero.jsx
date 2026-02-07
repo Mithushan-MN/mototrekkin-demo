@@ -20,12 +20,14 @@ const HomeHero = () => {
       <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover"
-        src={herovideo}
+        // src={herovideo}
+        src="/videos/mototrekkin-intro.mp4"
+        type="video/mp4"
         autoPlay
         loop
         playsInline
         muted
-        poster="/images/hero-fallback.jpg"
+        poster="/images/hero-fallback.webp"
       />
 
       <div className="absolute inset-0 bg-black/50" />

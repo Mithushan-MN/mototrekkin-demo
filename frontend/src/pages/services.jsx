@@ -12,10 +12,9 @@ export default function ServicesPage() {
   return (
     <div>
      
-      <Section
-        videoSrc={mvideo} 
-       
-      />
+     <Section
+  videoSrc="/videos/SERVICEVIDEO.mp4"
+/>
 
       
       <Section
