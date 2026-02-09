@@ -13,7 +13,7 @@ const mdpPhase2RegistrationSchema = new mongoose.Schema({
     gender: String,
     email: String,
     confirmEmail: String,
-    birthday: Date,
+    birthday: String,
     occupation: String,
     mobile: String,
     landline: String,
