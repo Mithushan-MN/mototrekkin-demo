@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowLeft, Star } from 'lucide-react';
 import axios from '../../../../axiosConfig';
+import eventlogo from '../../../../../src/assets/Adventure-Rider-MDP-Logo-04-500x500.webp'
 
 const Step8BikeDetails = ({ 
   formData, 
@@ -24,15 +25,15 @@ const Step8BikeDetails = ({
   useEffect(() => {
     const fetchBikes = async () => {
       try {
-        const response = await axios.get('/api/bikes');
+        const response = await axios.get('/bikes');
         if (response.data.success) {
           setBikes(response.data.bikes);
         } else {
           console.error('Failed to fetch bikes:', response.data.message);
           setBikes([
-            { _id: '1', name: 'HONDA CRF250 RALLY', dailyRate: 205, remaining: 1 },
-            { _id: '2', name: 'BMW 310 GS', dailyRate: 215, remaining: 1 },
-            { _id: '3', name: 'HONDA CB500X', dailyRate: 230, remaining: 1 }
+            { _id: '1', name: 'HONDA CRF250 RALLY', dailyRate: 205, remaining: 10 },
+            { _id: '2', name: 'BMW 310 GS', dailyRate: 215, remaining: 10 },
+            { _id: '3', name: 'HONDA CB500X', dailyRate: 230, remaining: 10 }
           ]);
         }
       } catch (error) {
@@ -112,7 +113,7 @@ const Step8BikeDetails = ({
     <div className="max-w-7xl mx-auto p-6">
       <div className="text-center mb-8">
         <img 
-          src="https://www.mototrekkin.com.au/wp-content/uploads/Adventure-Rider-MDP-Logo-04-500x500.png" 
+          src={eventlogo}
           alt="MDP Logo" 
           className="w-32 h-32 mx-auto mb-4"
         />

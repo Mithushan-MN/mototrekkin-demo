@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import adventure2025 from "../../assets/event2025.webp"
 import adventure2026 from "../../assets/event2026.webp";
+import adventure2027 from "../../assets/event2027.webp";
 
 const AdventuresGallery = () => {
   const [isVisible, setIsVisible] = useState(false);
@@ -137,6 +138,51 @@ const AdventuresGallery = () => {
                    <a href="/event-calendar-2026">
                   <button className="bg-yellow-500  cursor-pointer hover:bg-yellow-600 text-black font-bold py-3 px-8 rounded-lg text-lg shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-yellow-500/25 hover:shadow-2xl">
                     View 2026 Events
+                  </button>
+                  </a>
+                </div>
+              </div>
+            </div>
+            </a>
+          </div>
+
+          {/* 2027 Events Panel */}
+          <div 
+            className={`relative rounded-3xl overflow-hidden shadow-2xl group cursor-pointer transition-all duration-1000 ${
+              isVisible ? 'animate-fade-in-up animation-delay-400' : 'opacity-0 translate-y-10'
+            } ${hoveredCard === '2026' ? 'scale-105 shadow-3xl' : ''}`}
+            onMouseEnter={() => setHoveredCard('2026')}
+            onMouseLeave={() => setHoveredCard(null)}
+          >
+             <a href="/event-calendar-2027">
+            <div
+              className="absolute inset-0 bg-cover bg-center transition-transform duration-700 group-hover:scale-110"
+              style={{ backgroundImage: `url(${adventure2027})` }}
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 group-hover:from-black/95 transition-all duration-500" />
+            
+            {/* Animated overlay elements */}
+            <div className="absolute top-4 right-4 w-3 h-3 bg-yellow-400 rounded-full animate-pulse opacity-60"></div>
+            <div className="absolute bottom-4 right-4 w-2 h-2 bg-orange-400 rounded-full animate-bounce opacity-50"></div>
+            
+            {/* Content Overlay */}
+            <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
+              <div className="animate-slide-in-right animation-delay-600">
+                <h3 className="text-4xl md:text-9xl font-black text-yellow-500 mb-4 drop-shadow-2xl group-hover:text-yellow-400 transition-colors duration-300">
+                  2027
+                </h3>
+                <p className="text-2xl md:text-3xl font-bold text-white mb-6 drop-shadow-lg group-hover:text-yellow-100 transition-colors duration-300">
+                  SCHEDULED EVENTS
+                </p>
+                {/* <div className="space-y-2 text-sm md:text-lg">
+                  <p className="font-semibold group-hover:text-yellow-200 transition-colors duration-300">• New Year Adventure - January 15-17</p>
+                  <p className="font-semibold group-hover:text-yellow-200 transition-colors duration-300">• Spring Mountain Expedition - April 5-7</p>
+                  <p className="font-semibold group-hover:text-yellow-200 transition-colors duration-300">• Summer Coastal Cruise - August 15-17</p>
+                </div> */}
+                <div className="mt-6">
+                   <a href="/event-calendar-2027">
+                  <button className="bg-yellow-500  cursor-pointer hover:bg-yellow-600 text-black font-bold py-3 px-8 rounded-lg text-lg shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-yellow-500/25 hover:shadow-2xl">
+                    View 2027  Events
                   </button>
                   </a>
                 </div>

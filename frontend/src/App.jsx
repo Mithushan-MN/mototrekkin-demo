@@ -132,6 +132,7 @@ import RegistrationPage from './components/bookingforms/RegistrationPage';
 import MDPPhase2Registration from './components/bookingforms/MDPphase2/MDPPhase2Registration';
 import ResetPassword from './pages/ResetPassword';
 import FloatingContactButtons from './components/FloatingContactButtons';
+import EventCalendar2027 from './pages/EventCalendar2027';
 
 
 
@@ -163,6 +164,7 @@ const AppContent = () => {
         />
         <Route path="/event-calendar-2025" element={<EventCalendar2025 />} />
         <Route path="/event-calendar-2026" element={<EventCalendar2026 />} />
+        <Route path="/event-calendar-2027" element={<EventCalendar2027 />} />
         <Route
           path="/onroad-event-calendar-2025"
           element={<OnroadEventCalendar2025 />}

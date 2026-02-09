@@ -19,14 +19,14 @@ const CourseDates = () => {
     { month: 'SEPT. 26,27,28', dates: new Date(2025, 8, 26), phase: 'MDP Phase I', status: 'SOLD OUT' },
     {
       month: 'OCT. 24,25,26',
-      dates: new Date(2025, 9, 24),
+      dates: new Date(2026, 9, 24),
       phase: 'MDP Phase II',
       status: null, // Will be determined dynamically
       registrationLink: '/registration-mdp-phase-2',
     },
     {
       month: 'NOV. 28,29,30',
-      dates: new Date(2025, 12, 28),
+      dates: new Date(2026, 12, 28),
       phase: 'MDP Phase III',
       status: null, // Will be determined dynamically
       registrationLink: '/registration-mdp-phase-3',
