@@ -53,6 +53,7 @@ import CardSlider from '../components/CardSlider'
 import HistorySection from '../components/HistorySection'
 import ScrollToTopBubble from '../components/ScrollToTopBubble'
 import HomeHero from '../components/HomeHero'
+import FloatingContactButtons from '../components/FloatingContactButtons'
 
 const Home = () => {
   const sectionRefs = useRef([])
@@ -154,6 +155,10 @@ const Home = () => {
           <HistorySection/>
         </div>    
       </div>
+
+      <div >
+              <FloatingContactButtons />
+            </div>
       
       {/* Simple scroll to top bubble */}
       <ScrollToTopBubble />

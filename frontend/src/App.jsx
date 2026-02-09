@@ -237,9 +237,9 @@ const AppContent = () => {
     
 
       <Footer />
-      <div className="hidden lg:block">
+      {/* <div className="hidden lg:block">
         <FloatingContactButtons />
-      </div>
+      </div> */}
       
       <AuthModal isOpen={isAuthOpen} onClose={() => setIsAuthOpen(false)} />
     </div>

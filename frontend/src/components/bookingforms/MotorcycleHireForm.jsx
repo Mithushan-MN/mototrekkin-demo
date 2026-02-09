@@ -107,7 +107,7 @@ const BikeBookingForm = () => {
       if (!user?.id) return;
 
       try {
-        const { data } = await axios.get(`/api/userProfile/${user.id}`);
+        const { data } = await axios.get(`/userProfile/${user.id}`);
         setFormData((prev) => ({
           ...prev,
           firstName: data.firstName || "",
@@ -154,7 +154,7 @@ const BikeBookingForm = () => {
   const saveField = async (field, value) => {
     if (!user?.id) return;
     try {
-      await axios.patch(`/api/userProfile/${user.id}`, { [field]: value });
+      await axios.patch(`/userProfile/${user.id}`, { [field]: value });
     } catch (err) {
       console.warn("Auto-save failed:", field, err);
     }
@@ -403,7 +403,7 @@ const BikeBookingForm = () => {
         console.log(`${pair[0]}: ${pair[1] instanceof File ? "File Object" : pair[1]}`);
       }
 
-      const bookingResponse = await axios.post("/api/bikeBookings/create", formDataToSend, {
+      const bookingResponse = await axios.post("/bikeBookings/create", formDataToSend, {
         headers: { "Content-Type": "multipart/form-data" },
       });
 

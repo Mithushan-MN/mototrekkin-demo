@@ -7,6 +7,7 @@ import bike1 from "../assets/hire/bike-CRF250-Rally.jpg";
 import bike2 from "../assets/hire/G310-GS-1.jpg";
 import bike3 from "../assets/hire/Honda-CB500X-1.jpg";
 import MotorcycleHireForm from "../components/bookingforms/MotorcycleHireForm";
+import FloatingContactButtons from "../components/FloatingContactButtons";
 
 const MotorcycleHire = () => {
   return (
@@ -160,6 +161,10 @@ const MotorcycleHire = () => {
     <h1 className="text-4xl text-yellow-600">START HERE</h1>
     <MotorcycleHireForm/>
 </div>
+
+<div >
+        <FloatingContactButtons />
+      </div>
 
 
     </section>

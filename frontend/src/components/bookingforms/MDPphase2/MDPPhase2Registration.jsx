@@ -767,7 +767,7 @@ const MDPPhase2Registration = () => {
 
     try {
       const userId = JSON.parse(atob(token.split('.')[1])).id;
-      await axios.patch(`/api/userProfile/${userId}`, { [field]: value });
+      await axios.patch(`/userProfile/${userId}`, { [field]: value });
     } catch (err) {
       console.warn("Auto-save failed:", field);
     }
@@ -996,7 +996,7 @@ const MDPPhase2Registration = () => {
         },
       };
 
-      const response = await axios.post('/api/mdpPhase2Registrations/create', payload, {
+      const response = await axios.post('/mdpPhase2Registrations/create', payload, {
         headers: {
           Authorization: `Bearer ${token}`,
           'Content-Type': 'application/json',

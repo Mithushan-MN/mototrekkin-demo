@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import TrainingHero from '../components/training/TrainingHero';
 import TrainingBanners from '../components/training/TrainingBanners';
 import TrainingCTA from '../components/training/TrainingCTA';
+import FloatingContactButtons from '../components/FloatingContactButtons';
 
 const TrainingPage = () => {
   // Scroll to top when component mounts
@@ -34,6 +35,10 @@ const TrainingPage = () => {
 
       {/* Call to Action Section */}
       <TrainingCTA />
+
+      <div >
+              <FloatingContactButtons />
+            </div>
     </div>
   );
 };

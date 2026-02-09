@@ -11,7 +11,7 @@ const FloatingContactButtons = () => {
 
     try {
    
-      const response = await fetch('/api/contact', {
+      const response = await fetch('/contact', {
       // const response = await fetch('/api/contact', {
         method: 'POST',
         body: formData,
@@ -42,7 +42,7 @@ const FloatingContactButtons = () => {
         className=" btn-primary cursor-pointer flex items-center justify-center gap-3 bg-[#FFD800] hover:bg-yellow-400 text-black font-bold text-base md:text-lg px-6 py-4 rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
       >
         <Phone size={20} />
-        0240724511
+        <span className="hidden lg:block">0240724511</span>
       </a>
 
       {/* Contact Us Button */}
@@ -51,7 +51,7 @@ const FloatingContactButtons = () => {
         className="btn-primary cursor-pointer gap-3 bg-[#FFD800] hover:bg-yellow-400 text-black font-bold text-base md:text-lg px-6 py-4 rounded-lg shadow-xl hover:shadow-2xl transform hover:-translate-y-1 transition-all duration-300"
       >
         <Mail size={20} />
-          CONTACT US
+          <span className="hidden lg:block">CONTACT US</span> 
       </button>
     </div>
 

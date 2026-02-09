@@ -8,6 +8,7 @@ import AdventuresHero from "../components/adventures/AdventuresHero";
 import AdventuresContent from '../components/adventures/AdventuresContent';
 import AdventuresGallery from '../components/adventures/AdventuresGallery';
 import AdventuresContact from '../components/adventures/AdventuresContact';
+import FloatingContactButtons from "../components/FloatingContactButtons";
 
 const MotorcycleAdventure = () => {
   return (
@@ -18,6 +19,10 @@ const MotorcycleAdventure = () => {
           <AdventuresContent />
       <AdventuresGallery />
       <AdventuresContact />
+
+      <div >
+              <FloatingContactButtons />
+            </div>
 
       {/* <section>
         <div className="max-w-5xl mx-auto grid grid-cols-1 md:grid-cols-2 ">

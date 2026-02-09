@@ -7,6 +7,7 @@ import m3 from "../assets/services/m3.webp";
 import m4 from "../assets/services/m4.webp";
 import m5 from "../assets/services/m5.webp";
 import mvideo from "../assets/services/SERVICEVIDEO.mp4";
+import FloatingContactButtons from "../components/FloatingContactButtons";
 
 export default function ServicesPage() {
   return (
@@ -65,6 +66,10 @@ export default function ServicesPage() {
         buttonText="CLICK HERE"
         buttonLink="/service-booking-form"
       />
+
+      <div>
+              <FloatingContactButtons />
+            </div>
     </div>
   );
 }

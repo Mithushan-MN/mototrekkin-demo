@@ -554,7 +554,7 @@ const NZSIRegistrationFormRefactored = () => {
       }
       console.log('====================');
 
-      const response = await axios.post('/api/nzsiRegistrations/create', formDataToSend, {
+      const response = await axios.post('/nzsiRegistrations/create', formDataToSend, {
         headers: {
           'Content-Type': 'multipart/form-data',
           Authorization: `Bearer ${token}`

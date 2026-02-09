@@ -1,5 +1,6 @@
 import React from 'react'
 import servicecenterbg from "../assets/history.webp";
+import FloatingContactButtons from '../components/FloatingContactButtons';
 
 const Videos = () => {
   return (
@@ -88,6 +89,9 @@ const Videos = () => {
         </div>
       </div>
 
+<div >
+        <FloatingContactButtons />
+      </div>
     </>
   )
 }

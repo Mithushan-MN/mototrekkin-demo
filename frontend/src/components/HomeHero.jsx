@@ -17,7 +17,7 @@ const HomeHero = () => {
 
   return (
     <section className="relative h-screen w-full overflow-hidden">
-      <video
+      {/* <video
         ref={videoRef}
         className="absolute inset-0 w-full h-full object-cover"
         // src={herovideo}
@@ -28,7 +28,19 @@ const HomeHero = () => {
         playsInline
         muted
         poster="/images/hero-fallback.webp"
-      />
+      /> */}
+      <video
+  ref={videoRef}
+  className="absolute inset-0 w-full h-full object-cover"
+  autoPlay
+  loop
+  playsInline
+  muted
+  preload="metadata"
+  poster="/images/hero-fallback.webp"
+>
+  <source src="/videos/mototrekkin-intro.mp4" type="video/mp4" />
+</video>
 
       <div className="absolute inset-0 bg-black/50" />
 
