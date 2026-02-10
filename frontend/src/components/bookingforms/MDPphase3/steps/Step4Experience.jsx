@@ -25,7 +25,7 @@ const Step8BikeDetails = ({
   useEffect(() => {
     const fetchBikes = async () => {
       try {
-        const response = await axios.get('/bikes');
+        const response = await axios.get('api/p3bikes');
         if (response.data.success) {
           setBikes(response.data.bikes);
         } else {
@@ -117,7 +117,7 @@ const Step8BikeDetails = ({
           alt="MDP Logo" 
           className="w-32 h-32 mx-auto mb-4"
         />
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">REGISTRATION FORM MDP Phase II</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">REGISTRATION FORM MDP PHASE III</h1>
         <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
           <div 
             className="bg-blue-600 h-2 rounded-full" 

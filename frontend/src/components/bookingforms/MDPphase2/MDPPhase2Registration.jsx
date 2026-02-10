@@ -1297,12 +1297,12 @@ import { useUserAutoFill } from "../../../hooks/useUserAutoFill";
 import { USER_FIELDS } from "../../../constants/userFields";
 
 // Step components
-import Step3PersonalDetails from '../MDPphase2/steps/Step1PersonalDetails';
-import Step4EmergencyContacts from '../MDPphase2/steps/Step2EmergencyContacts';
-import Step5MedicalInfo from '../MDPphase2/steps/Step3MedicalInfo';
-import Step6Experience from '../MDPphase2/steps/Step4Experience';
-import Step7TrainingDate from '../MDPphase2/steps/Step5TrainingDate';
-import Step8BikeDetails from '../MDPphase2/steps/Step6BikeDetails';
+import Step3PersonalDetails from './steps/Step1PersonalDetails';
+import Step4EmergencyContacts from './steps/Step2EmergencyContacts';
+import Step5MedicalInfo from './steps/Step3MedicalInfo';
+import Step6Experience from './steps/Step4Experience';
+import Step7TrainingDate from './steps/Step5TrainingDate';
+import Step8BikeDetails from './steps/Step6BikeDetails';
 
 const stripePromise = loadStripe('pk_live_6C7fzU00LNNJoD74Cg1AjFeH00bxXpAZGj');
 
@@ -1371,7 +1371,7 @@ const MDPPhase2Registration = () => {
     confidenceIssues: '',
 
     trainingState: 'HUNTER VALLEY NSW 2322',
-    trainingDate: 'OCTOBER 24th + 25th + 26th Phase II Hunter Valley NSW 2322',
+    trainingDate: 'APRIL 25TH, 26TH Phase II Hunter Valley NSW 2322',
 
     hasPartner: '',
     partnerName: '',
@@ -1782,7 +1782,7 @@ console.log("Full payload personalDetails.birthday:", payload.personalDetails.bi
             alt="MDP Logo" 
             className="w-32 h-32 mx-auto mb-4"
           />
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">REGISTRATION FORM MDP PHASE III</h1>
+          <h1 className="text-3xl font-bold text-gray-900 mb-2">REGISTRATION FORM MDP Phase II</h1>
           <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
             <div className="bg-blue-600 h-2 rounded-full" style={{width: '12%'}}></div>
           </div>
@@ -1844,7 +1844,7 @@ console.log("Full payload personalDetails.birthday:", payload.personalDetails.bi
         </div>
 
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 mb-6">
-          <h3 className="text-lg font-bold text-blue-900 mb-4">Have you completed Phase 1 and Phase 2? <span className="text-red-500">(Required)</span></h3>
+          <h3 className="text-lg font-bold text-blue-900 mb-4">Have you completed Phase 1? <span className="text-red-500">(Required)</span></h3>
           <div className="space-y-2">
             <label className="flex items-center">
               <input
@@ -1870,7 +1870,7 @@ console.log("Full payload personalDetails.birthday:", payload.personalDetails.bi
             </label>
           </div>
           {formData.completedPhase1 === 'No' && (
-            <p className="text-red-600 mt-2">You need to complete the Phase 1 and Phase 2 programs before you proceed to Phase 3.</p>
+            <p className="text-red-600 mt-2">You need to complete the Phase 1  programs before you proceed to Phase 2.</p>
           )}
           {errors.completedPhase1 && <p className="text-red-500 text-sm mt-1">{errors.completedPhase1}</p>}
         </div>
@@ -1909,7 +1909,7 @@ console.log("Full payload personalDetails.birthday:", payload.personalDetails.bi
         <div className="bg-red-50 border border-red-200 rounded-lg p-6 mb-6">
           <h3 className="text-lg font-bold text-red-900 mb-4">IMPORTANT</h3>
           <h4 className="text-lg font-bold text-red-800 mb-2">BEFORE YOU REGISTER FOR THIS COURSE</h4>
-          <p className="text-red-700 mb-4">This course is Phase III of our Masterclass Development Program. To successfully register for Phase II, you must have completed Phase I and received your Phase I competency certificate. If you have not completed Phase I & II, please DO NOT continue with your registration for this course.</p>
+          <p className="text-red-700 mb-4">This course is Phase II of our Masterclass Development Program. To successfully register for Phase II, you must have completed Phase I and received your Phase I competency certificate. If you have not completed Phase I , please DO NOT continue with your registration for this course.</p>
           
           <p className="text-red-700 mb-4">Our Masterclass Development Program is a comprehensive, competency-based off-road training program conducted over seven full days, divided into three separate weekends. Participants who successfully complete all three phases of the program receive recognition in the following ways:</p>
           
@@ -1930,7 +1930,7 @@ console.log("Full payload personalDetails.birthday:", payload.personalDetails.bi
                 onChange={(e) => handleInputChange('phase1Confirmation', e.target.checked ? 'Yes' : '')}
                 className="mr-2"
               />
-              <span className="text-red-700">Yes, I have completed Phase I & II of the program and have received my completion certificate.</span>
+              <span className="text-red-700">Yes, I have completed Phase I of the program and have received my completion certificate.</span>
             </label>
             {errors.phase1Confirmation && <p className="text-red-500 text-sm mt-1">{errors.phase1Confirmation}</p>}
           </div>

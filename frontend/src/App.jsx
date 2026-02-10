@@ -133,6 +133,8 @@ import MDPPhase2Registration from './components/bookingforms/MDPphase2/MDPPhase2
 import ResetPassword from './pages/ResetPassword';
 import FloatingContactButtons from './components/FloatingContactButtons';
 import EventCalendar2027 from './pages/EventCalendar2027';
+import MDPPhase1Registration from './components/bookingforms/MDPphase1/MDPPhase1Registration';
+import MDPPhase3Registration from './components/bookingforms/MDPphase3/MDPPhase3Registration';
 
 
 
@@ -157,6 +159,8 @@ const AppContent = () => {
         <Route path="/motorcycle-adventures" element={<MotorcycleAdventure />} />
          {/* <Route path="/adventures/nzsi-2025/registration" element={<NZSIRegistrationForm />} /> */}
          <Route path="/adventures/nzsi-2025/registration" element={<ProtectedRoute element={<NZSIRegistrationFormRefactored />} requiredRole="user" />}
+         />
+         <Route path="/adventures/nzsi-2026/registration" element={<ProtectedRoute element={<NZSIRegistrationFormRefactored />} requiredRole="user" />}
          />
         <Route
           path="/motorcycle-adventures-onroad"
@@ -203,13 +207,17 @@ const AppContent = () => {
           path="/service-booking-form"
           element={<ProtectedRoute element={<ServiceBookingForm />} requiredRole="user" />}
         />
-        {/* <Route
+        <Route
+          path="/registration-mdp-phase-1"
+            element={<ProtectedRoute element={<MDPPhase1Registration />}requiredRole="user" />}
+        />
+        <Route
           path="/registration-mdp-phase-2"
-          element={<MDPPhase2RegistrationPage />}
-        /> */}
+          element={<ProtectedRoute element={<MDPPhase2Registration />}requiredRole="user" />}
+        />
         <Route
           path="/registration-mdp-phase-3"
-          element={<ProtectedRoute element={<MDPPhase2Registration />}requiredRole="user" />}
+          element={<ProtectedRoute element={<MDPPhase3Registration />}requiredRole="user" />}
         />
         {/* <Route
           path="/registration-mdp-phase-3"

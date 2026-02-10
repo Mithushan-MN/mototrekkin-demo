@@ -14,6 +14,13 @@ import nzsiRegistrationRoutes from './routes/nzsiRegistration.js';
 import mdpPhase2Routes from './routes/mdpPhase2Routes.js';
 import MDPPhase2Registration from './models/MDPPhase2Registration.js';
 import mdpPhase2BikesRouter from './routes/mdpPhase2Bikes.js'; // Added import
+
+import mdpPhase3Routes from './routes/mdpPhase3Routes.js';
+import mdpPhase3BikesRouter from './routes/mdpPhase3Bikes.js';
+
+import mdpPhase1Routes from './routes/mdpPhase1Routes.js';
+import mdpPhase1BikesRouter from './routes/mdpPhase1Bikes.js';
+
 import nzBikesRouter from './routes/nzBikes.js';
 import userProfileRouter from './routes/userProfile.js';
 import userBikeRoutes from "./routes/userBikes.js";
@@ -66,6 +73,12 @@ app.use('/api/nzsiRegistrations/user/:userId', nzsiRegistrationRoutes);
 
 app.use('/api/mdpPhase2Registrations', mdpPhase2Routes);
 app.use('/api/bikes', mdpPhase2BikesRouter);
+
+app.use('/api/mdpPhase1Registrations', mdpPhase1Routes);
+app.use('/api/P1bikes', mdpPhase1BikesRouter);
+
+app.use('/api/mdpPhase3Registrations', mdpPhase3Routes);
+app.use('/api/p3bikes', mdpPhase3BikesRouter);
 
 
 app.use('/api/nz-bikes', nzBikesRouter);

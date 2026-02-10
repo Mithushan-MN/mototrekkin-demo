@@ -129,7 +129,7 @@ const Step9TyreOrders = ({
       {/* Header */}
       <div className="text-center mb-8">
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          REGISTRATION FORM MDP Phase II
+          REGISTRATION FORM MDP PHASE III
         </h1>
         <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
           <div

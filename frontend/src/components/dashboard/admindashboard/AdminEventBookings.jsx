@@ -181,7 +181,7 @@ const AdminEventsNZSIRegistration = () => {
       <div className="max-w-7xl mx-auto">
         {/* ────── HEADER + FILTERS ────── */}
         <div className="flex flex-col md:flex-col justify-between items-start md:items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold">NZ South Island 2025</h1>
+          <h1 className="text-3xl font-bold">NZ South Island 2026</h1>
 
           <div className="flex flex-wrap gap-2 w-full md:w-auto">
             {/* Search */}

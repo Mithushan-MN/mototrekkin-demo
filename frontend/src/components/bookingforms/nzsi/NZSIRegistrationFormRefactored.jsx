@@ -1757,7 +1757,7 @@ const handleInputChange = (e) => {
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-6 sm:mb-8">
             <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 px-2">
-              Registration Form NZ South Island 2025
+              Registration Form NZ South Island 2026
             </h1>
             {fetchingProfile && <p className="text-blue-600">Loading your saved information...</p>}
             {apiError && <p className="text-red-500 text-sm">{apiError}</p>}

@@ -99,7 +99,7 @@ const Step10FinalReview = ({
           alt="MDP Logo"
           className="w-32 h-32 mx-auto mb-4"
         />
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">REGISTRATION FORM MDP Phase II</h1>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">REGISTRATION FORM MDP PHASE I</h1>
         <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
           <div className="bg-green-600 h-2 rounded-full" style={{ width: '100%' }}></div>
         </div>

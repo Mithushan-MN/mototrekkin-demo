@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import nziRallyImage from '../../assets/NZSI-BANNERS-DESKTOP-1.webp';
+import nziRallyImage from '../../assets/NZSI-BANNERS-2026.webp';
 import galimg1 from "../../assets/gallery/20230217.webp"
 import galimg2 from "../../assets/gallery/20230219_100505-Large.webp"
 import galimg3 from "../../assets/gallery/20230219_104304-Large.webp"
@@ -68,9 +68,11 @@ const NzSouthIsland2026 = () => {
 
       {/* Register Button */}
       <div className="text-center mb-6">
+          <a href="/adventures/nzsi-2026/registration">
         <button className="bg-green-700 text-white px-10 py-3 rounded-lg text-lg font-semibold hover:bg-green-800 transition-colors duration-300">
           REGISTER NOW
         </button>
+        </a>
       </div>
 
       {/* Event Details */}
@@ -220,9 +222,11 @@ Special Offer. Ride with us on five major week long events over 5 years and rece
 
     {/* Register Button */}
       <div className="text-center mb-6">
+         <a href="/adventures/nzsi-2026/registration">
         <button className="bg-green-700 text-white px-10 py-3 rounded-lg text-lg font-semibold hover:bg-green-800 transition-colors duration-300">
           REGISTER NOW
         </button>
+        </a>
       </div>
     </div>
   );
