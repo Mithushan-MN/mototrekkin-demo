@@ -34,13 +34,10 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
           <label className="flex items-center">
             <input
               type="radio"
-              name="hireOption"
+              name="motorcycle.hireOption"  // ← full dot path
               value="Hire a Motorcycle"
               checked={formData.motorcycle.hireOption === 'Hire a Motorcycle'}
-              onChange={(e) => {
-                console.log('Step6: hireOption changed to:', e.target.value);
-                handleInputChange(e, 'motorcycle');
-              }}
+              onChange={handleInputChange}   // ← no second arg
               className="mr-2 focus:ring-green-500"
             />
             Hire a Motorcycle
@@ -48,13 +45,10 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
           <label className="flex items-center">
             <input
               type="radio"
-              name="hireOption"
+              name="motorcycle.hireOption"  // ← same name for group
               value="Use my own motorcycle"
               checked={formData.motorcycle.hireOption === 'Use my own motorcycle'}
-              onChange={(e) => {
-                console.log('Step6: hireOption changed to:', e.target.value);
-                handleInputChange(e, 'motorcycle');
-              }}
+              onChange={handleInputChange}
               className="mr-2 focus:ring-green-500"
             />
             Use my own motorcycle
@@ -90,13 +84,10 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
                 >
                   <input
                     type="radio"
-                    name="selectedMotorcycle"
+                    name="motorcycle.selectedMotorcycle"  // ← full path
                     value={bike.name}
                     checked={formData.motorcycle.selectedMotorcycle === bike.name}
-                    onChange={(e) => {
-                      console.log('Step6: selectedMotorcycle changed to:', e.target.value);
-                      handleInputChange(e, 'motorcycle');
-                    }}
+                    onChange={handleInputChange}
                     disabled={!bike.available || bike.remaining <= 0}
                     className="sr-only"
                   />
@@ -175,9 +166,9 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
               <label className="block text-sm font-medium text-gray-700 mb-1">Bike make *</label>
               <input
                 type="text"
-                name="make"
-                value={formData.motorcycle.ownBike.make}
-                onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                name="motorcycle.ownBike.make"  // ← full path
+                value={formData.motorcycle.ownBike.make || ''}
+                onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
               {errors.ownBikeMake && <p className="text-red-500 text-sm mt-1">{errors.ownBikeMake}</p>}
@@ -186,9 +177,9 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
               <label className="block text-sm font-medium text-gray-700 mb-1">Bike model *</label>
               <input
                 type="text"
-                name="model"
-                value={formData.motorcycle.ownBike.model}
-                onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                name="motorcycle.ownBike.model"
+                value={formData.motorcycle.ownBike.model || ''}
+                onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
               {errors.ownBikeModel && <p className="text-red-500 text-sm mt-1">{errors.ownBikeModel}</p>}
@@ -197,9 +188,9 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
               <label className="block text-sm font-medium text-gray-700 mb-1">Bike year *</label>
               <input
                 type="number"
-                name="year"
-                value={formData.motorcycle.ownBike.year}
-                onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                name="motorcycle.ownBike.year"
+                value={formData.motorcycle.ownBike.year || ''}
+                onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
               {errors.ownBikeYear && <p className="text-red-500 text-sm mt-1">{errors.ownBikeYear}</p>}
@@ -208,9 +199,9 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
               <label className="block text-sm font-medium text-gray-700 mb-1">Registration number *</label>
               <input
                 type="text"
-                name="registrationNumber"
-                value={formData.motorcycle.ownBike.registrationNumber}
-                onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                name="motorcycle.ownBike.registrationNumber"
+                value={formData.motorcycle.ownBike.registrationNumber || ''}
+                onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
               {errors.ownBikeRegistrationNumber && <p className="text-red-500 text-sm mt-1">{errors.ownBikeRegistrationNumber}</p>}
@@ -218,9 +209,9 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">State/Region *</label>
               <select
-                name="stateOrRegion"
-                value={formData.motorcycle.ownBike.stateOrRegion}
-                onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                name="motorcycle.ownBike.stateOrRegion"
+                value={formData.motorcycle.ownBike.stateOrRegion || ''}
+                onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="">Select your state/region</option>
@@ -247,9 +238,9 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
               <label className="block text-sm font-medium text-gray-700 mb-1">Current odometer reading *</label>
               <input
                 type="number"
-                name="odometer"
-                value={formData.motorcycle.ownBike.odometer}
-                onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                name="motorcycle.ownBike.odometer"
+                value={formData.motorcycle.ownBike.odometer || ''}
+                onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
               />
               {errors.ownBikeOdometer && <p className="text-red-500 text-sm mt-1">{errors.ownBikeOdometer}</p>}
@@ -262,10 +253,10 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
               <label className="flex items-center">
                 <input
                   type="radio"
-                  name="serviceUpToDate"
+                  name="motorcycle.ownBike.serviceUpToDate"  // ← full path
                   value="Yes"
                   checked={formData.motorcycle.ownBike.serviceUpToDate === 'Yes'}
-                  onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                  onChange={handleInputChange}
                   className="mr-2 focus:ring-green-500"
                 />
                 Yes
@@ -273,10 +264,10 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
               <label className="flex items-center">
                 <input
                   type="radio"
-                  name="serviceUpToDate"
+                  name="motorcycle.ownBike.serviceUpToDate"
                   value="No"
                   checked={formData.motorcycle.ownBike.serviceUpToDate === 'No'}
-                  onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                  onChange={handleInputChange}
                   className="mr-2 focus:ring-green-500"
                 />
                 No
@@ -292,10 +283,10 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
                 <label className="flex items-center">
                   <input
                     type="radio"
-                    name="serviceIntention"
+                    name="motorcycle.ownBike.serviceIntention"
                     value="Yes"
                     checked={formData.motorcycle.ownBike.serviceIntention === 'Yes'}
-                    onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                    onChange={handleInputChange}
                     className="mr-2 focus:ring-green-500"
                   />
                   Yes
@@ -303,10 +294,10 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
                 <label className="flex items-center">
                   <input
                     type="radio"
-                    name="serviceIntention"
+                    name="motorcycle.ownBike.serviceIntention"
                     value="No"
                     checked={formData.motorcycle.ownBike.serviceIntention === 'No'}
-                    onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                    onChange={handleInputChange}
                     className="mr-2 focus:ring-green-500"
                   />
                   No
@@ -322,10 +313,10 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
               <label className="flex items-center">
                 <input
                   type="radio"
-                  name="hasUnresolvedIssues"
+                  name="motorcycle.ownBike.hasUnresolvedIssues"
                   value="Yes"
                   checked={formData.motorcycle.ownBike.hasUnresolvedIssues === 'Yes'}
-                  onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                  onChange={handleInputChange}
                   className="mr-2 focus:ring-green-500"
                 />
                 Yes
@@ -333,10 +324,10 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
               <label className="flex items-center">
                 <input
                   type="radio"
-                  name="hasUnresolvedIssues"
+                  name="motorcycle.ownBike.hasUnresolvedIssues"
                   value="No"
                   checked={formData.motorcycle.ownBike.hasUnresolvedIssues === 'No'}
-                  onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                  onChange={handleInputChange}
                   className="mr-2 focus:ring-green-500"
                 />
                 No
@@ -349,9 +340,9 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">If yes, please explain *</label>
               <textarea
-                name="issuesDetails"
-                value={formData.motorcycle.ownBike.issuesDetails}
-                onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                name="motorcycle.ownBike.issuesDetails"
+                value={formData.motorcycle.ownBike.issuesDetails || ''}
+                onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
                 rows={4}
               />
@@ -365,10 +356,10 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
               <label className="flex items-center">
                 <input
                   type="radio"
-                  name="hasComprehensiveInsurance"
+                  name="motorcycle.ownBike.hasComprehensiveInsurance"
                   value="Yes"
                   checked={formData.motorcycle.ownBike.hasComprehensiveInsurance === 'Yes'}
-                  onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                  onChange={handleInputChange}
                   className="mr-2 focus:ring-green-500"
                 />
                 Yes
@@ -376,10 +367,10 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
               <label className="flex items-center">
                 <input
                   type="radio"
-                  name="hasComprehensiveInsurance"
+                  name="motorcycle.ownBike.hasComprehensiveInsurance"
                   value="No"
                   checked={formData.motorcycle.ownBike.hasComprehensiveInsurance === 'No'}
-                  onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                  onChange={handleInputChange}
                   className="mr-2 focus:ring-green-500"
                 />
                 No
@@ -392,9 +383,9 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Fuel capacity *</label>
               <select
-                name="fuelCapacity"
-                value={formData.motorcycle.ownBike.fuelCapacity}
-                onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                name="motorcycle.ownBike.fuelCapacity"
+                value={formData.motorcycle.ownBike.fuelCapacity || ''}
+                onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="">Select capacity</option>
@@ -409,9 +400,9 @@ const Step6 = ({ formData, handleInputChange, errors, motorcycles, bikesLoading 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Estimated full fuel range *</label>
               <select
-                name="estimatedRange"
-                value={formData.motorcycle.ownBike.estimatedRange}
-                onChange={(e) => handleInputChange(e, 'motorcycle.ownBike')}
+                name="motorcycle.ownBike.estimatedRange"
+                value={formData.motorcycle.ownBike.estimatedRange || ''}
+                onChange={handleInputChange}
                 className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
               >
                 <option value="">Select fuel range</option>
