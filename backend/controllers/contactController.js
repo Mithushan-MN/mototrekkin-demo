@@ -39,7 +39,7 @@ ${message}
         <p><strong>Message:</strong></p>
         <p>${message.replace(/\n/g, '<br>')}</p>
         <hr>
-        <small>Sent from JSW Powersports website</small>
+        <small>Sent from mototrekkin website</small>
       `,
     });
 
@@ -52,7 +52,7 @@ ${message}
         <h3>Hi ${name},</h3>
         <p>Thanks for reaching out! We've received your message and will get back to you within 24 hours.</p>
         <p><strong>Your message:</strong><br>${message.replace(/\n/g, '<br>')}</p>
-        <p>Talk soon!<br><strong>JSW Powersports Team</strong><br>(07) 5529 2616</p>
+        <p>Talk soon!<br><strong>Mototrekkin Team</strong><br>0240724511</p>
       `,
     });
 
