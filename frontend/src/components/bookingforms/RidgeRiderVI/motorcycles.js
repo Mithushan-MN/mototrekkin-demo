@@ -6,7 +6,7 @@ import axios from '../../../axiosConfig';
 export const fetchMotorcycles = async () => {
   try {
     console.log('fetchMotorcycles: Fetching bikes from API');
-    const response = await axios.get('api/RidgeRiderVIRegistrations/bikes');
+    const response = await axios.get('/RidgeRiderVIRegistrations/bikes');
     const bikes = response.data.map(bike => ({
       ...bike,
       image: bike.image ? `${bike.image}` : null,

@@ -57,7 +57,7 @@ const AdventuresGallery = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 h-[800px] lg:h-[900px]">
           {/* 2025 Events Panel */}
          
-          <div 
+          {/* <div 
             className={`relative rounded-3xl overflow-hidden shadow-2xl group cursor-pointer transition-all duration-1000 ${
               isVisible ? 'animate-fade-in-up animation-delay-200' : 'opacity-0 translate-y-10'
             } ${hoveredCard === '2025' ? 'scale-105 shadow-3xl' : ''}`}
@@ -71,11 +71,11 @@ const AdventuresGallery = () => {
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/50 to-black/20 group-hover:from-black/95 transition-all duration-500" />
             
-            {/* Animated overlay elements */}
+     
             <div className="absolute top-4 right-4 w-3 h-3 bg-yellow-400 rounded-full animate-pulse opacity-60"></div>
             <div className="absolute bottom-4 right-4 w-2 h-2 bg-orange-400 rounded-full animate-bounce opacity-50"></div>
             
-            {/* Content Overlay */}
+         
             <div className="absolute bottom-0 left-0 right-0 p-8 text-white">
               <div className="animate-slide-in-left animation-delay-400">
                 <h3 className="text-4xl md:text-9xl font-black text-yellow-500 mb-4 drop-shadow-2xl group-hover:text-yellow-400 transition-colors duration-300">
@@ -99,13 +99,13 @@ const AdventuresGallery = () => {
               </div>
             </div>
             </a>
-          </div>
+          </div> */}
 
           {/* 2026 Events Panel */}
           <div 
             className={`relative rounded-3xl overflow-hidden shadow-2xl group cursor-pointer transition-all duration-1000 ${
               isVisible ? 'animate-fade-in-up animation-delay-400' : 'opacity-0 translate-y-10'
-            } ${hoveredCard === '2026' ? 'scale-105 shadow-3xl' : ''}`}
+            } ${hoveredCard === '2026' ? 'scale-100 shadow-3xl' : ''}`}
             onMouseEnter={() => setHoveredCard('2026')}
             onMouseLeave={() => setHoveredCard(null)}
           >
@@ -150,7 +150,7 @@ const AdventuresGallery = () => {
           <div 
             className={`relative rounded-3xl overflow-hidden shadow-2xl group cursor-pointer transition-all duration-1000 ${
               isVisible ? 'animate-fade-in-up animation-delay-400' : 'opacity-0 translate-y-10'
-            } ${hoveredCard === '2026' ? 'scale-105 shadow-3xl' : ''}`}
+            } ${hoveredCard === '2026' ? 'scale-100 shadow-3xl' : ''}`}
             onMouseEnter={() => setHoveredCard('2026')}
             onMouseLeave={() => setHoveredCard(null)}
           >
