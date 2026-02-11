@@ -214,7 +214,7 @@ import AccountDetails from "../../components/dashboard/AccountDetails";
 import Vouchers from "../../components/dashboard/Vouchers";
 import UserDashboardDefaultData from "../../components/dashboard/UserDashboardDefaultData";
 import { AuthContext } from "../../components/AuthContext";
-import UserEventsNZSIRegistration from "../../components/dashboard/BikeHire";
+import UserEventsNZSIRegistration from "../../components/dashboard/UserEventsNZSIRegistration";
 import TrainingBookings from "../../components/dashboard/TrainingBookings";
 import FutureEvents from "../../components/dashboard/FutureEvents";
 import MyGarage from "../../components/dashboard/MyGarage";

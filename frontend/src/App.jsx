@@ -135,6 +135,7 @@ import FloatingContactButtons from './components/FloatingContactButtons';
 import EventCalendar2027 from './pages/EventCalendar2027';
 import MDPPhase1Registration from './components/bookingforms/MDPphase1/MDPPhase1Registration';
 import MDPPhase3Registration from './components/bookingforms/MDPphase3/MDPPhase3Registration';
+import RidgeRiderVIRegistrationFormRefactored from './components/bookingforms/RidgeRiderVI/RidgeRiderVIRegistrationFormRefactored';
 
 
 
@@ -161,6 +162,8 @@ const AppContent = () => {
          <Route path="/adventures/nzsi-2025/registration" element={<ProtectedRoute element={<NZSIRegistrationFormRefactored />} requiredRole="user" />}
          />
          <Route path="/adventures/nzsi-2026/registration" element={<ProtectedRoute element={<NZSIRegistrationFormRefactored />} requiredRole="user" />}
+         />
+         <Route path="/adventures/RidgeRiderVI-2026/registration" element={<ProtectedRoute element={<RidgeRiderVIRegistrationFormRefactored />} requiredRole="user" />}
          />
         <Route
           path="/motorcycle-adventures-onroad"

@@ -11,6 +11,8 @@ import authRoutes from "./routes/authRoutes.js";
 import BikeBooking from "./models/BikeBooking.js"; // Import for webhook
 
 import nzsiRegistrationRoutes from './routes/nzsiRegistration.js';
+import RidgeRiderVIRegistrationRoutes from './routes/RidgeRiderVIRegistration.js';
+
 import mdpPhase2Routes from './routes/mdpPhase2Routes.js';
 import MDPPhase2Registration from './models/MDPPhase2Registration.js';
 import mdpPhase2BikesRouter from './routes/mdpPhase2Bikes.js'; // Added import
@@ -22,6 +24,8 @@ import mdpPhase1Routes from './routes/mdpPhase1Routes.js';
 import mdpPhase1BikesRouter from './routes/mdpPhase1Bikes.js';
 
 import nzBikesRouter from './routes/nzBikes.js';
+import RidgeRiderVIBikesRouter from './routes/RidgeRiderVIBikes.js';
+
 import userProfileRouter from './routes/userProfile.js';
 import userBikeRoutes from "./routes/userBikes.js";
 import contactRoutes from './routes/contact.js';
@@ -71,6 +75,9 @@ app.use("/api/auth", authRoutes);
 app.use('/api/nzsiRegistrations', nzsiRegistrationRoutes);
 app.use('/api/nzsiRegistrations/user/:userId', nzsiRegistrationRoutes);
 
+app.use('/api/RidgeRiderVIRegistrations', RidgeRiderVIRegistrationRoutes);
+app.use('/api/RidgeRiderVIRegistrations/user/:userId', RidgeRiderVIRegistrationRoutes);
+
 app.use('/api/mdpPhase2Registrations', mdpPhase2Routes);
 app.use('/api/bikes', mdpPhase2BikesRouter);
 
@@ -82,6 +89,7 @@ app.use('/api/p3bikes', mdpPhase3BikesRouter);
 
 
 app.use('/api/nz-bikes', nzBikesRouter);
+app.use('/api/RidgeRiderVI-bikes', RidgeRiderVIBikesRouter);
 
 app.use('/api/userProfile', userProfileRouter);
 

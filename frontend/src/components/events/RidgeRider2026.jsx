@@ -68,9 +68,11 @@ const RidgeRider2026 = () => {
 
       {/* Register Button */}
       <div className="text-center mb-6">
-        <button className="bg-[#640564] text-white px-10 py-3 rounded-lg text-lg font-semibold hover:bg-[#4c014c] transition-colors duration-300">
+        <a href="/adventures/RidgeRiderVI-2026/registration">
+        <button className="bg-[#640564] cursor-pointer text-white px-10 py-3 rounded-lg text-lg font-semibold hover:bg-[#4c014c] transition-colors duration-300">
           REGISTER NOW
         </button>
+        </a>
       </div>
 
       {/* Event Details */}
@@ -261,9 +263,11 @@ This is Ridge Rider VI. And it’s going to hit new heights of EPIC!!
 
     {/* Register Button */}
       <div className="text-center mb-6">
-        <button className="bg-[#640564] text-white px-10 py-3 rounded-lg text-lg font-semibold hover:bg-[#4e014e] transition-colors duration-300">
+        <a href="/adventures/RidgeRiderVI-2026/registration">
+        <button className="bg-[#640564] cursor-pointer text-white px-10 py-3 rounded-lg text-lg font-semibold hover:bg-[#4c014c] transition-colors duration-300">
           REGISTER NOW
         </button>
+        </a>
       </div>
 
  {/* Embedded Videos */}
